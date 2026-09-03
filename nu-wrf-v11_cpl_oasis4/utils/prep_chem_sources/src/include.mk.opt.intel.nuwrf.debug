@@ -1,0 +1,92 @@
+#Makefile include include.mk.opt
+############################## Change Log ##################################
+# 1.0.0.2
+#
+# 000908 MJB include.mk-mrc ##
+#            Added MAKE environment varaible.
+#            Added free format option to F_OPTS for some platforms. ##
+# 000907 MJB include.mk-mrc ##
+#            Changed the defualts to no NCAR Graphics and no parallel.
+#            Also commented out the machine specifics to force the user to
+#            select the appropriate machine for them. ##
+# 000823 MJB include.mk-mrc ##
+#            New - defines all make environment varaibles and is included
+#            in all make files. ##
+#
+############################################################################
+
+# Define make (gnu make works best).
+
+MAKE=/usr/bin/make
+
+# Activate appropriate parts below, comment out others.
+
+# NCAR Graphics.
+
+#---------------------------------------------------------------
+# If you are using a standard installation of NCAR Graphics, set:
+#       LOADER=ncargf90
+# in the machine-dependent sections below
+#LIBNCARG=
+#---------------------------------------------------------------
+# If you are using the NCAR dummy libraries...
+
+NCARG_DIR=$(BASE)
+#LIBNCARG=-L$(NCARG_DIR) -lncarg-$(UTILS_VERSION) -lncarg_c-$(UTILS_VERSION) \
+#                        -lncarg_gks-$(UTILS_VERSION)
+#LIBNCARG=-L$(NCARG_DIR) -lncarg-$(UTILS_VERSION) 
+LIBNCARG=$(BASE)/libncarg-$(UTILS_VERSION)-$(OPT).a
+#---------------------------------------------------------------
+# If you are using a real distribution of NCAR Graphics...
+#NCARG_DIR=/usr/local/ncarg-4.3.0/lib
+#LIBNCARG=-L$(NCARG_DIR) -lncarg -lncarg_gks -lncarg_c -L/usr/X11R6/lib -lX11 -ldl
+#---------------------------------------------------------------
+
+# NETCDF libraries
+
+#NETCDF_INCS=
+#NETCDF_LIBS=
+
+# NUWRF...Link to netCDF4
+#NETCDF=/usr/local/other/SLES11/netcdf/4.1.3/intel-11.1.038
+NETCDF_LIBS=-I$(NETCDF)/include -L$(NETCDF)/lib -lnetcdff -lnetcdf \
+            -I$(HDF5)/include -L$(HDF5)/lib -lhdf5hl_fortran -lhdf5_fortran -lhdf5_hl -lhdf5 \
+            -L$(ZLIB)/lib -lz
+
+# Machine-dependent options.
+
+#-----------------  LINUX Portland Group pgf77/gcc ---------------
+# EMK NU-WRF Switch to Intel compilers
+CUNDERSCORE=_UNDERSCORE
+CMACH=PC_LINUX1
+F_COMP= ifort
+C_COMP= icc
+LOADER= ifort
+C_LOADER= icc
+LIBS=
+MOD_EXT=mod
+
+F_OPTS=$(NETCDF_LIBS)  $(HDF_LIBS) -fpp -D$(CHEM) -DWPS -D_GEOGRID -convert big_endian -O0 -g -traceback -check all -debug all -fp-model strict -free -w
+
+C_OPTS= -D$(CHEM) -O0 -g -traceback -check=conversions,stack,uninit -fp-model strict -w
+
+LOADER_OPTS= -fpp -D$(CHEM) -fp-model strict -w
+
+#-----------------------------------------------------------------
+
+
+# If compiling for a single-CPU platform only (without MPI):
+
+#-----------------------------------------------------------------
+PAR_LIBS=
+PAR_DEFS=
+#-----------------------------------------------------------------
+
+
+# For IBM,HP,SGI,ALPHA use these:
+ARCHIVE=ar rs
+# For NEC SX-6
+#ARCHIVE=sxar rs
+# For SUN,CONVEX
+#ARCHIVE=ar r'
+

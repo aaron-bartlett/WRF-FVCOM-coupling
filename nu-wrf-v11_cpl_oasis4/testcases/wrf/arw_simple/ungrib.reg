@@ -1,0 +1,43 @@
+#############################
+# BEGIN UNGRIB SEGMENT
+#############################
+THIS=UNGRIB
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.wps is present.
+if [ ! -e namelist.wps ]; then
+    echo "$THIS ERROR: namelist.wps not found!"
+    exit 1
+fi
+
+# Make sure Vtable is present.
+if [ -e Vtable ] ; then
+    rm -f Vtable || exit 1
+fi
+ln -fs $NUWRFDIR/WPS/ungrib/Variable_Tables/Vtable.AWIP Vtable || exit 1
+if [ ! -e Vtable ] ; then 
+    echo "$THIS ERROR: Vtable does not exist!"
+    exit 1
+fi
+
+# Create GRIBFILE symbolic links to grib files.
+ln -fs $NUWRFDIR/WPS/link_grib.csh link_grib.csh || exit 1
+if [ ! -e link_grib.csh ] ; then
+    echo "$THIS ERROR: link_grib.csh does not exist!"
+    exit 1
+fi
+./link_grib.csh $DATADIR/ungrib_input_awip/JAN00/2000012 || exit 1
+
+# Run ungrib.exe.  No MPI is used since the program is serial.
+ln -fs $EXEDIR/WPS/ungrib.exe ungrib.exe || exit 1
+if [ ! -e ungrib.exe ] ; then
+    echo "$THIS ERROR: ungrib.exe does not exist!"
+    exit 1
+fi
+./ungrib.exe >& ungrib_out.log || exit 1
+
+# Tidy up logs
+mkdir -p ungrib_logs || exit 1
+mv -f ungrib_out.log ungrib_logs 2>/dev/null
+mv -f ungrib.log ungrib_logs 2>/dev/null

@@ -1,0 +1,21 @@
+DEBUG main:242 process_config Reading config file nu-wrf.cfg
+DEBUG utils:57 get_config Done reading nu-wrf.cfg
+INFO main:245 process_config Setting up build environment:
+DEBUG main:246 process_config Using Python version: 3.9.25
+DEBUG main:247 process_config Computing platform is Linux
+DEBUG main:188 set_libdir_environment LIBDIR_TAG: /compass/glm200001/cmu/coupled-run/libs
+DEBUG main:189 set_libdir_environment COMPILER_VENDOR: intel
+DEBUG main:190 set_libdir_environment MPI_VENDOR: openmpi
+DEBUG main:289 process_config Done with setup.
+INFO main:364 build_packages Build [wrf]
+DEBUG build:362 main Entering /compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WRF
+INFO configure:160 configure Configure [wrf]
+DEBUG configure:89 configure_wrf Generate configure.wrf
+DEBUG utils:364 run_configure Subprocess: "./configure -s "
+DEBUG configure:95 configure_wrf rc=0
+DEBUG configure:102 configure_wrf Edit configure.wrf
+INFO build:194 compile_it Compile [wrf]
+INFO build:184 build_wrf  - building [em_real] - 
+INFO build:285 compile_it [wrf] build was successful.
+INFO build:386 main [wrf] build time taken = 1238.748191
+INFO main:428 main NU-WRF build time taken = 1238.765754

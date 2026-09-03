@@ -1,0 +1,34 @@
+#############################
+# BEGIN GEOGRID SEGMENT
+#############################
+THIS=GEOGRID
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.wps is present.
+if [ ! -e namelist.wps ]; then
+    echo "$THIS ERROR: namelist.wps not found!"
+    exit 1
+fi
+
+# Put geogrid TBL look-up file into geogrid subdirectory
+mkdir -p geogrid || exit 1
+ln -fs $NUWRFDIR/WPS/geogrid/GEOGRID.TBL.ARW geogrid/GEOGRID.TBL || exit 1
+if [ ! -e geogrid/GEOGRID.TBL ]; then
+    echo "$THIS ERROR: geogrid/GEOGRID.TBL does not exist!"
+    exit 1
+fi
+
+# Run geogrid.exe
+ln -fs $EXEDIR/WPS/geogrid.exe geogrid.exe || exit 1
+if [ ! -e geogrid.exe ]; then
+    echo "$THIS ERROR: geogrid.exe does not exist!"
+    exit 1 
+fi
+$MPIRUN ./geogrid.exe || exit 1
+
+# Tidy up logs
+mkdir -p geogrid_logs || exit 1
+mv -f geogrid.log* geogrid_logs 2>/dev/null
+
+exit 0

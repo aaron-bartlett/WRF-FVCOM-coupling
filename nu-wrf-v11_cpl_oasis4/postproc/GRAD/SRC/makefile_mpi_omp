@@ -1,0 +1,47 @@
+SHELL=/bin/sh
+EXEC =		rad.x
+OBJSGCEM=	module_floating_point.o module_mpi.o module_dm_stubs.o module_wrf_error.o module_checkerror.o module_runtime_param.o module_gocart_coupling.o module_ra_goddard_2011.o module_ra_goddard_2014.o module_radiation_driver.o main.o
+
+# NCCS DISCOVER (INTEL COMPILER)
+CPP     =  /lib/cpp -C -w
+CF      = mpif90 #ifort
+#CFFLAGS = -O0 -assume byterecl                                    # Rapid DEVEL  (fast compilation)
+#CFFLAGS = -O0 -check bounds -g -traceback -assume byterecl       # Normal DEBUG 
+#CFFLAGS = -O3 -check bounds -check format -check output_conversion -check pointers -check uninit -check stack -ftz -fp-model precise -assume byterecl -traceback -g -fpe0
+
+CFFLAGS = -O2 -openmp -ip -assume byterecl -axAVX -xSSE4.1                 # Full run (intensive optimization)
+LFFLAGS = -openmp
+
+INC_NETCDF = /usr/local/other/netcdf/3.6.2_intel-10.1.013/include   # netcdf 
+LD_NETCDF = /usr/local/other/netcdf/3.6.2_intel-10.1.013/lib        # netcdf
+#LINK_MPI = -lmpi  #make blank for non-mpi option 
+INCLUDE_DIR = -I./
+
+#
+# Lines from here on down should not need to be changed.  They are the
+# actual rules which make uses to build executable.
+#
+all:		$(EXEC)
+	echo $(EXEC) is up to date.
+
+$(EXEC):	$(OBJSGCEM)
+	$(CF) $(LFFLAGS) -o $(@) $(OBJSGCEM) -L$(LD_NETCDF) -lnetcdf 
+#	mirror $(EXEC)
+
+.SUFFIXES :	.o  .f95 .F
+
+.F.f95 :
+	${CPP} -P ${INCLUDE_DIR} $*.F >$*.i
+	sed '/^ *$$/d' $*.i > $*.f90 ; rm $*.i
+
+.F.o :
+	${CPP} -P ${INCLUDE_DIR} $*.F >$*.i
+	sed '/^ *$$/d' $*.i  >$*.f90 ; rm $*.i
+	${CF} ${CFFLAGS} ${DBUG} -I$(INC_NETCDF) -c $*.f90
+
+.f90.o :
+	${CF} ${CFFLAGS} ${DBUG} -I$(INC_NETCDF) -c $*.f90
+
+clean:
+	-rm -f *.f90 *.o *.x *.mod PI*
+

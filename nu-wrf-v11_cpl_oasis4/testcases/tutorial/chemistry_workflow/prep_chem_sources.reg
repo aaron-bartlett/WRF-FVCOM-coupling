@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#---------------------- prep_chem_sources script -----------------------------
+
+# Load config file for modules and paths
+source ./common.reg || exit 1
+
+if [ -z "$NUWRFDIR" ] ; then
+    echo "ERROR, NUWRFDIR is not defined!"
+    exit 1
+fi
+
+# Move to work directory
+if [ -z "$RUNDIR" ] ; then
+    echo "ERROR, RUNDIR is not defined!"
+    exit 1
+fi
+
+cd $RUNDIR || exit 1
+
+if [ ! -e prep_chem_sources.inp ] ; then 
+    echo "ERROR, prep_chem_sources.inp does not exist!"
+    exit 1
+fi
+
+# Run prep_chem_sources.exe.  
+# No MPI is used since the program is serial.
+
+PCSexe=prep_chem_sources.x
+ln -fs $NUWRFDIR/utils/bin/${PCSexe} || exit 1
+
+if [ ! -e ${PCSexe} ] ; then
+    echo "ERROR, ${PCSexe} not found!"
+    exit 1
+fi
+./${PCSexe} >& pcs.log || exit 1
+
+# The end
+exit 0

@@ -1,0 +1,14 @@
+Directory contents:
+
+Tutorial files for development version:
+
+basic_workflow/  <<< basic WRF-only use case
+default_workflow/ <<< Sample WRF-LIS use case
+chemistry_workflow/ <<< basic chemistry use case
+scm_workflow/  <<< WRF-LIS single column model
+
+Do not mix/match files from one version or workflow to the other or runs may fail in
+unexpected ways.
+
+For more information please see tutorial documentation in https://nuwrf.gsfc.nasa.gov
+

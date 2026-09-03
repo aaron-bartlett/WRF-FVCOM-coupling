@@ -1,0 +1,28 @@
+This directory contains Fortran 90 source code from Remote Sensing Systems 
+(RSS).  There are two files, each with one subroutine:
+
+read_rss_mwir_sst.f reads version-1 RSS Microwave Infrared Optimal 
+Interpolation daily sea surface temperature analyses.  Thes data are global 
+~9km resolution.
+
+read_rss_oisst_v2.f reads version-2 RSS Optimal Interpolation daily sea
+surfce temperature analyses generated from TMI and/or AMSR-E data.  The data
+are global at ~0.25 deg resolution.
+
+The source code is written in Fortran 90, but is in DOS text file format and
+includes tabs rather than spaces.  Also, the .f suffix will cause many 
+compilers to assume the files are fixed-format files, resulting in syntax
+errors due to long (> 80 column) lines.  To avoid this latter problem, the
+Makefile creates symbolic links with the suffix .f90, and compiles the
+symbolic links.
+======Updated on Oct 28, 2014 Jossy Jacob for V4 OISST data ============
+Added read_rss_mw_sst.f renamed as read_rss_oisst_v4.f  
+!       This routine reads version-4 RSS MW-only, daily SST files made from any of the available 
+!     microwave radiometers capable of measuring SST: TMI, AMSR-E, AMSR2, WindSat, GMI
+!       You must UNZIP FILES before reading them
+!       sst_data  0.25x0.25 deg resolution (a 1440 x 720 real*4 array of Sea Surface Temperature)
+read_rss_mwir_sst.f
+!       This routine reads version-4 RSS MW IR OI SST daily files
+!       You must UNZIP FILES before reading them
+!       sst_data ~9km resolution  (a 4096 x 2048 real*4 array of SST data)
+

@@ -1,0 +1,284 @@
+\section{NU-WRF System}
+\label{sec:System}
+
+NU-WRF has been developed at Goddard Space Flight Center (GSFC) as an 
+observation-driven integrated modeling system representing aerosol, cloud, 
+precipitation, and land processes at satellite-resolved scales
+\citep{ref:PetersLidardEtAl2014}. NU-WRF is intended as a superset of the 
+standard NCAR Advanced Research WRF [WRF-ARW; \cite{ref:SkamarockEtAl2008}] 
+and incorporates:
+
+\begin{itemize} 
+\item The GSFC Land 
+Information System [LIS; see \cite{ref:KumarEtAl2006} and 
+\cite{ref:PetersLidardEtAl2007}], coupled to WRF and also available as a 
+stand-alone executable;
+\item The WRF-Chem enabled version of the Goddard 
+Chemistry Aerosols Radiation Transport model [GOCART; \cite{ref:ChinEtAl2002}];
+\item GSFC radiation and microphysics schemes including revised couplings to 
+the aerosols [\cite{ref:ShiEtAl2014}; \cite{ref:LangEtAl2014}]; and 
+\item The Goddard Satellite Data Simulator 
+Unit [G-SDSU; see \cite{ref:MatsuiEtAl2014}].
+\end{itemize}
+ 
+In addition, multiple pre- and post-processors from the community and from 
+GSFC have been collected with WRF and LIS. Taken together, the NU-WRF modeling
+system provides a framework for simulating aerosol and land use effects on 
+such phenomena as floods, tropical cyclones, mesoscale convective systems, 
+droughts, and monsoons~\citep{ref:PetersLidardEtAl2014}. Support also exists 
+for treating CO$_2$ as a tracer, with plans to further refine into source 
+components (anthropogenic versus biogenic). Finally, the software has been 
+modified to use netCDF4 (\url{http://www.unidata.ucar.edu/software/netcdf/}) 
+with HDF5 compression (\url{https://www.hdfgroup.org/HDF5/}), reducing netCDF 
+file sizes by up to 50\%.
+
+Recently NU-WRF was incorporated in a separate, Maximum Likelihood Ensemble 
+Filter-based atmospheric data assimilation system~\citep{ref:GEDASUserGuide}, 
+with the capability of assimilating cloud and precipitation affected radiances
+\citep{ref:ZhangEtAl2015}. In addition, some secondary, rarely used elements 
+of the community WRF modeling system that are not yet included with NU-WRF 
+will be added in the future.
+
+\subsection{Components}
+\label{subsec:Components}
+
+The NU-WRF package contains the following components and utilities:
+
+\begin{itemize}
+\item The \texttt{WRF/} component contains a modified copy of the core WRF 
+  version 4.2.1 modeling system [see Chapter 5 of \cite{ref:ArwUserGuide}], 
+  the WRF-Fire wildfire library [see Appendix A of \cite{ref:ArwUserGuide}], 
+  the WRF-Chem atmospheric chemistry library [see \cite{ref:WrfChemUserGuide}
+  and \cite{ref:WrfChemEmissionsGuide}], and several preprocessors (REAL, 
+  CONVERT\_EMISS, TC, and NDOWN). These codes have been modified to add
+  the following physics packages:
+  \begin{itemize}
+  \item the 2017 Goddard radiation package
+  \item the 2014 Goddard radiation package~\citep{ref:GRADUserGuide}
+  \item the new Goddard 4ICE microphysics scheme~\citep{ref:LangEtAl2014}
+  \item the new Goddard 3ICE  microphysics scheme~\citep{ref:ShiEtAl2014}
+  \item couplings between these schemes and GOCART
+  \item new dust emission options
+  \item a new CO$_2$ tracer parameterization,
+  \end{itemize}
+  and several new diagnostic products. Recently, there have been contributions
+  from other groups that add more physics options:
+  \begin{itemize}
+  \item DOE CRM: utilizes WRF as a CRM/LES using doubly periodic lateral boundaries
+  \item NTU (National Taiwan University) microphysics: A multi-moment four-ice (pristine ice, aggregate, graupel, and hail) bulk microphysical scheme
+  \item WRF electrification scheme: This scheme requires environment variable WRF\_ELEC=1 which can be set in the build configuration file.
+  \end{itemize}
+  The legacy community WRF versions of  the Goddard microphysics and radiation 
+  schemes are separate options from the
+  latest versions developed by GSFC. \texttt{WRF/} also includes LIS/LDT/LVT
+  (in \texttt{LISF/}) with code modifications to both LIS and WRF-ARW to 
+  facilitate on-line coupling between the atmosphere and Noah land surface
+  models, as well as land data assimilation~\citep{ref:LisUserGuide}.  
+
+\item The \texttt{WPS/} component contains a modified copy of the WRF 
+  Preprocessing System version 4.2.1 [see Chapter 3 
+  of~\cite{ref:ArwUserGuide}]. This includes the GEOGRID, UNGRIB, and METGRID 
+  programs used to set up a WRF domain, to interpolate static and 
+  climatological terrestrial data, to extract fields from GRIB and GRIB2 
+  files, and to horizontally interpolate the fields to the WRF grid. This also
+  includes the optional AVG\_TSFC preprocessor, which calculates time-average
+  surface temperatures for use in initializing small in-land lake temperatures.
+
+\item The \texttt{LISF/ldt/} component contains version 7.3 of the NASA Land 
+  Data Toolkit (LDT) software~\citep{ref:LdtUserGuide}.  This acts both as a 
+  preprocessor for LIS (including interpolation of terrestrial data to the LIS
+  grid and separate preprocessing for data assimilation) and a postprocessor 
+  for LIS (merging dynamic fields from a LIS off-line ``spin-up'' simulation 
+  with static data for eventual input to WRF in LIS coupled mode).
+
+\item The \texttt{LISF/lvt/} component contains version 7.3 of the NASA Land 
+  Verification Toolkit \citep{ref:LvtUserGuide} for verifying LIS land and 
+  near-surface fields against observations and gridded analyses.
+
+\item The \texttt{RIP4/} component contains a modified copy of the NCAR 
+  Graphics-based Read/Interpolate/Plot \citep{ref:RipUserGuide} graphical 
+  postprocessing software, version 4.6.7. Modifications include support
+  for UMD land use data (from LIS) and WRF-Chem output.
+
+\item The \texttt{ARWpost/} component contains version 3.1 of the 
+  GrADS-compatible ARWpost program for visualization of output [see Chapter 9 
+  of \cite{ref:ArwUserGuide}].
+
+\item The \texttt{UPP/} component contains a modified copy of the NCEP Unified 
+  Post Processor version 3.1.1. This software can derive fields from WRF netCDF 
+  output and write in GRIB format (see \cite{ref:UppUserGuide}).
+
+\item The \texttt{MET/} component contains version 9.1 of the Meteorological 
+  Evaluation Tools \citep{ref:MetUserGuide} software produced by the 
+  Developmental Testbed Center. This can be used to evaluate WRF atmospheric 
+  fields converted to GRIB via UPP against observations and gridded analyses.
+
+\item The \texttt{GSDSU/} component contains version 4.0 of the Goddard 
+  Satellite Data Simulation Unit \citep{ref:GsdsuUserGuide}, which can be used
+  to simulate satellite imagery, radar, and lidar data for comparison against 
+  actual remote-sensing observations.
+
+\item The \texttt{postproc/GMP/}  component contains the Goddard MicroPhysics 
+simulator, an end-to-end microphysics development tool. It reads WRF output 
+and conducts microphysics processes for one time step. Thus, it is a very useful 
+tool for independent code development without running a whole NU-WRF simulation. 
+Code can be run either in single CPU or in parallel, and users can specify
+ input WRF output files and also subset domains.
+
+\item The \texttt{postproc/GRAD/}  component contains the Goddard RADiation (GRAD) simulator,
+an end-to-end radiation development tool. It reads WRF output and conducts radiative transfer 
+for one time step. Like GMP, it is a very useful tool for independent code development without running 
+a whole NU-WRF simulation and code can be run serially or in parallel.
+ 
+ \item The \texttt{utils/lisWrfDomain/} utility contains the NASA LISWRFDOMAIN 
+  software for customizing LDT and LIS ASCII input files so their domain(s) 
+  (grid size, resolution, and map projection) match that of WRF.  It uses 
+  output from the WPS GEOGRID program to determine the reference latitude and 
+  longitude.
+
+\item The \texttt{utils/geos2wrf/} utility contains version 2 of the NASA
+  GEOS2WRF software, which extracts and/or derives atmospheric data from the
+  Goddard Earth Observing System Model Version 5 [\cite{ref:RieneckerEtAl2008};
+  \url{http://gmao.gsfc.nasa.gov/GMAO\_products}] for input into WRF. It also 
+  contains MERRA2WRF, which can preprocess atmospheric fields from the 
+  Modern-Era Retrospective Analysis for Research and Applications [MERRA; 
+  \cite{ref:RieneckerEtAl2011}] hosted by the Goddard Earth Sciences Data 
+  Information Services Center (GES DISC; \url{http://daac.gsfc.nasa.gov}), as 
+  well as MERRA-2 reanalyses \citep{ref:BosilovichEtAl2015} also hosted by 
+  GES DISC. These programs essentially take the place of UNGRIB in WPS, as 
+  UNGRIB cannot read the netCDF, HDF4, or HDFEOS formats used with GEOS-5, 
+  MERRA, and MERRA-2.  This includes a python script for downloading and
+  processing MERRA-2 files from the MERRA2 data server (only works in NCCS
+  systems).
+
+\item The \texttt{utils/sst2wrf/} utility contains the NASA SST2WRF 
+  preprocessor, which reads sea surface temperature (SST) analyses produced by
+  Remote Sensing Systems (\url{http://www.remss.com}) and converts into a 
+  format readable by the WPS program METGRID. This essentially takes the place
+  of UNGRIB as the SST data are in a non-GRIB binary format. This includes a
+  python script for downloading data from the RSS web page.
+
+\item The \texttt{utils/ndviBareness4Wrf/} utility contains the NASA\\ 
+  NDVIBARENESS4WRF preprocessor, which reads gridded Normalized Difference
+  Vegetation Index (NDVI) data and calculates a ``surface bareness'' field
+  for use by the NU-WRF dynamic dust emissions scheme.  Currently the
+  software reads NDVI produced from the NASA Global Inventory Modeling and
+  Mapping Studies (GIMMS) group and by the NASA Short-term Prediction 
+  Research and Transition Center (SPoRT).  Both products are based on
+  observations from the Moderate Resolution Imaging Spectroradiometer (MODIS),
+  which is flown on the NASA \textit{Terra} and \textit{Aqua} satellites.  The
+  preprocessor outputs both the NDVI and the derived bareness fields in a 
+  format readable by the WPS program METGRID.
+
+\item The \texttt{utils/prep\_chem\_sources/} utility contains a modified
+  copy version of the community PREP\_CHEM\_SOURCES version 1.5 
+  preprocessor. This program prepares anthropogenic, biogenic, wildfire, and 
+  volcanic emissions data for further preprocessing by the WRF-Chem 
+  preprocessor CONVERT\_EMISS.  The NU-WRF version of PREP\_CHEM\_SOURCES
+  uses the WPS map projection software to ensure consistency in interpolation.
+  It also adds support for GFEDv4 biomass burning emissions [see~\citep{ref:RandersonEtAl2015}], 
+  NASA QFED wildfire emissions~\citep{ref:QfedDocumentation}, support for new 72-level 
+  GOCART background fields, improved interpolation of the GOCART background 
+  fields when the WRF grid is at a relatively finer resolution, and output of 
+  data for plotting with the NASA PLOT\_CHEM program.
+
+\item The \texttt{utils/plot\_chem/} utility stores a simple NCAR Graphics
+  based PLOT\_CHEM program for visualizing the output from PREP\_CHEM\_SOURCES.
+  This program is only intended for manual review and sanity checking, not
+  for publication quality plots.
+
+\item The \texttt{utils/gocart2wrf/} utility stores version 2 of 
+  GOCART2WRF, a NASA program for reading GOCART aerosol data from an offline
+  GOCART run~\citep{ref:ChinEtAl2002}, online GOCART with GEOS-5, 
+  MERRAero~\citep{ref:KishchaEtAl2014}, or MERRA-2
+  \citep{ref:BosilovichEtAl2015} files; interpolate the data to the WRF grid; 
+  and then add the data to netCDF4 initial condition and lateral boundary 
+  condition (IC/LBC) files for WRF. This includes a script for downloading and
+  processing MERRA-2 files from the GES DISC web page.
+
+\item The \texttt{utils/casa2wrf/} utility contains the NASA CASA2WRF 
+  preprocessor and related software to read CO$_2$ emissions and 
+  concentrations from the CASA biosphere model, and interpolate and append 
+  the data to the WRF netCDF4 IC/LBC files~\citep{ref:Casa2WrfUserGuide}.
+
+\item The \texttt{utils/lis4scm/} utility contains the NASA LIS4SCM
+  preprocessor to generate horizontally homogeneous conditions in a LIS 
+  parameter file (produced by LDT), a LDT output file normally generated for 
+  the WRF REAL preprocessor, and a LIS restart file.  These updated files are 
+  part of the initial conditions for NU-WRF (WRF and LIS coupled) in idealized 
+  Single Column Mode (see section \ref{subsec:ScmLisCoupling}).
+
+\end{itemize}
+
+In addition, NU-WRF includes a unified build system written in the python 
+scripting language to ease compilation of the different NU-WRF components, 
+and to automatically resolve several dependencies between the components 
+(e.g., WPS requires WRF to be compiled first). The build system is discussed
+in section \ref{subsec:BuildSystem}.
+
+\subsection{Other Features}
+
+While NU-WRF aims to be a superset of the official WRF modeling system,
+there are some WRF components that are currently not supported. These are:
+
+\begin{itemize}
+\item WRF-Hydro, a hydrologic library for WRF (see 
+\url{https://www.ral.ucar.edu/projects/wrf_hydro}). The source code for 
+WRF-Hydro is located in \texttt{WRF/hydro/}.  
+
+\item WRFDA, the data assimilation library for WRF [see 
+\cite{ref:BarkerEtAl2012}, Chapter 6 of \cite{ref:ArwUserGuide}, and
+\url{http://www2.mmm.ucar.edu/wrf/users/wrfda/}]. The source code for WRFDA is
+not included in NU-WRF Bjerknes or later.
+
+\item OBSGRID, an objective analysis program for WRF [see Chapter 7 of 
+\cite{ref:ArwUserGuide}]. The source code for this program is not included
+with NU-WRF.
+
+\item PROC\_OML, a preprocessor for interpolating HYCOM
+[see \cite{ref:HycomUserGuide} and \url{https://hycom.org}] 3D ocean model 
+temperature data, and for writing for further processing by the WPS METGRID 
+program. See Chapter 10 of \cite{ref:ArwUserGuide}. The source code for this 
+program is not included with NU-WRF.
+
+\item WRF-NMM, an alternative dynamic core developed by NOAA/NCEP. The NMM 
+source code is located in \texttt{WRF/dyn\_nmm/} but there is no support to 
+compile it with the NU-WRF build system. While it may be possible to run 
+WRF-NMM with the physics packages and coupling added by NASA, it has never 
+been tested and is not recommended.  (Note that as of May 2016, WRF-NMM is no 
+longer supported by the Developmental Testbed Center.)
+
+\item HWRF, the Hurricane WRF modeling system developed by NOAA/NCEP with 
+on-line coupling between WRF-NMM and the Princeton Ocean Model for Tropical 
+Cyclones (see \url{http://www.dtcenter.org/HurrWRF/users/index.php}). This is 
+a standalone software package provided by the Developmental Testbed Center, 
+and is not included in NU-WRF.
+
+\item READ\_WRF\_NC, a utility similar to the netCDF NCDUMP program
+for examining WRF netCDF output [see Chapter 10 of \cite{ref:ArwUserGuide}]. 
+The source code is not included in NU-WRF.
+
+\item IOWRF, a utility for manipulating WRF-ARW netCDF data [see Chapter 10 
+of~\cite{ref:ArwUserGuide}]. The source code is not included in NU-WRF.
+
+\item WRF\_INTERP, a new utility to interpolate WRF data to isobaric, 
+constant height (AGL or MSL), isentropic, or constant equivalent potential
+temperature levels.  The source code is not included in NU-WRF.
+
+\item P\_INTERP, a utility to interpolate WRF netCDF output to user-specified
+isobaric levels [see Chapter 10 of~\cite{ref:ArwUserGuide}]. The source code 
+is not included in NU-WRF.
+
+\item V\_INTERP, a utility to add vertical levels to a WRF-ARW netCDF file 
+[see Chapter 10 of~\cite{ref:ArwUserGuide}]. The source code is not included
+in NU-WRF.
+
+\end{itemize}
+
+In addition, the NU-WRF build system (discussed in Section 
+\ref{subsec:BuildSystem}) does not currently support compilation of the 2-D
+``ideal'' data cases nor the 3-D WRF-Fire data case [see Chapter 4 of 
+\cite{ref:ArwUserGuide}].  In addition, NU-WRF does not support 
+compilation with OpenMP or hybrid OpenMP-MPI due to a lack of OpenMP support 
+in some of the physics packages.
+

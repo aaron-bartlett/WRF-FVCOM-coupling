@@ -1,0 +1,354 @@
+ !================================================================!
+   _______  _     _  _______  _______  _______  ______     _____  
+  (_______)(_)   (_)(_______)(_______)(_______)(_____ \   (_____) 
+   _____    _     _  _        _     _  _  _  _  _____) )  _  __ _ 
+  |  ___)  | |   | || |      | |   | || ||_|| |(_____ (  | |/ /| |
+  | |       \ \ / / | |_____ | |___| || |   | | _____) )_|   /_| |
+  |_|        \___/   \______) \_____/ |_|   |_|(______/(_)\_____/ 
+  -- Beta Release
+ !================================================================!
+ !                                                                !
+ !========DOMAIN DECOMPOSITION USING: METIS 4.0.1 ================!
+ !======Copyright 1998, Regents of University of Minnesota========!
+ !                                                                !
+ &NML_CASE
+ CASE_TITLE      = 'gl',
+ TIMEZONE        = 'UTC',
+ DATE_FORMAT     = 'YMD', !or 'DMY',
+ START_DATE      = '1997-01-01 00:00:00',
+ END_DATE        = '1997-01-01 12:00:00'
+ DATE_REFERENCE  = 'default',
+ /
+ &NML_STARTUP
+ STARTUP_TYPE    = 'hotstart',!'hotstart','coldstart','forecast','crashrestart',
+ STARTUP_FILE    = 'gl_restart_20180801.nc',
+ STARTUP_UV_TYPE 	 = 'set values',! 'set values'
+ STARTUP_TURB_TYPE = 'set values',! 'set values'
+ STARTUP_TS_TYPE = 'set values',! 'linear' 'observed','set values'
+ STARTUP_T_VALS  =  2.0,
+ STARTUP_S_VALS  =  0.0,
+ STARTUP_U_VALS  =  0.0,
+ STARTUP_V_VALS  =  0.0,
+ STARTUP_DMAX    =  -10.0    
+ /
+ &NML_IO
+ INPUT_DIR       = './input',
+ OUTPUT_DIR      = './output',
+ IREPORT         = 120,
+ VISIT_ALL_VARS  = F,
+ WAIT_FOR_VISIT  = F,
+ USE_MPI_IO_MODE = F
+ /
+ &NML_INTEGRATION
+ EXTSTEP_SECONDS =  12.,
+ ISPLIT  =          10,
+ IRAMP   =          1440,
+ MIN_DEPTH       =  0.1,
+ STATIC_SSH_ADJ  =  0.0
+ /
+ &NML_RESTART
+ RST_ON  = T,
+ RST_FIRST_OUT   = '2018-08-01 00:00:00',
+ RST_OUT_INTERVAL = 'days=1.0',
+ RST_OUTPUT_STACK = 0
+ /
+ &NML_NETCDF
+ NC_ON   = T,
+ NC_FIRST_OUT    = '2018-08-01 00:00:00',
+ NC_OUT_INTERVAL = 'days=1.0',
+ NC_OUTPUT_STACK = 240,
+ NC_SUBDOMAIN_FILES      = 'FVCOM',
+ NC_GRID_METRICS = T,
+ NC_FILE_DATE    = F,
+ NC_VELOCITY     = T,
+ NC_SALT_TEMP    = T,
+ NC_TURBULENCE   = T,
+ NC_AVERAGE_VEL  = T,
+ NC_VERTICAL_VEL = T,
+ NC_WIND_VEL     = T,
+ NC_WIND_STRESS  = F,
+ NC_ATM_PRESS    = F,
+! NC_WAVE_PARA    = F,
+! NC_WAVE_STRESS  = F,
+ NC_EVAP_PRECIP  = F,
+ NC_SURFACE_HEAT = T,
+ NC_GROUNDWATER  = F,
+ NC_BIO  = F,
+ NC_WQM  = F,
+ NC_ICE  = T,
+ NC_VORTICITY    = F
+ /
+ &NML_NETCDF_AV
+ NCAV_ON = T,
+ NCAV_FIRST_OUT  = '2018-08-01 00:00:00',
+ NCAV_OUT_INTERVAL       = 'days=1.0',
+ NCAV_OUTPUT_STACK       = 0,
+ NCAV_SUBDOMAIN_FILES    = 'FVCOM',                                                                                                     
+ NCAV_GRID_METRICS       = T,
+ NCAV_FILE_DATE  = F,
+ NCAV_VELOCITY   = T,
+ NCAV_SALT_TEMP  = T,
+ NCAV_TURBULENCE = T,
+ NCAV_AVERAGE_VEL        = T,
+ NCAV_VERTICAL_VEL       = T,
+ NCAV_WIND_VEL   = T,
+ NCAV_WIND_STRESS        = F,
+ NCAV_ATM_PRESS  = F,
+! NCAV_WAVE_PARA  = F,
+! NCAV_WAVE_STRESS        = F,
+ NCAV_EVAP_PRECIP        = F,
+ NCAV_SURFACE_HEAT       = T,
+ NCAV_GROUNDWATER        = F,
+ NCAV_BIO        = F,
+ NCAV_ICE        = T,
+ NCAV_WQM        = F,
+ NCAV_VORTICITY  = F
+ /
+
+ &NML_SURFACE_FORCING
+ WIND_ON = T,
+ WIND_TYPE       = 'speed',
+ WIND_FILE       = 'gl_fvcom_forcing_2018_0801to0805.nc',
+ WIND_KIND       = 'variable',
+ WIND_X  =  0.0000000E+00,
+ WIND_Y  =  0.0000000E+00,
+
+ HEATING_ON      = F,
+ HEATING_TYPE    = 'flux',
+ HEATING_KIND    = 'variable',
+ HEATING_FILE    = 'gl_fvcom_forcing_2018_0801to0805.nc',
+ HEATING_LONGWAVE_LENGTHSCALE    =  3.6000000,
+ HEATING_LONGWAVE_PERCTAGE       =  0.5500000,
+ HEATING_SHORTWAVE_LENGTHSCALE   =  0.3500000,
+ HEATING_RADIATION       =  0.0000000E+00,
+ HEATING_NETFLUX =  0.0000000E+00,
+
+ PRECIPITATION_ON        = F,
+ PRECIPITATION_KIND      = 'variable',
+ PRECIPITATION_FILE      = 'gl_fvcom_forcing_2018_0801to0805.nc',
+ PRECIPITATION_PRC       =  0.0000000E+00,
+ PRECIPITATION_EVP       =  0.0000000E+00,
+
+ AIRPRESSURE_ON  = T,
+ AIRPRESSURE_KIND        = 'variable',
+ AIRPRESSURE_FILE        = 'gl_fvcom_forcing_2018_0801to0805.nc',
+ AIRPRESSURE_VALUE       =  0.0000000E+00,
+
+ WAVE_ON = F,
+ WAVE_FILE       = 'gl_wav.nc',
+ WAVE_KIND       = 'variable',
+ WAVE_HEIGHT     =  0.0000000E+00,
+ WAVE_LENGTH     =  0.0000000E+00,
+ WAVE_DIRECTION  =  0.0000000E+00,
+ WAVE_PERIOD     =  0.0000000E+00,
+ WAVE_PER_BOT    =  0.0000000E+00,
+ WAVE_UB_BOT     =  0.0000000E+00
+ /
+ &NML_HEATING_CALCULATED
+ HEATING_CALCULATE_ON    = T,
+ HEATING_CALCULATE_TYPE  = 'flux',
+ HEATING_CALCULATE_FILE  = 'gl_fvcom_forcing_2018_0801to0805.nc',
+ HEATING_CALCULATE_KIND  = 'variable',
+ ZUU     =   10.000000    ,
+ ZTT     =   2.000000    ,
+ ZQQ     =   2.000000    ,
+ AIR_TEMPERATURE 			 =  0.0000000E+00,
+ RELATIVE_HUMIDITY       =  0.0000000E+00,
+ SURFACE_PRESSURE        =  0.0000000E+00,
+ LONGWAVE_RADIATION      =  0.0000000E+00,
+ SHORTWAVE_RADIATION     =  0.0000000E+00
+ HEATING_LONGWAVE_PERCTAGE_IN_HEATFLUX = 0.5500000,
+ HEATING_LONGWAVE_LENGTHSCALE_IN_HEATFLUX = 3.600000,
+ HEATING_SHORTWAVE_LENGTHSCALE_IN_HEATFLUX = 0.3500000
+ /
+ &NML_PHYSICS
+ HORIZONTAL_MIXING_TYPE  			= 'closure',
+ HORIZONTAL_MIXING_FILE  			= 'none',
+ HORIZONTAL_MIXING_KIND  			= 'constant',
+ HORIZONTAL_MIXING_COEFFICIENT   =  0.1,
+ HORIZONTAL_PRANDTL_NUMBER       =  1.0,
+ VERTICAL_MIXING_TYPE    			= 'closure',
+ VERTICAL_MIXING_COEFFICIENT     =  1E-05,
+ VERTICAL_PRANDTL_NUMBER 			=  1.000,
+ BOTTOM_ROUGHNESS_TYPE   = 'orig',
+ BOTTOM_ROUGHNESS_KIND   = 'constant',
+ BOTTOM_ROUGHNESS_FILE   = 'none',
+ BOTTOM_ROUGHNESS_LENGTHSCALE    =  0.002,
+ BOTTOM_ROUGHNESS_MINIMUM        =  0.0025,
+ CONVECTIVE_OVERTURNING  			= F,
+ SCALAR_POSITIVITY_CONTROL       = T,
+ BAROTROPIC      						= F,
+ BAROCLINIC_PRESSURE_GRADIENT    = 'sigma levels',
+ SEA_WATER_DENSITY_FUNCTION      = 'dens2',
+ RECALCULATE_RHO_MEAN    			= F,
+ INTERVAL_RHO_MEAN       			= 'seconds= 1800.0',
+ TEMPERATURE_ACTIVE      			= T,
+ SALINITY_ACTIVE 						= F,
+ SURFACE_WAVE_MIXING     			= F,
+ BACKWARD_ADVECTION      			= F,
+ BACKWARD_STEP   						= -1,
+ WETTING_DRYING_ON       			= T,
+ ADCOR_ON        						= F,
+ EQUATOR_BETA_PLANE      			= F,
+ NOFLUX_BOT_CONDITION    			= T
+ /
+ &NML_RIVER_TYPE
+ RIVER_NUMBER    			 = 0,
+ RIVER_KIND      			 = 'variable',
+ RIVER_TS_SETTING        = 'calculated',
+ RIVER_INFO_FILE 			 = 'RIVERS_NAMELIST_2018daily3.nml',
+ RIVER_INFLOW_LOCATION   = 'node'
+ /
+! &NML_RIVER
+! RIVER_NAME      = River Name in netcdf data file; use mulitple namelists for multiple rivers!     ,
+! RIVER_FILE      = 'gl_riv.nc',
+! RIVER_GRID_LOCATION     =   -1,
+! RIVER_VERTICAL_DISTRIBUTION     = 100*-99.00000      
+! /
+ &NML_OPEN_BOUNDARY_CONTROL
+ OBC_ON  = F,
+ OBC_NODE_LIST_FILE      	 = 'gl_obc.dat',
+ OBC_ELEVATION_FORCING_ON   = F,
+ OBC_ELEVATION_FILE      	 = 'gl_obc.nc',
+ OBC_TS_TYPE     			 	 = 3,
+ OBC_TEMP_NUDGING        	 = F,
+ OBC_TEMP_FILE   				 = 'gl_obc.nc',
+ OBC_TEMP_NUDGING_TIMESCALE =  0.0000000E+00,
+ OBC_SALT_NUDGING        	 = F,
+ OBC_SALT_FILE   				 = 'gl_obc.nc',
+ OBC_SALT_NUDGING_TIMESCALE =  0.0000000E+00,
+ OBC_MEANFLOW    				 = F,
+ OBC_MEANFLOW_FILE       	 = 'gl_obc.nc',
+ OBC_TIDEOUT_INITIAL     	 = 0,
+ OBC_TIDEOUT_INTERVAL    	 = 0,
+ OBC_LONGSHORE_FLOW_ON   	 = F,
+ OBC_LONGSHORE_FLOW_FILE 	 = 'gl_lsf.dat',
+ OBC_DEPTH_CONTROL_ON    	 = F
+ /
+ &NML_GRID_COORDINATES
+ GRID_FILE       			= 'gl_grd.dat',
+ GRID_FILE_UNITS 			= 'degrees',!'meters' 
+ PROJECTION_REFERENCE   = 'proj=utm +zone=16 +datum=NAD83',
+ SIGMA_LEVELS_FILE      = 'gl_sigma.dat',
+ DEPTH_FILE      = 'gl_dep.dat',
+ CORIOLIS_FILE   = 'gl_cor.dat',
+ SPONGE_FILE     = 'gl_spg.dat'                                                                  
+ /
+ &NML_GROUNDWATER
+ GROUNDWATER_ON  			 = F,
+ GROUNDWATER_TEMP_ON     = F,
+ GROUNDWATER_SALT_ON     = F,
+ GROUNDWATER_KIND        = 'variable',
+ GROUNDWATER_FILE        = 'gl_grndwtr.nc',
+ GROUNDWATER_FLOW        =  0.0000000E+00,
+ GROUNDWATER_TEMP        =  0.0000000E+00,
+ GROUNDWATER_SALT        =  0.0000000E+00
+ /
+ &NML_LAG
+ LAG_PARTICLES_ON        = F,
+ LAG_START_FILE  			 = 'init_lag.nc',
+ LAG_OUT_FILE    			 = 'lag_out.nc',
+ LAG_FIRST_OUT   			 = 'none',
+ LAG_RESTART_FILE        = 'lag_restart.nc',
+ LAG_OUT_INTERVAL        = 'none',
+ LAG_SCAL_CHOICE 			 = 'none'
+ /
+ &NML_ADDITIONAL_MODELS
+ DATA_ASSIMILATION       = F,
+ DATA_ASSIMILATION_FILE  = './gl_run.nml',
+ BIOLOGICAL_MODEL        = F,
+ STARTUP_BIO_TYPE        = 'observed',
+ BIOLOGICAL_MODEL_FILE   = 'none',
+ SEDIMENT_MODEL  = F,
+ SEDIMENT_MODEL_FILE     = 'none',
+ SEDIMENT_PARAMETER_TYPE = 'none',
+ SEDIMENT_PARAMETER_FILE = 'none',
+ BEDFLAG_TYPE    = 'none',
+ BEDFLAG_FILE    = 'none',
+ ICING_MODEL     = F,
+ ICING_FORCING_FILE      = 'none',
+ ICING_FORCING_KIND      = 'variable',
+ ICING_AIR_TEMP  =  0.0000000E+00,
+ ICING_WSPD      =  0.0000000E+00,
+ ICE_MODEL       = T,
+ ICE_FORCING_FILE        = 'gl_fvcom_forcing_2018_0801to0805.nc',
+ ICE_FORCING_KIND        = 'variable',
+ ICE_SEA_LEVEL_PRESSURE  =  0.0000000E+00,
+ ICE_AIR_TEMP    			 =  0.0000000E+00,
+ ICE_SPEC_HUMIDITY       =  0.0000000E+00,
+ ICE_SHORTWAVE   			 =  0.0000000E+00,
+ ICE_LONGWAVE_TYPE       = 'PW',! or 'RM',
+ ICE_CLOUD_COVER 			 =  0.0000000E+00,
+ HIGH_LATITUDE_WAVE      = F
+ /
+ &NML_PROBES
+ PROBES_ON       = F,
+ PROBES_NUMBER   = 0,
+ PROBES_FILE     = 'probes.nml'
+ /
+ &NML_BOUNDSCHK
+ BOUNDSCHK_ON    = F,
+ CHK_INTERVAL    = 0,
+ VELOC_MAG_MAX   = 0.0000000E+00,
+ ZETA_MAG_MAX    = 0.0000000E+00,
+ TEMP_MAX        = 0.0000000E+00,
+ TEMP_MIN        = 0.0000000E+00,
+ SALT_MAX        = 0.0000000E+00,
+ SALT_MIN        = 0.0000000E+00
+ /
+ &NML_NCNEST
+ NCNEST_ON       			 = F,
+ NCNEST_BLOCKSIZE        = 20,
+ NCNEST_NODE_FILES       = 'none',                                                                                                      
+ NCNEST_OUT_INTERVAL     = 'seconds=3600.0'
+ /
+ &NML_NESTING
+ NESTING_ON      		= F,
+ NESTING_TYPE    		= '1',! or '2' or '3'
+ NESTING_BLOCKSIZE   = 2,
+ NESTING_FILE_NAME   = 'gl_nesting.nc'
+ /
+! &NML_NCNEST_WAVE
+! NCNEST_ON_WAVE           = F,
+! NCNEST_TYPE_WAVE         = 'wave parameters',! or 'spectral density'
+! NCNEST_BLOCKSIZE_WAVE    = -1,
+! NCNEST_NODE_FILES_WAVE   = 'none',
+! NCNEST_OUT_INTERVAL_WAVE = 'seconds=3600.0'
+! /
+! &NML_NESTING_WAVE
+! NESTING_ON_WAVE         = F,
+! NESTING_TYPE_WAVE       = 'wave parameters',! or 'spectral density'
+! NESTING_BLOCKSIZE_WAVE  = -1,
+! NESTING_FILE_NAME_WAVE  = 'gl_nesting_wave.nc'
+! /
+ &NML_STATION_TIMESERIES
+ OUT_STATION_TIMESERIES_ON  = F,
+ STATION_FILE    				 = 'none',
+ LOCATION_TYPE   			    = 'node',!or'cell'
+ OUT_ELEVATION   = F,
+ OUT_VELOCITY_3D = F,
+ OUT_VELOCITY_2D = F,
+ OUT_WIND_VELOCITY    = F,
+ OUT_ATM_PRESSURE     = F,
+ OUT_SALT_TEMP   = F,
+ OUT_INTERVAL    = 'seconds=0.0',
+ /
+ &NML_WAVE_SPARSE_TIMESERIES
+ OUT_WAVE_SPARSE_TIMESERIES_ON = F,
+ SPARSE_DISTANCE               = 1000.000,
+ OUT_WIND_VELOCITY_SPARSE      = F,
+ OUT_SIG_WAVE_HEIGHT_SPARSE    = F,
+ OUT_REL_PEAK_PERIOD_SPARSE    = F,
+ OUT_WAVE_DIRECTION_SPARSE     = F,
+ OUT_ENERGY_SPECTRUM_SPARSE    = F,
+ OUT_WAVE_PARTITION_SPARSE     = F,
+ OUT_INTERVAL_SPARSE           = 'seconds=3600.0'
+ /
+ &NML_external_control
+ DEEP_WATER_CONTROL = F,
+ MIN_DEPTH_FOR_WL_ADJUST = 1.0, !-only used for debug !-used for resolving WL adjust debug
+!-monthly water level rate change (meter/month, Jan to Dec)
+ MONTHLY_WATER_LEVEL_RATE = 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
+!-number of days in each month (integer, Jan to Dec)
+ DAYS_IN_MONTH = 31,29,31,30,31,30,31,31,30,31,30,31,
+ /

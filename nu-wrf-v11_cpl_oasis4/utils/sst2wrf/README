@@ -1,0 +1,203 @@
+#------------------------------------------------------------------------------
+# NASA/GSFC, Software Integration & Visualization Office, Code 610.3
+#------------------------------------------------------------------------------
+#
+# DESCRIPTION:
+# Software package for fetching sea surface temperature (SST) global analyses
+# produced by Remote Sensing Systems (RSS), and converting into WPS 
+# intermediate format readable by METGRID (a standard preprocessor for the
+# Weather Research and Forecasting weather model).
+#
+# AUTHOR:
+# Eric Kemp, NGIS and NASA/SIVO
+# Modified for later versions of data by Jossy P.Jacob Oct 2014
+#------------------------------------------------------------------------------
+
+INTRODUCTION
+
+This software package is for converting global sea surface temperature (SST)
+analyses produced by Remote Sensing Systems (RSS) into a format readable by
+METGRID, a standard preprocessor for the Weather Research and Forecasting
+weather model.  Included in this package are two Fortran subroutines written 
+and released by RSS for reading their binary files.  These files are included 
+as-is in the src/external subdirectory.  
+
+The RSS SST analyses are broken down by instrument and by algorithm version.
+The instrument SST analyses are:
+
+- "mw_ir" 9-km global SST valid at 1200 UTC based on microwave IR data
+- "mw" 0.25 deg global SST valid at 1200 UTC based on microwave data
+ 
+The algorithm versions are:
+- "v04.0" version 2 algorithm (apparently the best output).
+For information on the SST files, see
+http://www.remss.com/sst/microwave_oi_sst_data_description.html.
+
+The output binary file for METGRID is in WPS intermediate format, and contains
+two fields:
+
+* "SST" is a global two-dimensional field with sea surface temperature in 
+  Kelvin.  It includes data voids due to land, sea ice, and missing/bad 
+  satellite data.  Sea ice points have temperature reset to 270 K, while
+  land/missing/bad grid points are set to -9999.
+
+* "SSTMask" is a global two-dimensional field that indicates where valid SST
+  values exist.  The values are:
+  = 0 (no problems, SST value is valid)
+  = 1 (land, no SST)
+  = 2 (sea ice, no SST)
+  = 3 (missing, no SST)
+
+#------------------------------------------------------------------------------
+
+REQUIREMENTS
+
+* Active NCCS account with access to version control repositories on 
+  progress.nccs.nasa.gov.  E-mail support@nccs.nasa.gov for an account
+  on progress.  Once obtained, read the instructions on
+  https://progress.nccs.nasa.gov/trac/admin/wiki/QuickStart to set up
+  ssh keys.
+
+* Mercurial (installed on DISCOVER).
+
+* Fortran compiler (ifort 11.1.038 is known to work).
+* module load comp/intel-13.0.1.117
+
+
+* A Python 2 installation supporting the ConfigParser, copy, datetime, os,
+  shlex, subprocess, and sys standard modules.  Version 2.5.4 is known to
+  work on DISCOVER; do *not* use Python 3.x.
+
+* make 
+
+* wget 
+
+#------------------------------------------------------------------------------
+
+OBTAINING CODE
+
+SST2WRF is currently stored on progress.nccs.nasa.gov in a Mercurial (hg)
+repository.  Users must first obtain an NCCS account, and have hg
+in their PATH.  On DISCOVER, hg is installed in 
+/usr/local/other/Python-2.5.4/bin
+
+To obtain the code, clone the repository with the following command:
+
+      hg clone https://progress.nccs.nasa.gov//hg/projects/sst2wrf <sst2wrf>
+
+where <sst2wrf> is the name of the local subdirectory you wish to create.
+Note that the double // before "hg" is required.
+
+#------------------------------------------------------------------------------
+
+COMPILATION
+
+To compile sst2wrf, first check the Makefile to ensure the path to the
+Fortran compiler is correct.  Then type either:
+
+      make
+
+or
+
+      make all 
+
+to build the executable.  Other valid targets are:
+
+      make libsst
+
+to build the libsst.a library from the read routines for the SST data; and
+
+      make clean
+
+to delete all binary files.
+
+#--------------------------------
+To compile from the nuwrf build: 
+./build.sh sst2wrf 
+#--------------------------------
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+
+RUNNING SST2WRF BY HAND
+
+sst2wrf is the Fortran executable built in the bin subdirectory.  Simply 
+type 'sst2wrf' to run.  When run, it expects to find a namelist.sst2wrf in 
+the current directory; if not found, the program will fail.  This executable 
+will read in a single RSS SST file and output a new file in WPS intermediate 
+format.  
+
+namelist.sst2wrf is the namelist file used by the Fortran executable.
+An example copy can be found in the input subdirectory.  See the comment
+blocks in that example file for a description of the namelist entries.  
+
+#------------------------------------------------------------------------------
+
+
+OUTPUT
+
+If everything works, WPS files will be produced with the names like:
+
+$PREFIX:2004-08-13_00
+$PREFIX:2004-08-13_03
+
+Here $PREFIX is defined in the namelist.sst2wrf file.  The date and hour 
+information are the valid time of the data.  Only one time level exists per 
+output file.
+
+#------------------------------------------------------------------------------
+
+CAVEATS
+
+1.  The RSS source code is written in Fortran 90, but is in DOS text file 
+format and includes tabs rather than spaces.  Also, the .f suffix in the
+file names will cause many compilers to assume the files are fixed-format 
+files, resulting in syntax errors from the 73+ column lines.  To 
+avoid this latter problem, the Makefile creates symbolic links with the 
+suffix .f90, and passes the symbolic links to the compiler.
+
+2.  When building the sst2wrf executable, a libsst.a archive file is first
+created from the RSS routines.  The archive file is then linked against
+the remaining code.  Unfortunately the Intel compiler does not link the
+file correctly when it is created using interprocedural optimization, so users
+should avoid the -ipo and -fast flags (with ifort) for the RSS code
+(FFLAGS_LIBSST in the top Makefile).
+
+3.  SST2WRF is still under development.  Exercise caution.
+
+#=====Oct 2014 ===========================================
+# Code upgraded for using later versions of SST data and 
+# changed the read codes from the rsmss website. 
+# Jossy P. Jacob
+#=========================================================
+To compile: 
+from NUWRF directory:trunk/build.sh 
+ 
+./build.sh sst2wrf 
+
+#------------------------------------------------------------------
+Copy the files from the trunk/utils/sst2wrf/scripts directory to your run directory: 
+#------------------------------------------------------------------
+Get_dayofyear_daily.py 
+Run_SST.csh 
+
+#------------------------------------------------------------------
+To run the program from your rundir or WORKDIR: 
+#------------------------------------------------------------------
+Edit the Runscripts Run_SST.csh to change
+set WORKDIR = /discover/nobackup/jjacob/NUWRF/SST2WRF/RUN_SST2WRF/
+set NUWRFDIR = /discover/nobackup/jjacob/NUWRF/v7-3.5.1_AERO/
+
+To run: 
+./Run_SST.csh startdate enddate instrument 
+./Run_SST.csh 20100101 20100224 mw_ir 
+(other instruments are mw, mw_ir).
+The dates the data is available for each instrument can be found in 
+http://www.remss.com/measurements/sea-surface-temperature/oisst-description 
+
+#------------------------------------------------------------------
+MW (TMI, AMSR-E, AMSR2, WindSat) 1998 Jan - present
+MW_IR (TMI, AMSR-E, AMSR2, WindSat, Terra MODIS, Aqua MODIS) 2002 - present
+#------------------------------------------------------------------
+    
+

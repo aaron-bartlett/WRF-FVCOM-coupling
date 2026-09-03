@@ -1,0 +1,30 @@
+
+&files
+  geosFileFormat=1,
+  geosFileName='MERRA300.prod.assim.inst6_3d_ana_Np.20090825.SUB.hdf',
+  outputDirectory='./',
+/
+ 
+&coordinates
+ longitudeName='longitude',
+ latitudeName='latitude',
+/
+
+&forecast
+ numberOfTimes=1,
+ validTimes(1)='2009-08-25_00',
+ timeIndices(1) = 1,
+ forecastHours(1)=0,
+/
+
+&variables
+ numberOfVariables=1,
+
+ variableRanks(1) = 3,
+ variableLevelTypes(1) = 4,
+ variableNamesIn(1)='slp',
+ variableNamesOut(1)='PMSL',
+ variableUnits(1)='Pa',
+ variableDescriptions(1)='Sea-level Pressure',
+
+/

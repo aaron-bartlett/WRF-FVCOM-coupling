@@ -1,0 +1,6 @@
+WRF-ARW Testcase
+
+This is a test case that uses:
+  (a) CONUS NE quadrant domain with 1 nest (1 km)
+  (b) Simulation time period from 12Z 11 Jul 2015 to 12Z 12 Jul 2015
+  (c) Goddard MP (4ice) and Goddard 2017 radiation (option 57) and NoahMP

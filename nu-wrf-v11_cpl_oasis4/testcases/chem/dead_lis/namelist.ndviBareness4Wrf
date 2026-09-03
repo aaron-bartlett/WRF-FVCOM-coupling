@@ -1,0 +1,17 @@
+
+ &settings
+   ndviFormat = 11
+   lowerLeftLat = 22.000000
+   lowerLeftLon = -136.000000
+   upperRightLat = 50.000000
+   upperRightLon = -94.000000
+   ndviBarenessThreshold1 = 0.000000
+   ndviBarenessThreshold2 = 0.150000
+   inputDirectory = '/discover/nobackup/projects/fame/RS_DATA1/GIMMS_MODIS/NDVI/'
+   year = 2011
+   month = 7
+   dayOfMonth = 4
+   dayOfYear = 185
+   outputDirectory = './'
+   outputFilePrefix = 'GIMMS_MODIS'
+   /

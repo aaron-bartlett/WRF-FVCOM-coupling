@@ -1,0 +1,265 @@
+10 mb
+	240 m height contours
+	5 deg isotherms
+	Wind barbs
+	Isotachs
+
+30 mb
+UWyo:
+	240 m height contours
+	5 deg isotherms
+	Wind barbs
+	Isotachs
+
+50 mb
+UWyo:
+	240 m height contours
+        5 deg isotherms
+	Wind barbs
+	Isotachs
+
+70 mb
+UWyo:
+	240 m height contours
+	5 deg isotherms
+	Wind barbs
+	Isotachs?
+
+100 mb
+UWyo:
+	120 m height contours
+	5 deg isotherms
+	Shaded isotachs (70/90/110/130)
+	Wind barbs
+
+Unisys:
+	120-m height contours
+	Wind barbs
+	10/30/50/70/90/... isotachs (shaded above 70)
+
+150 mb
+UWyo:
+	120 m height contours
+	5 deg isotherms
+	Shaded isotachs (70/90/110/130)
+	Wind barbs
+
+Unisys:
+	120-m height contours
+	Wind barbs
+	10/30/50/70/90/... isotachs (shaded above 70)
+
+200 mb
+DIFAX:
+       120 m height contours (solid)
+       5 degree temperature contours (dashed)
+       Wind barbs
+       10/30/50/70/90/110/130 kt isotachs (shaded above 70)
+
+DIFAX:
+	Streamlines
+	10/30/50/70/90/110/130 kt isotachs (no shading)
+
+UWyo:
+	120 m height contours
+	5 deg isotherms
+	Shaded isotachs (70/90/110/130)
+	Wind barbs
+
+RAP:
+	Height contours
+	Streamlines
+	30/40/50/60/... isotachs (shading starts at 30 kts)
+	Wind barbs
+
+Unisys:
+	120-m height contours
+	Wind barbs
+	10/30/50/70/90/... isotachs (shaded above 70)
+
+250 mb
+SPC:
+	Streamlines
+	50/75/100/125/150 kt isotachs (shaded above 75)
+	Wind barbs
+
+UWyo:
+	120 m height contours
+	5 deg isotherms
+	Shaded isotachs (70/90/110/130)
+	Wind barbs
+
+RAP:
+	Height contours
+	Streamlines
+	30/40/50/60/... isotachs (shading starts at 30 kts)
+	Wind barbs
+
+Unisys:
+	120-m height contours
+	Wind barbs
+	10/30/50/70/90/... isotachs (shaded above 70)
+
+300 mb
+DIFAX:
+       120 m height contours (solid)
+       5 degree temperature contours (dashed)
+       Wind barbs
+       10/30/50/70/90/110/130 kt isotachs (shaded above 70)
+
+SPC:
+       Streamlines
+       50/75/100/125/150 kt isotachs (shaded above 75)
+       Wind barbs
+       1 unit contours of divergence
+
+RAP:
+	Height contours
+	Streamlines
+	30/40/50/60/... isotachs (shading starts at 30 kts)
+	Wind barbs
+
+UWyo:
+	120 m height contours (solid)
+	5 deg isotherms (dashed)
+	Shaded isotachs (70/90/110/130/...)
+	Wind barbs
+
+Unisys:
+	120-m height contours
+	Wind barbs
+	10/30/50/70/90/... isotachs (shaded above 70)
+
+400 mb
+UWyo:
+	60 m height contours (solid)
+	5 deg isotherms (dashed)
+	Wind barbs
+
+Unisys:
+	60-m height contours
+	Wind barbs
+	10/30/50/70/90/... isotachs (shaded above 70)
+
+500 mb
+DIFAX:
+	60 m height contours (solid)
+	5 degree temperature contours (dashed)
+	Wind barbs
+
+SPC:
+	60 m height contours (solid)
+	2 degree temperature contours (dashed)
+	Wind barbs
+
+UWyo:
+	60 m height contours (solid)
+	5 deg isotherms (dashed)
+	Wind barbs
+
+RAP:
+	Height contours
+	2.5 deg isotherms
+	Wind barbs
+	70/80/90 RH
+
+Unisys:
+	60-m height contours
+	5-deg isotherms (dashed)
+	Wind barbs
+
+700 mb
+DIFAX:
+	30 m height contours (solid)
+	5 degree temperature contours (dashed)
+	Wind barbs
+
+SPC:
+	30 m height contours (solid)
+	2 degree temperature contours (dashed)
+	Wind barbs
+	2 degree dew point contours above -4 C
+
+UWyo:
+	30 m height contours (solid)
+	5 deg isotherms (dashed)
+	Wind barbs
+
+RAP:
+	Height contours
+	2.5 deg isotherms
+	Wind barbs
+	70/80/90 RH
+
+Unisys:
+	30-m height contours
+	5-deg isotherms (dashed)
+	Wind barbs
+
+
+850 mb
+DIFAX:  
+	30 m height contours (solid)
+	5 degree temperature contours (dashed)
+	Wind barbs
+
+DIFAX:
+	Streamlines
+	10/30/50/70/90/110/130 height contours (dashed)
+
+SPC:
+	30 m height contours (solid)
+	2 degree temperature contours (dashed)
+	Wind barbs
+	2 degree dew point contours above 8 C
+
+UWyo:
+	30 m height contours (solid)
+	5 degree temperature contours (dashed)
+	Wind barbs
+
+RAP:
+	Height contours
+	2.5 deg isotherms
+	Wind barbs
+	70/80/90 RH
+
+Unisys:
+	30-m height contours
+	5-deg isotherms (dashed)
+	Wind barbs
+
+925 mb
+
+SPC:
+	30 m height contours (solid)
+	2 degree temperature contours (dashed)
+	Wind barbs
+	2-degree dew point contours above 12 C
+
+RAP:
+	Height contours
+	2.5 deg isotherms
+	Wind barbs
+	70/80/90 RH shaded
+
+Unisys:
+	30-m height contours
+	5-deg isotherms (dashed)
+	Wind barbs
+
+1000 mb
+UWYO:
+	30 m height contours (solid)
+	5 degree isotherms (dashed)
+	Wind barbs
+	
+Surface Analysis
+
+DIFAX:
+	4 mb isobars (solid)
+	Wind barbs
+
+SPC:
+	4 mb isobars (solid)
+	Wind barbs

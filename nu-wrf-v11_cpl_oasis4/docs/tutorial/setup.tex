@@ -1,0 +1,149 @@
+%-------------------------------------------------------------------------------------------------------------------
+\section{Setup}
+%-------------------------------------------------------------------------------------------------------------------
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}
+
+Before starting any workflow there are a few steps that must be completed:
+\begin{itemize}
+     \item Download or checkout the NU-WRF code.
+     \item Build the NU-WRF executable components.
+     \item Set some environment variables.
+\end{itemize}
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Download the code}
+
+\footnotesize{
+Tar files are available to NCCS and NAS s0942 group members. \\
+On DISCOVER:
+\begin{lstlisting}
+> cp /discover/nobackup/projects/nu-wrf/releases/stable/<tarball> /some/path
+\end{lstlisting}
+On PLEIADES:
+\begin{lstlisting}
+> cp /nobackupp8/nuwrf/releases/stable/<tarball> /some/path
+\end{lstlisting}
+where tarball is:
+nu-wrf\_v11-wrf421-lisf.tgz\\
+\hfill \break
+To untar type:
+\begin{lstlisting}
+> tar -zxf nu-wrf_v11-wrf421-lisf.tgz
+\end{lstlisting}
+}
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Download the code}
+
+\footnotesize{
+\textbf{The code can also be obtained from its Git repository:}
+\begin{lstlisting}
+> cd /discover/nobackup/user_id/
+> git clone -b develop https://git.mysmce.com/astg/nuwrf/nu-wrf-dev
+\end{lstlisting}
+
+Using Git may be more advantageous.  Once you clone the repository you have a "complete repository" on your local work area. Now you can make changes to the files and commit your features using Git's branching capabilities. Other developers can pull your changes from the repository and continue to work with the improvements that you added to the  files. For more information about using our Git repository please see  \href{https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/git-intro.pdf}{this Git intro} or refer to the  \href{https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/nuwrf_userguide_v1q.pdf}{NU-WRF user's guide}:
+\begin{lstlisting}
+https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/nuwrf_userguide_v10.pdf
+\end{lstlisting}
+}
+\end{frame}
+
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Build NU-WRF}
+
+\scriptsize{
+First log in to a Discover node or Pleiades front end node.\\
+Create environment variable \textbf{NUWRFDIR} that defines the directory path of the NU-WRF code downloaded earlier. Then, \textbf{cd} to it. For example, on Discover:
+\begin{lstlisting}
+> export NUWRFDIR=/discover/nobackup/user_id/nu-wrf
+> cd $NUWRFDIR
+\end{lstlisting}
+For the \textbf{Basic workflow} execute the build script as follows:\\
+\begin{lstlisting}
+> ./build.sh wrf,wps &
+\end{lstlisting}
+That will print some setup information and will run the build in the background (so, just press Enter to get back to the Unix prompt). Build information will be saved in a single make.log file. To view the progress of the NU-WRF build you can run:
+\begin{lstlisting}
+> tail -f make.log &
+\end{lstlisting}
+The build will take about 1-2 hours, so please be patient. If the compilation fails then you can view the make.log file to check what went wrong.
+}
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Build NU-WRF}
+
+\scriptsize{
+For the other workflows, use the following commands.
+\bigbreak
+\textbf{WRF-LIS workflows}:
+\begin{lstlisting}
+> ./build.sh wrf,wps,lis,ldt,lisWrfDomain,sst2wrf,geos2wrf &
+\end{lstlisting}
+\textbf{Chemistry workflow}:
+\begin{lstlisting}
+> ./build.sh chem,wps,lis,utils &
+\end{lstlisting}
+\textbf{SCM workflow}:
+\begin{lstlisting}
+> ./build.sh ideal_scm_lis_xy,wps,lis,ldt,lis4scm &
+\end{lstlisting}
+For more information about the NU-WRF build system run build.sh without arguments:
+\begin{lstlisting}
+> ./build.sh
+\end{lstlisting}
+}
+\end{frame}
+
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Build NU-WRF}
+
+After compilation - assuming there are no errors - several executables will be created. Some important executables are::
+\begin{lstlisting}
+WRF executables:
+
+$NUWRFDIR/WRF/main/real.exe
+$NUWRFDIR/WRF/main/wrf.exe
+
+WPS executables:
+
+$NUWRFDIR/WPS/geogrid.exe
+$NUWRFDIR/WPS/metgrid.exe
+$NUWRFDIR/WPS/ungrib.exe
+
+\end{lstlisting}
+For example, to see the names of all the executables created with an exe extension run:
+\begin{lstlisting}
+> find $NUWRFDIR -name \*.exe
+\end{lstlisting}
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Environment variables}
+
+We already set \textbf{NUWRFDIR} , but we need two more variables.
+\begin{itemize}
+\item Select a directory for running the model and set it equal to the \textbf{RUNDIR} environment variable. For example:
+\begin{lstlisting}
+> export RUNDIR=/discover/nobackup/user_id/scratch/basic_workflow
+\end{lstlisting}
+\item Make sure you create \textbf{RUNDIR} outside of \textbf{NUWRFDIR}.This is useful when switching between NU-WRF versions or for updating to new changes.
+\item Finally, set the \textbf{PROJECTDIR} environment variable:
+\begin{lstlisting}
+> export PROJECTDIR=/discover/nobackup/projects/nu-wrf
+\end{lstlisting}
+\end{itemize}
+\footnotesize{\textbf{Please note that these variables (NUWRFDIR, RUNDIR, PROJECTDIR) are used in all workflows}.}
+
+\end{frame}
+

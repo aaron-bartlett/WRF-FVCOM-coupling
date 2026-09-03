@@ -1,0 +1,53 @@
+# Define path and compilation 
+
+include paths.mk
+include include.mk.$(OPT)
+
+# Compiler commands.
+
+INCLUDES   = -I$(UTILS_INCS) #-I$(NETCDF_INCS)
+LIBS       = $(NETCDF_LIBS) $(HDF_LIBS)
+F_COMMAND  = $(F_COMP) -c $(F_OPTS) $(INCLUDES)
+C_COMMAND  = $(C_COMP) -c $(C_OPTS) -D$(CMACH) $(INCLUDES)
+
+# Define objects.
+
+include objects_prepsrc.mk
+
+# Define targets.
+
+EXE      = ../prep_chem_sources_$(CHEM)_$(AER).exe
+RAMSLIB  = ramslib.a
+LIBUTILS = libutils.a
+WPSLIB   = wpslib.a
+
+all:  $(LIBUTILS) $(RAMSLIB) $(WPSLIB) $(EXE)
+	@echo ""
+	@echo Finished building === $(EXE)
+	@echo ""
+
+$(RAMSLIB): $(OBJ_RAMS)
+	$(ARCHIVE) $(RAMSLIB) $(OBJ_RAMS)
+
+$(LIBUTILS): $(OBJ_UTILS)
+	$(ARCHIVE) $(LIBUTILS) $(OBJ_UTILS)
+
+$(WPSLIB): $(OBJ_WPS)
+	$(ARCHIVE) $(WPSLIB) $(OBJ_WPS)
+
+ifeq ($(CHEM), "RADM_WRF_FIM")
+$(EXE): $(OBJ_RADM_WRF_FIM) $(OBJ_PREPSRC)
+	$(LOADER) $(LOADER_OPTS) -o $(EXE) $(OBJ_PREPSRC) $(OBJ_RADM_WRF_FIM) $(RAMSLIB) $(RAMSUTILS) $(WPSLIB) $(INCLUDES) $(LIBS)
+else
+$(EXE): $(OBJ_PREPSRC)
+	$(LOADER) $(LOADER_OPTS) -o $(EXE) $(OBJ_PREPSRC) $(RAMSLIB) $(RAMSUTILS) $(WPSLIB) $(INCLUDES) $(LIBS)
+endif
+
+clean:
+	@echo ""
+	rm -f *.o *.mod *.a *.oo *.ipo $(LIBUTILS) $(PREPSOURCE) $(RAMSLIB) $(EXE) $(WPSLIB)
+	@echo ""
+      
+# Define dependencies and rules
+
+include depend_prepsrc.mk

@@ -1,0 +1,27 @@
+#short name  select  vlevels  units
+Tair:       1  1  K       # Near surface air temperature
+Qair:       1  1  kg/kg   # Near surface specific humidity
+SWdown:     1  1  W/m2    # Incident shortwave radiation (total)
+SWdirect:   0  1  W/m2    # Incident shortwave radiation (direct)
+SWdiffuse:  0  1  W/m2    # Incident shortwave radiation (diffuse)
+LWdown:     1  1  W/m2    # Incident longwave radiation
+Wind_E:     1  1  W/m2    # Eastward wind
+Wind_N:     1  1  m/s     # Northward wind
+Psurf:      1  1  Pa      # Surface pressure
+Rainf:      1  1  kg/m2   # Rainfall rate
+Snowf:      0  1  kg/m2   # Snowfall rate
+CRainf:     0  1  kg/m2   # Convective rainfall rate
+Forc_Hgt:   1  1  m       # Height of forcing variables
+Ch:         1  1  -       # Surface exchange coefficient for heat
+Cm:         0  1  -       # Surface exchange coefficient for momentum
+CHS2:       1  1  -       # 2m surface exchange coefficient for heat
+CQS2:       1  1  -       # 2m surface exchange coefficient for moisture
+Q2sat:      1  1  -       # Saturated mixing ratio
+Emiss:      1  1  -       # Surface emissivity
+Cosz:       1  1  -       # Cosine of zenith angle
+Albedo:     0  1  -       # Surface albedo
+LPressure:  0  1  Pa      # Level pressure
+O3:         0  1  -       # Ozone concentration
+Xice:       1  1  -       # Sea ice mask
+TMN:        1  1  -       # Soil temperature at lower boundary
+

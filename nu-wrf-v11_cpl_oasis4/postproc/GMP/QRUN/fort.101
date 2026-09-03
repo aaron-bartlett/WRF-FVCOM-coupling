@@ -1,0 +1,62 @@
+  PRISTINE ICE SEDIMENTATION for columns XFSEDI =  4.6453395E+11
+      Heterogeneous nucleation
+ NU10= 0.125000E+04 ALPHA1= 0.450000E+01 BETA1= 0.600000E+00
+ NU20= 0.250000E+05 ALPHA2= 0.129600E+02 BETA2= 0.639000E+00
+ mass of embryo XMNU0= 0.688000E-12
+      Homogeneous nucleation
+ ALPHA3=-0.307500E+01 BETA3= 0.810036E+02
+ constant XHON= 0.472065E-13
+      pristine ice autoconversion
+ Time constant   XTIMAUTI= 0.100000E-02
+ Temp. factor    XTEXAUTI= 0.150000E-01
+ Crit. ice cont. XCRIAUTI= 0.200000E-04
+      snow aggregation
+ Coll. efficiency XCOLIS= 0.250000E+00
+ Temp. factor     XCOLEXIS= 0.500000E-01
+      cloud droplets autoconversion
+ Time constant   XTIMAUTC= 0.100000E-02
+ Crit. ice cont. XCRIAUTC= 0.500000E-03
+      riming of the aggregates
+ D_cs^lim (Farley et al.) XDCSLIM= 0.700000E-02
+ Coll. efficiency          XCOLCS= 0.100000E+01
+ Read XKER_RACCSS
+ Read XKER_RACCS 
+ Read XKER_SACCRG
+      conversion-melting of the aggregates
+ Conv. factor XFSCVMG= 0.200000E+01
+      rain contact freezing
+ Coll. efficiency          XCOLIR= 0.100000E+01
+  NEW Constants for the cloud ice collection by the graupeln
+  XCOLIG, XCOLEXIG  =   9.9999998E-03  0.1000000    
+      cloud ice collection by the graupeln
+ Coll. efficiency XCOLIG= 0.100000E-01
+ Temp. factor     XCOLEXIG= 0.100000E+00
+  NEW Constants for the aggregate collection by the graupeln
+  XCOLSG, XCOLEXSG  =   9.9999998E-03  0.1000000    
+      aggregate collection by the graupeln
+ Coll. efficiency XCOLSG= 0.100000E-01
+ Temp. factor     XCOLEXSG= 0.100000E+00
+ Read XKER_SDRYG
+ Read XKER_RDRYG
+ Read XKER_SWETH
+ Read XKER_GWETH
+ Summary of the ice particule characteristics
+      PRISTINE ICE
+                   masse: A= 0.214000E-02 B= 0.170000E+01
+                 vitesse: C= 0.210000E+06 D= 0.158500E+01
+            distribution:AL= 0.300000E+01NU= 0.300000E+01
+              SNOW
+                   masse: A= 0.200000E-01 B= 0.190000E+01
+                 vitesse: C= 0.510000E+01 D= 0.270000E+00
+           concentration:CC= 0.500000E+01 x= 0.100000E+01
+            distribution:AL= 0.100000E+01NU= 0.100000E+01
+            GRAUPEL
+                   masse: A= 0.196000E+02 B= 0.280000E+01
+                 vitesse: C= 0.124000E+03 D= 0.660000E+00
+           concentration:CC= 0.500000E+06 x=-0.500000E+00
+            distribution:AL= 0.100000E+01NU= 0.100000E+01
+               HAIL
+                   masse: A= 0.470000E+03 B= 0.300000E+01
+                 vitesse: C= 0.207000E+03 D= 0.640000E+00
+           concentration:CC= 0.400000E+05 x=-0.100000E+01
+            distribution:AL= 0.100000E+01NU= 0.800000E+01

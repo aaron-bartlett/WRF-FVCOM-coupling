@@ -1,0 +1,16 @@
+#!/bin/bash
+# source common file for modules and paths
+source ./common.reg || exit 1
+
+cd $RUNDIR || exit 1
+ln -fs $NUWRFDIR/WPS/util/plotgrids_new.ncl  || exit 1
+if [ ! -e $NUWRFDIR/WPS/util/plotgrids_new.ncl ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WPS/util/plotgrids_new.ncl does not exist!"
+    exit 1
+fi
+
+NODE=`uname -n`
+if [[ "$NODE" =~ discover || "$NODE" =~ borg ]]; then
+   module load ncl/6.6.2
+fi
+ncl plotgrids_new.ncl

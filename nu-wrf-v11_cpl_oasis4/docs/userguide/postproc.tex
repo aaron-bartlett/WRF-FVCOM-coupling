@@ -1,0 +1,157 @@
+\section{Post-Processors}
+\label{sec:PostProc}
+
+In Section~\ref{sec:FrontWorkflows}, sample workflows are presented to 
+initialize and run WRF in multiple configurations. In the present section 
+we address the question of post-processing the WRF (and in some cases, LIS) 
+output. All of the post-processors address the task of evaluation, either 
+subjective or objective. Several tools are available to prepare visualizations
+of model fields, while others allow for calculating verification metrics 
+against observations or gridded analyses. 
+
+It should be noted that other generic tools exist that can be used to
+evaluate NU-WRF netCDF4 output. These include:
+
+\begin{itemize}
+  \item IDL (\url{http://www.harrisgeospatial.com/ProductsandSolutions/GeospatialProducts/IDL.aspx});
+  \item IDV (\url{http://www.unidata.ucar.edu/software/idv/});
+  \item MATLAB (\url{http://www.mathworks.com/products/matlab/index.html?s_tid=gn_loc_drop});
+  \item NCL (\url{http://www.ncl.ucar.edu});
+  \item Ncview (\url{http://meteora.ucsd.edu/~pierce/ncview\_home\_page.html});
+  \item Python (\url{http://www.python.org}) with:
+    \begin{itemize}
+    \item Matplotlib (\url{http://matplotlib.org}) or;
+    \item PyNGL and PyNIO (\url{https://www.pyngl.ucar.edu});
+    \end{itemize}
+  \item R (\url{http://www.r-project.org}) with:
+    \begin{itemize}
+    \item ncdf4 (\url{https://cran.r-project.org/web/packages/ncdf4/index.html}); or
+    \item RNetCDF (\url{https://cran.r-project.org/web/packages/RNetCDF/index.html}); 
+    \end{itemize}
+  \item VAPOR (\url{https://www.vapor.ucar.edu}).
+\end{itemize}
+
+See also a list of netCDF compatible software maintained at 
+\url{http://www.unidata.ucar.edu/software/netcdf/software.html}.
+
+\subsection{G-SDSU}
+
+The Goddard Satellite Data Simulator Unit [G-SDSU;~\cite{ref:MatsuiEtAl2014}] 
+is a program developed by NASA for use with cloud-resolving model data. 
+The program can simulate multiple microwave, radar, visible and 
+infrared, lidar, and broadband satellite products from the input model 
+fields. These simulations can be used for detailed verification against actual
+satellite observations~\citep{ref:MatsuiEtAl2009}, for assimilation of 
+satellite radiances, or for exploring future satellite missions. The software 
+is compiled by typing \texttt{./build.sh gsdsu}. Instructions on running the 
+program are available in \cite{ref:GsdsuUserGuide}.
+
+\subsection{RIP4}
+
+The community Read/Interpolate/Plot (RIP) Version 4 software package is 
+capable of processing WRF netCDF files, deriving new variables (e.g., air 
+temperature, relative humidity, CAPE), interpolating to isobaric, isentropic, 
+or constant height levels as well has vertical cross-sections, and plotting
+the fields in NCAR Graphics \texttt{gmeta} format. Advanced options also
+exist, including calculating and plotting trajectories, interpolating
+between coarse and fine grid resolutions, and writing data in a format
+readable by the Vis5D visualization package (see 
+\url{http://vis5d.sourceforge.net}).
+
+The RIP software is compiled by typing \texttt{./build.sh rip}. The two most 
+important executables in RIP4 are:
+
+\begin{itemize}
+\item \textbf{RIPDP\_WRFARW}. This program will read WRF netCDF files and
+transform the data to an internal binary data format. The user will have
+the option of processing either a basic set of variables or all the
+variables in the files.
+\item \textbf{RIP}. This program will process the output of RIPDP\_WRFARW
+based on the user's settings in a provided input file.
+\end{itemize}
+
+Users are referred to \cite{ref:RipUserGuide} for detailed instructions on
+using RIP. Sample namelist files are included in the NU-WRF package in
+\texttt{scripts/rip/}.
+
+\subsection{ARWPOST}
+
+The ARWPOST program is a post-processor developed by NCAR for converting
+WRF-ARW netCDF data into GrADS format. Analogous to RIP, ARWPOST supports
+derivation of certain variables from the model output, and interpolation
+of those fields to isobaric or constant height levels. GrADS
+(see \url{http://www.iges.org/grads}) can then be used to visualize the data.
+The program is compiled by typing \texttt{./build.sh arw}. Instructions for
+running ARWPOST are given in Chapter 9 of \cite{ref:ArwUserGuide}.
+
+\subsection{UPP}
+\label{subsec:UPP}
+
+The UPP program is the ``Unified Post-Processor'' developed by NOAA/NCEP
+for processing all NCEP model data. As with RIP and ARWPOST,
+UPP can read WRF netCDF output files, derive a number of meteorological fields
+from the provided model data, and interpolate to user specified levels.
+In the case of UPP, the data are output in GRIB format. The program is
+compiled by typing \texttt{./build.sh upp}. Instructions for running UPP are 
+given \cite{ref:UppUserGuide}.
+
+The NU-WRF version of UPP includes several modifications provided by 
+NASA SPoRT. These are experimental severe weather diagnostics: 
+\begin{itemize}
+\item \textbf{Instantaneous Lighting Threat 1}. Based on grid-resolved
+graupel flux at -15C. Specified as ``LIGHTNING THREAT 1'' in 
+\texttt{parm/wrf\_cntrl.parm} file.
+\item \textbf{Instantaneous Lightning Threat 2}. Based on vertically
+integrated ice. Specified as ``LIGHTNING THREAT 2'' in 
+\texttt{parm/wrf\_cntrl.parm} file.
+\item \textbf{Instantaneous Lightning Threat 3}. Based on Threat 1 and 2 
+products. Specified as ``LIGHTNING THREAT 3'' in 
+\texttt{parm/wrf\_cntrl.parm} file.
+\item \textbf{Interval Maximum Lighting Threat 1}. Based on grid-resolved
+graupel flux at -15C. Specified as ``MAX LTG THREAT 1'' in 
+\texttt{parm/wrf\_cntrl.parm} file.
+\item \textbf{Interval Maximum Lightning Threat 2}. Based on vertically
+integrated ice. Specified as ``MAX LTG THREAT 2'' in 
+\texttt{parm/wrf\_cntrl.parm} file.
+\item \textbf{Interval Maximum Lightning Threat 3}. Based on Threat 1 and 2 
+products. Specified as ``MAX LGT THREAT 3'' in  
+\texttt{parm/wrf\_cntrl.parm} file.
+\end{itemize}
+
+In addition, UPP has been modified to read both graupel and hail mixing
+ratios, which are provided by the 4ICE microphysics scheme.  Since the
+NCEP GRIB2 table does not list ``hail'' as a variable, hail is added to
+graupel for output and for use in visibility or radiance calculations.  Also,
+UPP will read in radar reflectivity from the WRF output (variable
+REFL\_10CM) if the 3ICE or 4ICE microphysics scheme was used, and this
+field will be used for any requested reflectivity product (in contrast,
+UPP calculates reflectivity for other microphysics schemes).
+
+\subsection{MET}
+
+The MET software is a community meteorological verification toolkit developed
+by the DTC. This is a generic tool for comparing gridded model forecasts
+and analyses against numerous observations -- METARs, Mesonets, rawinsondes,
+MODIS satellite data, and Air Force cloud analysis data. MET expects the
+model data to be in GRIB format, a requirement that forces the user to 
+run UPP on the WRF output first (see Section \ref{subsec:UPP}). Observation
+data formats include PREPBUFR and MADIS. With this input data, MET can be
+used for a number of different meteorological verifications, including 
+point-to-point verification, object-oriented verification, and wavelet
+verification. Numerous statistical measures can be calculated with
+confidence intervals, and plotting capabilities are available. 
+
+The MET software is compiled by typing \texttt{./build.sh met}. Thorough 
+instructions on running the software are provided in \cite{ref:MetUserGuide}.
+
+\subsection{LVT}
+
+LVT is a NASA developed land surface verification toolkit. It is designed
+to compare LIS output files against numerous in-situ, remotely sensed,
+and reanalysis products. Fields that can be evaluated include surface
+fluxes, soil moisture, snow, and radiation. Multiple verification metrics
+can be calculated, and advanced features include data masking, time series,
+temporal averaging, and analysis of data assimilation impacts. The software
+is compiled by typing \texttt{./build.sh lvt}.  Detailed instructions on 
+running LVT can be found in \cite{ref:LvtUserGuide}.
+

@@ -1,0 +1,74 @@
+#!/bin/sh
+# Do not change the following settings
+#SBATCH --job-name=ldt_postlis
+#SBATCH --time=0:15:00
+#SBATCH --output ldt_postlis.slurm.out
+#SBATCH --ntasks=1
+# You may edit the following:
+#SBATCH -A s0942
+#SBATCH --qos=debug
+##SBATCH --mail-user=user@nasa.gov
+
+#---------------------- ldt_postlis script -----------------------------
+
+# Load config file for modules and paths
+source ./common.reg || exit 1
+
+# Move to work directory and make sure ldt.config is present
+if [ -z "$RUNDIR" ] ; then
+    echo "ERROR, RUNDIR is not defined!"
+    exit 1
+fi
+cd $RUNDIR || exit 1
+
+# make sure ldt.config.postlis is present.
+if [ ! -e ldt.config.postlis ] ; then
+    echo "ERROR, ldt.config.postlis not found!"
+    exit 1
+fi
+rm -f ldt.config
+ln -s ldt.config.postlis ldt.config || exit 1
+
+# Create LIS directory links
+if [ -z "$NUWRFDIR" ] ; then
+    echo "ERROR, NUWRFDIR is not defined!"
+    exit 1
+fi
+
+if [ -e $RUNDIR/LS_PARAMETERS ] ; then
+    rm -f $RUNDIR/LS_PARAMETERS || exit 1
+fi
+ln -fs $LISDIR/LS_PARAMETERS $RUNDIR || exit 1
+if [ ! -e $RUNDIR/LS_PARAMETERS ] ; then
+    echo "ERROR, $RUNDIR/LS_PARAMETERS does not exist!"
+    exit 1
+fi
+
+# Get LDT executable
+ln -fs $NUWRFDIR/LISF/ldt/LDT LDT || exit 1
+if [ ! -e $RUNDIR/LDT ] ; then
+    echo "ERROR, $RUNDIR/LDT does not exist!"
+    exit 1
+fi
+cd $RUNDIR || exit 1
+
+LOGDIR=ldt_postlis_logs
+if [ -e "$LOGDIR" ] ; then
+    rm -rf "$LOGDIR" || exit 1
+fi
+mkdir "$LOGDIR" || exit 1
+
+# LDT currently only runs with 1 MPI process.
+mpirun -np 1 ./LDT ldt.config || exit 1
+
+mv ldtlog_postlis.0000 $LOGDIR || exit 1
+
+# Clean up symbolic link
+if [ -L ldt.config ] ; then
+    rm ldt.config || exit 1
+fi
+
+# The end
+exit 0
+
+

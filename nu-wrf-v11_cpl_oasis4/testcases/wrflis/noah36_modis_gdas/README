@@ -1,0 +1,11 @@
+NARR met data with WRF-LIS coupling (Noah-3.6)
+
+This is a test case that uses:
+  (a) Single CONUS domain (-106W to -92W; 34N to 42N) @ 4km resolution 
+      Lambert projection
+  (b) Simulation time period from 12Z 11 Jul 2015 to 12 Jul Jan 2015
+  (c) MODIS geographical data
+  (d) Noah-3.6 LSM with GDAS forcing and budget-bilinear Interpolation
+  (e) uses the lapse-rate based elevation correction using SRTM
+      elevation data
+  (f) Goddard MP (opt 7) and Goddard radiation (opt 5)

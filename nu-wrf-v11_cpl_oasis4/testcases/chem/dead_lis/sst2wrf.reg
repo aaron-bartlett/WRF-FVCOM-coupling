@@ -1,0 +1,15 @@
+#############################
+# BEGIN MERRA2WRF SEGMENT
+#############################
+THIS=MERRA2WRF
+
+cd $RUNDIR || exit 1
+
+echo 'Using pre-staged data'
+ln -sf $DATADIR/MERRA2_400
+MERRA_DATA=(`ls $DATADIR/MERRA/*`)
+for file in "${MERRA_DATA[@]}"; do
+  ln -sf $file
+done
+exit 0
+

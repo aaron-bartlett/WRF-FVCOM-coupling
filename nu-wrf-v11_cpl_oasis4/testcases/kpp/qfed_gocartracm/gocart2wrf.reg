@@ -1,0 +1,35 @@
+#############################
+# BEGIN GOCART SEGMENT
+#############################
+THIS=GOCART
+
+cd $RUNDIR || exit 1
+
+ln -s $DATADIR/gocart_input
+
+# make sure namelist.gocart2wrf is present.
+if [ ! -e namelist.gocart2wrf ] ; then
+    echo "$THIS ERROR: namelist.gocart2wrf not found!"
+    exit 1
+fi
+
+# Run gocart2wrf.  No MPI is used since the program is serial.
+ln -fs $EXEDIR/utils/bin/gocart2wrf.x || exit 1
+if [ ! -e gocart2wrf.x ] ; then
+    echo "$THIS ERROR: gocart2wrf.x not found!"
+    exit 1
+fi
+./gocart2wrf.x || exit 1
+
+#Backup Gocart2wrf's output files
+cp namelist.output namelist.output.gocart2wrf
+
+bdy_files=`ls wrfbdy_d??`
+for file in $bdy_files ; do
+    cp $file ${file}.gocart2wrf
+done
+
+input_files=`ls wrfinput_d??`
+for file in $input_files ; do
+    cp $file ${file}.gocart2wrf
+done

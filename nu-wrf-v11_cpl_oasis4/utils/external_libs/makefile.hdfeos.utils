@@ -1,0 +1,193 @@
+#-------------------------------------------------------------------------#
+#                                                                         #
+#  COPYRIGHT[copyright mark] 2000, Raytheon System Company, its vendors,  #
+#  and suppliers.  ALL RIGHTS RESERVED.                                   #
+#                                                                         #
+#-------------------------------------------------------------------------#
+#----------------------------------------------------------------------------
+# file:		makefile for HDF-EOS testdrivers
+# 	
+# 
+# author:  Abe Taaheri 
+#
+# history:
+#	04 Jan-2006 AT Initial version
+#----------------------------------------------------------------------------
+
+# force make to use the 'sh' shell
+SHELL = /bin/ksh
+
+# name of remove utility
+MAKE=$(MAKECMD)
+RM= /bin/rm
+RMFLAGS= -f 
+CFLAGS_SUN= -DSUN5
+FFLAGS_SUN= -DSUN5
+CFLAGS_HP11= -Aa -Ae -DHP9000 -Dunix
+FFLAGS_HP11= -Aa -Ae -DHP9000 -Dunix
+CFLAGS_HP10= -Aa -Ae -DHP9000 -Dunix
+FFLAGS_HP10= -Aa -Ae -DHP9000 -Dunix
+CFLAGS_DEC= -DDEC_ALPHA -Dunix
+FFLAGS_DEC= -DDEC_ALPHA -Dunix
+CFLAGS_IBM= -DIBM6000 -Dunix
+FFLAGS_IBM= -DIBM6000 -Dunix
+CFLAGS_ALL= -D$(HDFSYS)
+FFLAGS_ALL= -D$(HDFSYS)
+CFLAGS_SGIn32= -n32 -mips3 -DIRIX -Dunix
+FFLAGS_SGIn32= -n32 -mips3 -DIRIX -Dunix
+CFLAGS_SGI64= -64 -mips4 -DSGI64 -Dunix 
+FFLAGS_SGI64= -64 -mips4 -DSGI64 -Dunix 
+CFLAGS_IRX65= -64 -mips4 -DSGI64 -Dunix
+FFLAGS_IRX65= -64 -mips4 -DSGI64 -Dunix
+CFLAGS_CYGWIN= -DCYGWIN
+FFLAGS_CYGWIN= -DCYGWIN
+
+CSUNLIB= -lnsl -lsocket
+FSUNLIB= -lnsl -lsocket
+CHP10LIB=
+FHP10LIB=
+CHP11LIB= -lnsl
+FHP11LIB= -lnsl
+CALLLIB=
+FALLLIB=
+
+all: select_brand
+
+select_brand:
+	@if [ $(BRAND) = "sun5.8" ] ; then \
+		F77="f77"; \
+		CFLAGS="-g $(CFLAGS_SUN)"; \
+		FFLAGS="$(FFLAGS_SUN)"; \
+		CEXTRAL="$(CSUNLIB)"; \
+		FEXTRAL="$(FSUNLIB)"; \
+	elif [ $(BRAND) = "sun5.9" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_SUN)"; \
+		FFLAGS="$(FFLAGS_SUN)"; \
+		CEXTRAL="$(CSUNLIB)"; \
+		FEXTRAL="$(FSUNLIB)"; \
+	elif [ $(BRAND) = "sun5.10" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_SUN)"; \
+		FFLAGS="$(FFLAGS_SUN)"; \
+		CEXTRAL="$(CSUNLIB)"; \
+		FEXTRAL="$(FSUNLIB)"; \
+	elif [ $(BRAND) = "hp" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_HP10)"; \
+		FFLAGS="$(FFLAGS_HP10)"; \
+		CEXTRAL="$(CHP10LIB)"; \
+		FEXTRAL="$(FHP10LIB)"; \
+	elif [ $(BRAND) = "hp11" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_HP11)"; \
+		FFLAGS="$(FFLAGS_HP11)"; \
+		CEXTRAL="$(CHP11LIB)"; \
+		FEXTRAL="$(FHP11LIB)"; \
+	elif [ $(BRAND) = "dec" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "ibm" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "irix65" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_SGI65)"; \
+		FFLAGS="$(FFLAGS_SGI65)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "linux" ] ; then \
+		CC="gcc $(LNX_COMP_FLAG)"; \
+		F77="g77 $(LNX_COMP_FLAG)"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "linux32" ] ; then \
+		CC="gcc $(LNX_COMP_FLAG)"; \
+		F77="g77 $(LNX_COMP_FLAG)"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "linux64" ] ; then \
+#		CC="gcc $(LNX_COMP_FLAG)"; \
+#		F77="g77 $(LNX_COMP_FLAG)"; \
+		CC="$(CC) $(LNX_COMP_FLAG)"; \
+		F77="$(CC) $(LNX_COMP_FLAG)"; \
+		CFLAGS="$(CFLAGS) $(CFLAGS_ALL)"; \
+		FFLAGS="$(CFLAGS) $(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "sgi32" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_SGIn32)"; \
+		FFLAGS="$(FFLAGS_SGIn32)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "sgi64" ] ; then \
+		F77="f77"; \
+		CFLAGS="$(CFLAGS_SGI64)"; \
+		FFLAGS="$(FFLAGS_SGI64)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "macintosh" ] ; then \
+		CC="gcc"; \
+		F77="$(F77)"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "macintel" ] ; then \
+		CC="gcc"; \
+		F77="$(F77)"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "macintel32" ] ; then \
+		CC="gcc -m32 -fPIC"; \
+		F77="$(F77) -m32 -fPIC"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "macintel64" ] ; then \
+		CC="gcc -mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk -fPIC"; \
+		F77="$(F77) -mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk -fPIC"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "wint98" ] ; then \
+		CC="gcc"; \
+		F77="$(F77)"; \
+		CFLAGS="$(CFLAGS_ALL)"; \
+		FFLAGS="$(FFLAGS_ALL)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	elif [ $(BRAND) = "cygwin" ] ; then \
+		CC="gcc"; \
+		F77="g77"; \
+		CFLAGS="$(CFLAGS_CYGWIN)"; \
+		FFLAGS="$(FFLAGS_CYGWIN)"; \
+		CEXTRAL="$(CALLLIB)"; \
+		FEXTRAL="$(FALLLIB)"; \
+	else \
+		echo " The brand $(BRAND) is not supported. " ; \
+		echo " Set the env. vriable BRAND to a supported one then make this makefile"; \
+	fi ; \
+	RM="$(RM)";\
+	RMFLAGS="$(RMFLAGS)";\
+	export CC F77 CFLAGS FFLAGS FEXTRAL;\
+	export CEXTRAL RMFLAGS RM;\
+	make -f make.com;
+
+
+

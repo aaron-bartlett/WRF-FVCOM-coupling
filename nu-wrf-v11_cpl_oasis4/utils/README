@@ -1,0 +1,19 @@
+1 December 2016
+
+This directory contains the following utilities:
+
+casa2wrf
+geos2wrf
+gocart2wrf
+lisconfig
+lis4scm
+merra2wrf (in the geos2wrf directory)
+ndviBareness4Wrf
+sst2wrf
+plot_chem
+prep_chem_sources (modified from a third party)
+
+Other:
+
+config: common build settings (common.mk).
+shared: shared utilities (FileUnit_mod and nml_mod).

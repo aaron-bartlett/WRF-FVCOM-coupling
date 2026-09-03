@@ -1,0 +1,15 @@
+WRF-KPP Testcase
+
+This is a test case that uses:
+  (a) CONUS SE quadrant domain (100W-73W, 25N-45N) with 1 nests (18 km)
+      Lambert projection
+  (b) Simulation time period from 00Z 01 Jan 2008 to 00Z 02 Jan 2008
+  (c) MODIS geographical data, NCEP GFS data
+  (d) GOCART aerosol data from GEOS5 
+      GOCART2WRF executable used to process GOCART data and insert into
+      REAL output files
+  (e) PREP_CHEM_SOURCES processes emissions data into intermediate files
+      GFEDv4 emissions
+  (f) CONVERT_EMISS processes files generated in (f) into WRF-Chem input
+  (g) Goddard MP (4ice) and Goddard 2014 radiation (option 56) with 
+      aerosol coupling and KPP-based chemistry.

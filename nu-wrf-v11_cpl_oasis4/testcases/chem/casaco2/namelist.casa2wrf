@@ -1,0 +1,19 @@
+&wrf
+  max_dom = 1,
+  wrf_dir = './',
+  flux_only = 0,
+  flux_interpolate = 1,
+  fluxdt = 1.0,
+  moving_average_window = 3
+  wrf_out_dir = './',
+/
+
+&casa
+  data_format = 5,
+  conc_dir = './conc',
+  conc_prefix  = 'CASACO2.',
+  flux_dir = './flux',
+  flux_prefix  = 'CO2flux_',
+/
+
+

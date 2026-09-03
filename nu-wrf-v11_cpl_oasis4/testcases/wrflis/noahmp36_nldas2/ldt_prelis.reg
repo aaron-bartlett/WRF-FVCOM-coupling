@@ -1,0 +1,29 @@
+#############################
+# BEGIN LDT_PRELIS SEGMENT
+#############################
+THIS=LDT_PRELIS
+
+cd $RUNDIR || exit 1
+
+# make sure ldt.config is present.
+if [ ! -e ldt.config ] ; then
+    echo "ERROR, ldt.config not found!"
+    exit 1
+fi
+
+rm -f $RUNDIR/LS_PARAMETERS
+if [ ! -e $LISDIR/LS_PARAMETERS ] ; then 
+    echo "ERROR, $LISDIR/LS_PARAMETERS does not exist!"
+    exit 1
+fi  
+ln -fs $LISDIR/LS_PARAMETERS $RUNDIR/LS_PARAMETERS || exit 1
+
+# Run LDT
+ln -fs $EXEDIR/LISF/ldt/LDT LDT || exit 1
+if [ ! -e LDT ] ; then 
+    echo "$THIS ERROR: LDT does not exist!"
+    exit 1
+fi
+$MPIRUN ./LDT ldt.config || exit 1
+
+

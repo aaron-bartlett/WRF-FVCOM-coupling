@@ -1,0 +1,93 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Computational and Information Science and Technology Office,
+! Code 606
+!------------------------------------------------------------------------------
+!                                                                              
+! FILE: namelist.temporalInterpolation
+!                                                                              
+! AUTHOR:                                                                      
+! Eric Kemp, NASA CISTO/SSAI
+!
+! DESCRIPTION:
+! Namelist input file for temporalInterpolation program.
+!
+!------------------------------------------------------------------------------
+
+!------------------------------------------------------------------------------
+!
+! &all:  Common namelist for all WPS intermediate files.
+!
+! fieldName: Name of variable to process.
+!
+!------------------------------------------------------------------------------
+
+&all
+  fieldName='TT',
+/
+
+!------------------------------------------------------------------------------
+!
+! &input1:  Namelist for WPS intermediate file preceding interpolation time.
+!
+! directory1: Directory with WPS intermediate file.
+! prefix1: Prefix of name of WPS intermediate file. Naming convention is
+!          $PREFIX:$YYYY-$MM-$DD_$HH
+! year1:  Valid year of WPS intermediate file.
+! month1: Valid month of WPS intermediate file.
+! day1:   Valid day of WPS intermediate file.
+! hour1:  Valid hour of WPS intermediate file.
+!
+!------------------------------------------------------------------------------
+
+&input1
+  directory1='/discover/nobackup/projects/nu-wrf/members/emkemp/cases_v7/R_GEOS2WRF_TINTERP/input',
+  prefix1='MERRA',
+  year1=2007,
+  month1=01,
+  day1=20,
+  hour1=12,
+/
+
+!------------------------------------------------------------------------------
+!
+! &input2:  Namelist for WPS intermediate file after interpolation time.
+!
+! directory2: Directory with WPS intermediate file.
+! prefix2: Prefix of name of WPS intermediate file. Naming convention is
+!          $PREFIX:$YYYY-$MM-$DD_$HH
+! year2:  Valid year of WPS intermediate file.
+! month2: Valid month of WPS intermediate file.
+! day2:   Valid day of WPS intermediate file.
+! hour2:  Valid hour of WPS intermediate file.
+!
+!------------------------------------------------------------------------------
+
+&input2
+  directory2='/discover/nobackup/projects/nu-wrf/members/emkemp/cases_v7/R_GEOS2WRF_TINTERP/input',
+  prefix2='MERRA',
+  year2=2007,
+  month2=01,
+  day2=20,
+  hour2=18,
+/
+
+!------------------------------------------------------------------------------
+!
+! &output:  Namelist for WPS intermediate file at interpolation time.
+!
+! directoryOutput: Directory with WPS intermediate file.
+! yearOutput:  Valid year of WPS intermediate file.
+! monthOutput: Valid month of WPS intermediate file.
+! dayOutput:   Valid day of WPS intermediate file.
+! hourOutput:  Valid hour of WPS intermediate file.
+!
+!------------------------------------------------------------------------------
+
+&output
+  directoryOutput='/discover/nobackup/projects/nu-wrf/members/emkemp/cases_v7/R_GEOS2WRF_TINTERP/output',
+  yearOutput=2007,
+  monthOutput=01,
+  dayOutput=20,
+  hourOutput=15,
+/
+

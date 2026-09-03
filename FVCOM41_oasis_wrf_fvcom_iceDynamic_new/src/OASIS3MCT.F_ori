@@ -1,0 +1,1131 @@
+      module mod_var_cpl
+         use LIMS
+         use mod_utils
+         use control, only: il_commlocal,id_comp_fvcom
+         use control, only: PAR,MSR
+         use ALL_VARS, only: lonc,latc,lon,lat
+         use ALL_VARS, only: check_index_global,check_index,CHECK_ERROR
+         use mod_par, only: PNE,PNN,PNBN,PMBM,PNHN
+         use mod_par, only: EGID,ELID,NGID,NLID
+         use mod_par, only: EMAP,NMAP,acollect
+
+      implicit none
+      save
+      real,parameter :: ini_real=0.0
+      integer,parameter :: ini_integer=0
+      character(len=80) :: fini_fvcom !-cpl initial file
+      integer :: nlon,nlat,ncor
+      real,dimension(:,:),allocatable :: glon,glat
+      real,dimension(:,:),allocatable :: glonc,glatc
+      integer,dimension(:,:),allocatable :: imask
+      real,dimension(:,:,:),allocatable :: gclo,gcla
+      !for cell points
+      real,dimension(:,:),allocatable :: lon_local,lat_local
+      integer,dimension(:,:),allocatable :: imask_local
+      integer :: oasis_nnn !--local cell number for cpl
+      integer :: part_id
+      integer :: il_paral_size,il_flag
+      INTEGER, DIMENSION(:), ALLOCATABLE :: il_paral
+      integer :: var_nodims(2),var_type
+      integer :: var_actual_shape(4)
+
+      !for node points
+      real,dimension(:,:),allocatable :: lon_local2,lat_local2
+      integer,dimension(:,:),allocatable :: imask_local2
+      integer :: oasis_nnn2 !--local node number for cpl
+      integer :: part_id2
+      integer :: il_paral_size2,il_flag2
+      INTEGER, DIMENSION(:), ALLOCATABLE :: il_paral2
+      integer :: var_nodims2(2),var_type2
+      integer :: var_actual_shape2(4)
+
+      integer :: mype,npes,localComm,comp_id
+      integer :: ierror,rank,w_unit
+      integer :: itap_sec=0
+      integer,allocatable :: local_nn(:) !-local node id for cpl
+      !--climate to ocean
+      integer :: id_fvcom_recv_evap,id_fvcom_recv_precip
+      integer :: id_fvcom_recv_latent,id_fvcom_recv_sensible
+      integer :: id_fvcom_recv_shortwave,id_fvcom_recv_longwave
+      integer :: id_fvcom_recv_netheat,id_fvcom_recv_cloud
+      integer :: id_fvcom_recv_u10,id_fvcom_recv_v10
+      integer :: id_fvcom_recv_airt,id_fvcom_recv_airp
+      integer :: id_fvcom_recv_rhumidity,id_fvcom_recv_spq
+      integer :: id_fvcom_recv_dew
+      !--ocean to climate
+      integer :: id_fvcom_send_sst
+      integer :: id_fvcom_send_aice
+      !--wave to ocean (radiation stress gradient)
+      integer :: id_fvcom_recv_fx
+      integer :: id_fvcom_recv_fy
+      !--wave to ocean (wave parameters)
+      integer :: id_fvcom_recv_hs
+      integer :: id_fvcom_recv_wlen
+      integer :: id_fvcom_recv_dir
+      integer :: id_fvcom_recv_rtp
+      integer :: id_fvcom_recv_tmbot
+      integer :: id_fvcom_recv_ubot
+      !-- ocean to wave
+      integer :: id_fvcom_send_u
+      integer :: id_fvcom_send_v
+      integer :: id_fvcom_send_zeta
+!-----field for climate-ocean
+      real,dimension(:,:),allocatable :: field_fvcom_recv_evap,field_fvcom_recv_precip
+      real,dimension(:,:),allocatable :: field_fvcom_recv_latent,field_fvcom_recv_sensible
+      real,dimension(:,:),allocatable :: field_fvcom_recv_shortwave,field_fvcom_recv_longwave
+      real,dimension(:,:),allocatable :: field_fvcom_recv_netheat,field_fvcom_recv_cloud
+      real,dimension(:,:),allocatable :: field_fvcom_recv_u10,field_fvcom_recv_v10
+      real,dimension(:,:),allocatable :: field_fvcom_recv_airt,field_fvcom_recv_airp
+      real,dimension(:,:),allocatable :: field_fvcom_recv_rhumidity,field_fvcom_recv_spq
+      real,dimension(:,:),allocatable :: field_fvcom_recv_dew
+      real,dimension(:,:),allocatable :: field_fvcom_send_sst
+      real,dimension(:,:),allocatable :: field_fvcom_send_aice
+!-----field for wave(radiation)-ocean
+      real,dimension(:,:),allocatable :: field_fvcom_recv_fx
+      real,dimension(:,:),allocatable :: field_fvcom_recv_fy
+      real,dimension(:,:),allocatable :: field_fvcom_send_u
+      real,dimension(:,:),allocatable :: field_fvcom_send_v
+      real,dimension(:,:),allocatable :: field_fvcom_send_zeta
+!-----field for wave(parameters)-ocean
+      real,dimension(:,:),allocatable :: field_fvcom_recv_hs
+      real,dimension(:,:),allocatable :: field_fvcom_recv_wlen
+      real,dimension(:,:),allocatable :: field_fvcom_recv_dir
+      real,dimension(:,:),allocatable :: field_fvcom_recv_rtp
+      real,dimension(:,:),allocatable :: field_fvcom_recv_tmbot
+      real,dimension(:,:),allocatable :: field_fvcom_recv_ubot
+      real,dimension(:),allocatable :: field_fvcom_recv_tmp
+!-----ch2018
+      integer :: idx_ocn2atm,idx_wav2atm,idx_atm2ocn
+      integer :: idx_ocn2wav,idx_wav2ocn,idx_atm2wav
+!-----
+
+      contains
+
+      subroutine ini_coupler(comp_name)
+      use netcdf
+      use mod_oasis
+      implicit none
+
+      include 'mpif.h'
+         
+      integer :: i,j,k
+      integer :: M_new
+      integer :: tmpoutid !--
+      character(len=*) :: comp_name
+      character(len=3) :: chout
+      character(len=128) :: comp_out
+      CHARACTER(len=8), PARAMETER :: var_name1 = 'FSENDOCN' ! 8 characters field sent by model1 to model2
+      CHARACTER(len=8), PARAMETER :: var_name2 = 'FRECVOCN' ! 8 characters field received by model1 from model2
+
+      !CALL oasis_set_couplcomm( localComm, ierror )  !ch2017wrf
+      if (MSR) print *,comp_name
+      npes=NPROCS
+      mype=myid
+
+      !--collect coupler namelist information-ch2018
+      call get_namcpl_index(idx_ocn2atm,'fvcom','WRF',cpl_dt_ocn2atm,cpl_lag_ocn2atm,fini_fvcom)
+      !if (fini_fvcom(1:3)=='ini') then !-old
+      if (fini_fvcom(1:4)=='none') then !-ch201902
+         call get_namcpl_index(idx_ocn2wav,'fvcom','swan',cpl_dt_ocn2wav,cpl_lag_ocn2wav,fini_fvcom)
+      else
+         call get_namcpl_index(idx_ocn2wav,'fvcom','swan',cpl_dt_ocn2wav,cpl_lag_ocn2wav)
+      end if
+      call get_namcpl_index(idx_wav2ocn,'swan','fvcom',cpl_dt_wav2ocn,cpl_lag_wav2ocn)
+      call get_namcpl_index(idx_atm2ocn,'WRF','fvcom',cpl_dt_atm2ocn,cpl_lag_atm2ocn)
+
+      print *,"****************************************************"
+
+# if !defined (SPHERICAL)
+!===read global coordinates(in lonlat) from external grid file------!
+!---used when models running in cartesian coordinates(x,y in meters)!
+!---the lonlat coordinates only used for oasis interpolation as ----!
+!---models are still running in (x,y) coordinates---!
+      if(.not.allocated(glon)) allocate(glon(MGL,1));glon=0.0;
+      if(.not.allocated(glat)) allocate(glat(MGL,1));glat=0.0;
+      if(.not.allocated(glonc)) allocate(glonc(NGL,1));glonc=0.0;
+      if(.not.allocated(glatc)) allocate(glatc(NGL,1));glatc=0.0;
+      call read_grid(NGL,1,MGL,1,trim(fini_fvcom))
+# endif
+!========end read global lonlat) from external grid file------------!
+
+!================ PARTITION DEFINITION for cells-----------!
+   !--points partition--
+         oasis_nnn=N
+         il_paral_size=oasis_nnn+2
+         allocate(il_paral(il_paral_size));il_paral=0
+         il_paral(1)=4 ! 4 indicate points partition
+         il_paral(2)=oasis_nnn ! number of points in partition
+         do i=3,il_paral_size
+            il_paral(i)=EGID(i-2) !corresponding global index
+         end do
+         print *,"mype,npes,size(il_paral)"
+         print *,mype,npes,size(il_paral)
+
+
+         print *,"start,oasis_def_partition-cell"
+      CALL oasis_def_partition (part_id, il_paral, ierror)
+
+   !---ch2017
+   !----- define new local node number due to overlay at internal boundary------!
+      check_index(:)=myid !give local node an unique value
+      IF (PAR) THEN
+         call MPI_BARRIER(il_commlocal,ierror) 
+         CALL ACOLLECT(MYID,MSRID,NPROCS,NMAP,check_index,check_index_global)
+         CALL MPI_BCAST(CHECK_index_global,MGL,MPI_F,0,il_commlocal,IERROR)
+      ELSE
+         check_index_global(:)=myid
+      END IF
+      j=0 
+      do i=1,M
+         if (check_index_global(NGID(i))>myid) then !find internal boundary nodes
+            !print *,check_index_global(NGID(i)),i
+            !write(10001,*) NGID(i)
+            j=j+1
+         end if
+      end do
+      print *,"number of overlay node",j
+      print *,"number of total node",M
+
+      !-- new node number without overlay--!
+      M_new=M-j 
+      oasis_nnn2=M_new !put into public variable
+      print *,"new number of node for oasis partition",M_new,oasis_nnn2
+
+      if(.not.allocated(local_nn)) allocate(local_nn(M_new));local_nn=0;
+   !----- end define new local node number due to overlay at internal boundary------!
+
+!================ PARTITION DEFINITION for nodes-----------!
+   !---points partition--
+         il_paral_size2=oasis_nnn2+2
+         allocate(il_paral2(il_paral_size2));il_paral2=0
+         il_paral2(1)=4 ! 4 indicate points partition
+         il_paral2(2)=oasis_nnn2 ! number of points in partition
+
+         k=0
+         do i=1,M
+            if (check_index_global(NGID(i))<=myid) then
+               k=k+1
+               local_nn(k)=i !store new local node id
+               il_paral2(k+2)=NGID(i) !corresponding global index
+            end if
+         end do
+         print *,"mype,myid,npes,size(il_paral2),M_new,k"
+         print *,mype,myid,npes,size(il_paral2),M_new,k
+         if (M_new/=k) then
+            print *,"M_new and k must be equal"
+            print *,"M_new",M_new
+            print *,"k",k
+            call pstop
+         end if
+   CALL oasis_def_partition(part_id2, il_paral2, ierror)
+
+!------- get local coordinates
+      !-cell
+      allocate(lon_local(oasis_nnn,1))
+      allocate(lat_local(oasis_nnn,1))
+      allocate(imask_local(oasis_nnn,1))
+      !-node
+      allocate(lon_local2(oasis_nnn2,1))
+      allocate(lat_local2(oasis_nnn2,1))
+      allocate(imask_local2(oasis_nnn2,1))
+
+!---------------cell
+      do i=1,oasis_nnn
+# if defined (SPHERICAL)
+         if (lonc(i)>180.0) then
+          lon_local(i,1)=lonc(i)-360.0
+         else
+          lon_local(i,1)=lonc(i)
+         end if
+          lat_local(i,1)=latc(i)
+# else
+         if (glonc(EGID(i),1)>180.0) then
+          lon_local(i,1)=glonc(EGID(i),1)-360.0
+         else
+          lon_local(i,1)=glonc(EGID(i),1)
+         end if
+          lat_local(i,1)=glatc(EGID(i),1)
+# endif
+          imask_local(i,1)=1
+      end do
+
+!---------------node
+      do i=1,oasis_nnn2
+            k=local_nn(i)
+# if defined (SPHERICAL)
+            if (lon(k)>180.0) then
+               lon_local2(i,1)=lon(k)-360.0
+            else
+               lon_local2(i,1)=lon(k)
+            end if
+               lat_local2(i,1)=lat(k)
+# else
+            if (glon(NGID(k),1)>180.0) then
+               lon_local2(i,1)=glon(NGID(k),1)-360.0
+            else
+               lon_local2(i,1)=glon(NGID(k),1)
+            end if
+               lat_local2(i,1)=glat(NGID(k),1)
+# endif
+               imask_local2(i,1)=1
+      end do
+
+  !----Mask inversion to follow (historical) OASIS convention (0=not masked;1=masked)
+      WHERE(imask_local == 1)
+          imask_local=0
+      ELSEWHERE
+          imask_local=1
+      END WHERE
+
+      WHERE(imask_local2 == 1)
+          imask_local2=0
+      ELSEWHERE
+          imask_local2=1
+      END WHERE
+
+
+   !----Put here OASIS grid, corner, areas and mask writing calls !
+         print *,"start,oasis_grids_write"
+         CALL oasis_start_grids_writing(il_flag)
+         ! cell grid
+         CALL oasis_write_grid('fvcomN',NGL,1,lon_local,lat_local,part_id)
+         CALL oasis_write_mask('fvcomN',NGL,1,imask_local,part_id)
+         ! node grid
+         CALL oasis_write_grid('fvcomM',MGL,1,lon_local2,lat_local2,part_id2)
+         CALL oasis_write_mask('fvcomM',MGL,1,imask_local2,part_id2)
+         CALL oasis_terminate_grids_writing()
+         print *,"end,oasis_grids_write"
+
+   !----oasis coupler dimension variables
+      !cell points
+      var_nodims(1) = 2    ! Rank of the field array is 2
+      var_nodims(2) = 1    ! Bundles always 1 for OASIS3
+      var_type = OASIS_Real
+      !
+      var_actual_shape(1) = 1
+      var_actual_shape(2) = oasis_nnn
+      var_actual_shape(3) = 1
+      var_actual_shape(4) = 1
+
+      !node points
+      var_nodims2(1) = 2    ! Rank of the field array is 2
+      var_nodims2(2) = 1    ! Bundles always 1 for OASIS3
+      var_type2 = OASIS_Real
+      !
+      var_actual_shape2(1) = 1
+      var_actual_shape2(2) = oasis_nnn2
+      var_actual_shape2(3) = 1
+      var_actual_shape2(4) = 1
+
+      print *,"var_actual_shape",var_actual_shape
+      print *,"var_actual_shape2",var_actual_shape2
+
+      print *,"================start,oasis_def_var----fvcom==============="
+      print *,"            "
+      print *,"================start defining sending variables-----------"
+
+      !--ocean to climate
+      print *,"a1.sst"
+      id_fvcom_send_sst=-1
+      CALL oasis_def_var(id_fvcom_send_sst,'fvcom_send_sst',part_id2,var_nodims2,&
+                         Oasis_out,var_actual_shape2,var_type2,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at sst')
+      ENDIF
+      !
+      print *,"a2.aice"
+      id_fvcom_send_aice=-1
+      CALL oasis_def_var(id_fvcom_send_aice,'fvcom_send_aice',part_id2,var_nodims2,&
+                         Oasis_out,var_actual_shape2,var_type2,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at aice')
+      ENDIF
+      !
+      !--ocean to wave
+      print *,"a3.u"
+      id_fvcom_send_u=-1
+      CALL oasis_def_var(id_fvcom_send_u,'fvcom_send_u',part_id,var_nodims,&
+                         Oasis_out,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at u')
+      ENDIF
+      !
+      print *,"a4.v"
+      id_fvcom_send_v=-1
+      CALL oasis_def_var(id_fvcom_send_v,'fvcom_send_v',part_id,var_nodims,&
+                         Oasis_out,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at v')
+      ENDIF
+      !
+      print *,"a5.zeta"
+      id_fvcom_send_zeta=-1
+      CALL oasis_def_var(id_fvcom_send_zeta,'fvcom_send_zeta',part_id,var_nodims,&
+                         Oasis_out,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at zeta')
+      ENDIF
+      !
+      print *,"=============end defining sending variables-----------"
+      print *,"                   "
+      print *,"=============start defining receiving variables-------"
+
+
+      !--climate to ocean
+      print *,"b1.evaporation"
+      id_fvcom_recv_evap=-1
+      CALL oasis_def_var(id_fvcom_recv_evap,'fvcom_recv_evap',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at evaporation')
+      ENDIF
+      !
+      print *,"b2.precipitation"
+      id_fvcom_recv_precip=-1
+      CALL oasis_def_var(id_fvcom_recv_precip,'fvcom_recv_precip',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at precipitation')
+      ENDIF
+      !
+      print *,"b3.latent"
+      id_fvcom_recv_latent=-1
+      CALL oasis_def_var(id_fvcom_recv_latent,'fvcom_recv_latent',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at latent')
+      ENDIF
+      !
+      print *,"b4.sensible"
+      id_fvcom_recv_sensible=-1
+      CALL oasis_def_var(id_fvcom_recv_sensible,'fvcom_recv_sensible',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at sensible')
+      ENDIF
+      !
+      print *,"b5.shortwave"
+      id_fvcom_recv_shortwave=-1
+      CALL oasis_def_var(id_fvcom_recv_shortwave,'fvcom_recv_shortwave',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at shortwave')
+      ENDIF
+      !
+      print *,"b6.longwave"
+      id_fvcom_recv_longwave=-1
+      CALL oasis_def_var(id_fvcom_recv_longwave,'fvcom_recv_longwave',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at longwave')
+      ENDIF
+      !
+      print *,"b7.netheat"
+      id_fvcom_recv_netheat=-1
+      CALL oasis_def_var(id_fvcom_recv_netheat,'fvcom_recv_netheat',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at netheat')
+      ENDIF
+      !
+      print *,"b8.spq"
+      id_fvcom_recv_spq=-1
+      CALL oasis_def_var(id_fvcom_recv_spq,'fvcom_recv_spq',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at spq')
+      ENDIF
+      !
+      print *,"b9.relative humidiry"
+      id_fvcom_recv_rhumidity=-1
+      CALL oasis_def_var(id_fvcom_recv_rhumidity,'fvcom_recv_rhumidity',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at rhumidity')
+      ENDIF
+      !
+      print *,"b10.u10"
+      id_fvcom_recv_u10=-1
+      CALL oasis_def_var(id_fvcom_recv_u10,'fvcom_recv_u10',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at u10')
+      ENDIF
+      !
+      print *,"b11.v10"
+      id_fvcom_recv_v10=-1
+      CALL oasis_def_var(id_fvcom_recv_v10,'fvcom_recv_v10',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at v10')
+      ENDIF
+      !
+      print *,"b12.airt"
+      id_fvcom_recv_airt=-1
+      CALL oasis_def_var(id_fvcom_recv_airt,'fvcom_recv_airt',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at airt')
+      ENDIF
+      !
+      print *,"b13.airp"
+      id_fvcom_recv_airp=-1
+      CALL oasis_def_var(id_fvcom_recv_airp,'fvcom_recv_airp',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at airp')
+      ENDIF
+      !
+      print *,"b14.cloud"
+      id_fvcom_recv_cloud=-1
+      CALL oasis_def_var(id_fvcom_recv_cloud,'fvcom_recv_cloud',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at cloud')
+      ENDIF
+      !
+      print *,"b15.dew"
+      id_fvcom_recv_dew=-1
+      CALL oasis_def_var(id_fvcom_recv_dew,'fvcom_recv_dew',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at dew')
+      ENDIF
+      
+      !-----wave(radiation) to ocean
+      print *,"b21.fx"
+      id_fvcom_recv_fx=-1
+      CALL oasis_def_var(id_fvcom_recv_fx,'fvcom_recv_fx',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at fx')
+      ENDIF
+      !
+      print *,"b22.fy"
+      id_fvcom_recv_fy=-1
+      CALL oasis_def_var(id_fvcom_recv_fy,'fvcom_recv_fy',part_id,var_nodims,&
+                         Oasis_in,var_actual_shape,var_type,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at fy')
+      ENDIF
+
+      !-----wave(parameters) to ocean
+      print *,"b23.hs"
+      id_fvcom_recv_hs=-1
+      CALL oasis_def_var(id_fvcom_recv_hs,'fvcom_recv_hs',part_id2,var_nodims2,&
+                         Oasis_in,var_actual_shape2,var_type2,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at hs')
+      ENDIF
+      !
+      print *,"b24.wlen"
+      id_fvcom_recv_wlen=-1
+      CALL oasis_def_var(id_fvcom_recv_wlen,'fvcom_recv_wlen',part_id2,var_nodims2,&
+                         Oasis_in,var_actual_shape2,var_type2,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at wlen')
+      ENDIF
+      !
+      print *,"b25.dir"
+      id_fvcom_recv_dir=-1
+      CALL oasis_def_var(id_fvcom_recv_dir,'fvcom_recv_dir',part_id2,var_nodims2,&
+                         Oasis_in,var_actual_shape2,var_type2,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at dir')
+      ENDIF
+      !
+      print *,"b26.rtp"
+      id_fvcom_recv_rtp=-1
+      CALL oasis_def_var(id_fvcom_recv_rtp,'fvcom_recv_rtp',part_id2,var_nodims2,&
+                         Oasis_in,var_actual_shape2,var_type2,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at rtp')
+      ENDIF
+      !
+      print *,"b27.tmbot"
+      id_fvcom_recv_tmbot=-1
+      CALL oasis_def_var(id_fvcom_recv_tmbot,'fvcom_recv_tmbot',part_id2,var_nodims2,&
+                         Oasis_in,var_actual_shape2,var_type2,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at tmbot')
+      ENDIF
+      !
+      print *,"b28.ubot"
+      id_fvcom_recv_ubot=-1
+      CALL oasis_def_var(id_fvcom_recv_ubot,'fvcom_recv_ubot',part_id2,var_nodims2,&
+                         Oasis_in,var_actual_shape2,var_type2,ierror)
+      IF (ierror /= 0) THEN
+         WRITE (w_unit,*) 'oasis_def_var abort by, ',comp_name,' comp_id ',id_comp_fvcom
+         CALL oasis_abort(id_comp_fvcom,comp_name,'Problem at ubot')
+      ENDIF
+
+      print *,"============end defining receving variables-----------fvcom"
+
+!Call mpi_barrier(il_commlocal,ierror)
+      print *, "this is id mype",mype
+
+      print *,"start,oasis_end_def_var-----fvcom"
+      CALL oasis_enddef(ierror)
+      IF ( ierror /= 0 ) WRITE(*,*) 'oasis_enddef error'
+      print *,"end,oasis_end_def_var----fvcom"
+
+  !----allocate coupler exchange variables
+      !--climate to ocean
+      !-evap
+      IF(.not.allocated(field_fvcom_recv_evap)) THEN
+       ALLOCATE(field_fvcom_recv_evap(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_evap'
+       field_fvcom_recv_evap=0.0
+      END IF
+      !-precip
+      IF(.not.allocated(field_fvcom_recv_precip)) THEN
+       ALLOCATE(field_fvcom_recv_precip(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_precip'
+       field_fvcom_recv_precip=0.0
+      END IF
+      !-latent
+      IF(.not.allocated(field_fvcom_recv_latent)) THEN
+       ALLOCATE(field_fvcom_recv_latent(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_latent'
+       field_fvcom_recv_latent=0.0
+      END IF
+      !-sensible
+      IF(.not.allocated(field_fvcom_recv_sensible)) THEN
+       ALLOCATE(field_fvcom_recv_sensible(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_sensible'
+       field_fvcom_recv_sensible=0.0
+      END IF
+      !-shortwave
+      IF(.not.allocated(field_fvcom_recv_shortwave)) THEN
+       ALLOCATE(field_fvcom_recv_shortwave(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_shortwave'
+       field_fvcom_recv_shortwave=0.0
+      END IF
+      !-longwave
+      IF(.not.allocated(field_fvcom_recv_longwave)) THEN
+       ALLOCATE(field_fvcom_recv_longwave(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_longwave'
+       field_fvcom_recv_longwave=0.0
+      END IF
+      !-netheat
+      IF(.not.allocated(field_fvcom_recv_netheat)) THEN
+       ALLOCATE(field_fvcom_recv_netheat(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_netheat'
+       field_fvcom_recv_netheat=0.0
+      END IF
+      !-spq
+      IF(.not.allocated(field_fvcom_recv_spq)) THEN
+       ALLOCATE(field_fvcom_recv_spq(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_spq'
+       field_fvcom_recv_spq=0.0
+      END IF
+      !-rh
+      IF(.not.allocated(field_fvcom_recv_rhumidity)) THEN
+       ALLOCATE(field_fvcom_recv_rhumidity(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_rhumidity'
+       field_fvcom_recv_rhumidity=0.0
+      END IF
+      !-u10
+      IF(.not.allocated(field_fvcom_recv_u10)) THEN
+       ALLOCATE(field_fvcom_recv_u10(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_u10'
+       field_fvcom_recv_u10=0.0
+      END IF
+      !-v10
+      IF(.not.allocated(field_fvcom_recv_v10)) THEN
+       ALLOCATE(field_fvcom_recv_v10(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_v10'
+       field_fvcom_recv_v10=0.0
+      END IF
+      !-airt
+      IF(.not.allocated(field_fvcom_recv_airt)) THEN
+       ALLOCATE(field_fvcom_recv_airt(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_airt'
+       field_fvcom_recv_airt=0.0
+      END IF
+      !-airp
+      IF(.not.allocated(field_fvcom_recv_airp)) THEN
+       ALLOCATE(field_fvcom_recv_airp(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_airp'
+       field_fvcom_recv_airp=0.0
+      END IF
+      !-cloud
+      IF(.not.allocated(field_fvcom_recv_cloud)) THEN
+       ALLOCATE(field_fvcom_recv_cloud(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_cloud'
+       field_fvcom_recv_cloud=0.0
+      END IF
+      !-dew
+      IF(.not.allocated(field_fvcom_recv_dew)) THEN
+       ALLOCATE(field_fvcom_recv_dew(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_dew'
+       field_fvcom_recv_dew=0.0
+      END IF
+      !
+      !-ocean to climate
+      !-sst
+      IF(.not.allocated(field_fvcom_send_sst)) THEN
+       ALLOCATE(field_fvcom_send_sst(var_actual_shape2(2),var_actual_shape2(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_send_sst'
+       field_fvcom_send_sst=0.0
+      END IF
+      !-aice
+      IF(.not.allocated(field_fvcom_send_aice)) THEN
+       ALLOCATE(field_fvcom_send_aice(var_actual_shape2(2),var_actual_shape2(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_send_aice'
+       field_fvcom_send_aice=0.0
+      END IF
+      !
+      !-ocean to wave
+      !-u
+      IF(.not.allocated(field_fvcom_send_u)) THEN
+       ALLOCATE(field_fvcom_send_u(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_send_u'
+       field_fvcom_send_u=0.0
+      END IF
+      !-v
+      IF(.not.allocated(field_fvcom_send_v)) THEN
+       ALLOCATE(field_fvcom_send_v(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_send_v'
+       field_fvcom_send_v=0.0
+      END IF
+      !-zeta
+      IF(.not.allocated(field_fvcom_send_zeta)) THEN
+       ALLOCATE(field_fvcom_send_zeta(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_send_zeta'
+       field_fvcom_send_zeta=0.0
+      END IF
+      !
+      !-wave to ocean
+      !-fx
+      IF(.not.allocated(field_fvcom_recv_fx)) THEN
+       ALLOCATE(field_fvcom_recv_fx(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_fx'
+       field_fvcom_recv_fx=0.0
+      END IF
+      !-fy
+      IF(.not.allocated(field_fvcom_recv_fy)) THEN
+       ALLOCATE(field_fvcom_recv_fy(var_actual_shape(2),var_actual_shape(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_fy'
+       field_fvcom_recv_fy=0.0
+      END IF
+      !-hs
+      IF(.not.allocated(field_fvcom_recv_hs)) THEN
+       ALLOCATE(field_fvcom_recv_hs(var_actual_shape2(2),var_actual_shape2(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_hs'
+       field_fvcom_recv_hs=0.0
+      END IF
+      !-wlen
+      IF(.not.allocated(field_fvcom_recv_wlen)) THEN
+       ALLOCATE(field_fvcom_recv_wlen(var_actual_shape2(2),var_actual_shape2(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_wlen'
+       field_fvcom_recv_wlen=0.0
+      END IF
+      !-dir
+      IF(.not.allocated(field_fvcom_recv_dir)) THEN
+       ALLOCATE(field_fvcom_recv_dir(var_actual_shape2(2),var_actual_shape2(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_dir'
+       field_fvcom_recv_dir=0.0
+      END IF
+      !-rtp
+      IF(.not.allocated(field_fvcom_recv_rtp)) THEN
+       ALLOCATE(field_fvcom_recv_rtp(var_actual_shape2(2),var_actual_shape2(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_rtp'
+       field_fvcom_recv_rtp=0.0
+      END IF
+      !-tmbot
+      IF(.not.allocated(field_fvcom_recv_tmbot)) THEN
+       ALLOCATE(field_fvcom_recv_tmbot(var_actual_shape2(2),var_actual_shape2(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_tmbot'
+       field_fvcom_recv_tmbot=0.0
+      END IF
+      !-ubot
+      IF(.not.allocated(field_fvcom_recv_ubot)) THEN
+       ALLOCATE(field_fvcom_recv_ubot(var_actual_shape2(2),var_actual_shape2(4)),STAT=ierror)
+       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_fvcom_recv_ubot'
+       field_fvcom_recv_ubot=0.0
+      END IF
+      !
+      !-----------------------------------
+
+      print *,"re-initial check_index"
+      check_index(:)=0
+      check_index_global(:)=0
+
+         print *,"end,ini_coupler----------fvcom"
+
+
+      end subroutine ini_coupler
+
+      subroutine tocoupler(itap_sec,id_send,nlon,nlat,field1_send)
+      use netcdf
+      use mod_oasis
+      implicit none
+
+      include 'mpif.h'
+         
+      integer :: id_send,itap_sec,nlon,nlat,ierror
+      REAL :: field1_send(nlon,nlat)
+
+      if (id_send>0) then !-ch2018
+         CALL oasis_put(id_send,itap_sec,field1_send,ierror)
+      end if
+
+      end subroutine tocoupler
+
+      subroutine fromcoupler(itap_sec,id_recv,nlon,nlat,field2_recv)
+      use netcdf
+      use mod_oasis
+      implicit none
+
+      include 'mpif.h'
+         
+      integer :: id_recv,itap_sec,nlon,nlat,ierror
+      REAL :: field2_recv(nlon,nlat)
+
+      if (id_recv>0) then !-ch2018
+         CALL oasis_get(id_recv,itap_sec,field2_recv,ierror)
+      end if
+
+
+      end subroutine fromcoupler
+
+      subroutine endcoupler
+      use netcdf
+      use mod_oasis
+      implicit none
+
+      include 'mpif.h'
+         
+      integer :: ierror
+
+      CALL oasis_terminate(ierror)
+      IF (ierror /= 0) THEN
+       !  WRITE (w_unit,*) 'oasis_terminate abort by model? compid ',comp_id
+       !  CALL oasis_abort(comp_id,comp_name,'Problem at line 13')
+         WRITE (*,*) 'oasis_terminate abort by model? compid '
+      ENDIF
+
+
+      end subroutine endcoupler
+
+!--ch2018--get coupler namelist info
+      subroutine get_namcpl_index(index,model_src,model_dst,cpl_dt,cpl_lag,fini)
+      use mod_oasis
+
+      implicit none
+
+      character(len=*),intent(in) :: model_src,model_dst
+      integer,intent(out) :: index
+      integer,intent(out),optional :: cpl_dt,cpl_lag
+      character(len=*),intent(out),optional :: fini
+      integer :: iwd,len_src,len_dst
+
+      len_src=len_trim(model_src)
+      len_dst=len_trim(model_dst)
+
+      index=-1
+      do iwd=1,nnamcpl
+         if (namsrcfld(iwd)(1:len_src)==trim(model_src)) then
+            if (namdstfld(iwd)(1:len_dst)==trim(model_dst)) then
+               if (index<0) index=iwd
+            end if
+         end if
+      end do
+
+      if (index>0) then
+         if (present(cpl_dt)) cpl_dt=namflddti(index)
+         if (present(cpl_lag)) cpl_lag=namfldlag(index)
+         if (present(fini)) fini=trim(namrstfil(index))
+
+         if (MSR) then
+            print *,'namcouple index ',model_src,'2',model_dst,index
+           if (present(fini)) print *,'initial file: ',trim(fini)
+           if (present(cpl_dt)) print *,'cpl_dt: ',cpl_dt
+           if (present(cpl_lag)) print *,'cpl_lag: ',cpl_lag
+            print *,'-----------------------------------------------'
+         end if
+      else
+         if (present(cpl_dt)) cpl_dt=-999
+         if (present(cpl_lag)) cpl_lag=-999
+         if (present(fini)) fini='none'
+      end if
+
+      end subroutine get_namcpl_index
+!--end ch2018
+
+!*********************************************************************************
+SUBROUTINE hdlerr(istatus, line)
+  !*********************************************************************************
+  use netcdf
+  implicit none
+  !
+  INCLUDE 'mpif.h'
+  !
+  ! Check for error message from NetCDF call
+  !
+  integer, intent(in) :: istatus, line
+  integer             :: ierror
+  !
+  IF (istatus .NE. NF90_NOERR) THEN
+      write ( * , * ) 'NetCDF problem at line',line
+      write ( * , * ) 'Stopped '
+      call MPI_Abort ( il_commlocal, 1, ierror )
+  ENDIF
+  !
+  RETURN
+END SUBROUTINE hdlerr
+
+  !****************************************************************************************
+  SUBROUTINE read_grid(nlonc,nlatc,nlon,nlat,data_filename)
+  !**************************************************************************************
+  !
+  USE netcdf
+  IMPLICIT NONE
+  !
+  CHARACTER(len=*),intent(in) :: data_filename
+  INTEGER, INTENT(in) :: nlon,nlat
+  INTEGER, INTENT(in) :: nlonc,nlatc
+  INTEGER :: i,j,k,w_unit
+  INTEGER :: il_file_id
+  INTEGER :: il_lon_id,il_lat_id
+  INTEGER :: il_lonc_id,il_latc_id
+  INTEGER :: lon_dims,lat_dims
+  INTEGER, DIMENSION(NF90_MAX_VAR_DIMS) :: lon_dims_ids,lat_dims_ids,&
+                                           lon_dims_len,lat_dims_len
+  INTEGER,  DIMENSION(5) :: ila_dim
+  INTEGER,  DIMENSION(5) :: ila_what
+  REAL, DIMENSION(nlon,nlat) :: gridlon,gridlat,gridsrf
+  INTEGER, DIMENSION(nlon,nlat) :: indice_mask
+  !
+   print *,"start read_grid.f90"
+   w_unit=1005
+  !
+  ! Dimensions
+  CALL hdlerr(NF90_OPEN(data_filename,NF90_NOWRITE,il_file_id), __LINE__ )
+  !
+  CALL hdlerr(NF90_INQ_VARID(il_file_id,'fvcom_lonc',il_lonc_id), __LINE__ )
+  CALL hdlerr(NF90_INQ_VARID(il_file_id,'fvcom_latc',il_latc_id), __LINE__ )
+  CALL hdlerr(NF90_INQ_VARID(il_file_id,'fvcom_lon',il_lon_id), __LINE__ )
+  CALL hdlerr(NF90_INQ_VARID(il_file_id,'fvcom_lat',il_lat_id), __LINE__ )
+  !
+  ila_what(:)=1
+  !
+  ila_dim(1)=nlon
+  ila_dim(2)=nlat
+  ila_dim(3)=nlonc
+  ila_dim(4)=nlatc
+  ila_dim(5)=1
+  !
+  ! Data
+  CALL hdlerr(NF90_GET_VAR(il_file_id,il_lon_id,glon,&
+              ila_what(1:2),ila_dim(1:2)), __LINE__ )
+  WRITE(w_unit,*) 'Global grid lon reading done'
+  CALL flush(w_unit)
+  !
+  CALL hdlerr(NF90_GET_VAR(il_file_id,il_lat_id,glat,&
+              ila_what(1:2),ila_dim(1:2)), __LINE__ )
+  WRITE(w_unit,*) 'Global grid lat reading done'
+  CALL flush(w_unit)
+  !
+  CALL hdlerr(NF90_GET_VAR(il_file_id,il_lonc_id,glonc,&
+              ila_what(3:4),ila_dim(3:4)), __LINE__ )
+  WRITE(w_unit,*) 'Global grid lon reading done'
+  CALL flush(w_unit)
+  !
+  CALL hdlerr(NF90_GET_VAR(il_file_id,il_latc_id,glatc,&
+              ila_what(3:4),ila_dim(3:4)), __LINE__ )
+  WRITE(w_unit,*) 'Global grid lat reading done'
+  CALL flush(w_unit)
+  !
+  !CALL hdlerr(NF90_GET_VAR(il_file_id,il_indice_id,indice_mask,&
+  !   ila_what,ila_dim), __LINE__ )
+  !WRITE(w_unit,*) 'Global grid mask reading done'
+  !CALL flush(w_unit)
+  !
+  CALL hdlerr(NF90_CLOSE(il_file_id), __LINE__ )
+  !
+  WRITE(w_unit,*) 'End of routine read_grid'
+  CALL flush(w_unit)
+  !
+END SUBROUTINE read_grid
+
+!****************************************************************************************
+!SUBROUTINE decomp_def(id_size,id_im,id_jm,id_rank,id_npes,id_unit)
+SUBROUTINE decomp_def()
+  !
+  IMPLICIT NONE
+  !INTEGER, DIMENSION(id_size), INTENT(out) :: id_paral(id_size)    
+  INTEGER :: id_paral(3)    
+  !INTEGER :: id_paral(5)    
+  INTEGER  :: id_size
+  INTEGER  :: id_im       ! Grid dimension in i
+  INTEGER  :: id_jm       ! Grid dimension in j
+  INTEGER  :: id_rank     ! Rank of process
+  INTEGER  :: id_npes     ! Number of processes involved in the coupling
+  INTEGER  :: id_unit     ! Unit of log file
+  INTEGER              :: il_imjm, il_partj
+  !
+id_size=il_paral_size
+id_im=nlat
+id_jm=nlon
+id_rank=mype
+id_npes=npes
+id_unit=3003
+!
+  il_imjm = id_im*id_jm
+  il_partj = id_jm/id_npes  ! Nbr of latitude circles in the partition
+  !
+#define DECOMP_APPLE
+!#define DECOMP_BOX
+#ifdef DECOMP_APPLE
+  ! Each process is responsible for a part of field defined by
+  ! the number of grid points and the offset of the first point
+  !
+  WRITE (id_unit,*) 'APPLE partitioning'
+  !
+  IF (id_rank .LT. (id_npes-1)) THEN
+      id_paral (1) = 1
+      id_paral (2) = id_rank*(il_partj * id_im)
+      id_paral (3) = il_partj * id_im
+  ELSE
+      id_paral (1) = 1
+      id_paral (2) = id_rank*(il_partj * id_im)
+      id_paral (3) = il_imjm-(id_rank*(il_partj * id_im))
+  ENDIF
+  !
+#elif defined DECOMP_BOX
+  !
+  WRITE (id_unit,*) 'BOX partitioning'
+  !
+  ! Each process is responsible for a rectangular box of il_partj lines
+  !
+  id_paral (1) = 2
+  id_paral (5) = id_im
+  id_paral (2) = id_rank*il_partj*id_im
+  id_paral (3) = id_im
+  IF (id_rank .LT. (id_npes-1)) THEN
+      id_paral (4) = il_partj
+  ELSE
+      id_paral (4) = id_jm-(id_rank*il_partj)
+  ENDIF
+  !
+#endif
+  !
+il_paral=id_paral
+
+END SUBROUTINE decomp_def
+
+!****************************************************************************************
+SUBROUTINE read_dimgrid (nlon,nlat,nc,data_filename,w_unit)
+  USE netcdf
+  IMPLICIT NONE
+  !
+  INTEGER                  :: i,j,k,w_unit
+  !
+  INTEGER                  :: il_file_id,il_grid_id,il_lon_id, &
+     il_lat_id,il_indice_id, &
+     lon_dims,lat_dims,imask_dims,&
+     il_clo_id,clo_dims
+  !
+  INTEGER, DIMENSION(NF90_MAX_VAR_DIMS) :: lon_dims_ids,lat_dims_ids,&
+     imask_dims_ids,lon_dims_len,&
+     lat_dims_len,imask_dims_len,&
+     clo_dims_ids,clo_dims_len
+  !               
+  INTEGER, INTENT(out)     :: nlon,nlat,nc
+  !
+  CHARACTER(len=*),intent(in)        :: data_filename
+  !
+  ! Dimensions
+  !
+  CALL hdlerr(NF90_OPEN(data_filename, NF90_NOWRITE, il_file_id), __LINE__ )
+  !
+  CALL hdlerr( NF90_INQ_VARID(il_file_id, 'lon' ,  il_lon_id),    __LINE__ )
+  CALL hdlerr( NF90_INQ_VARID(il_file_id, 'lat' ,  il_lat_id),    __LINE__ )
+  CALL hdlerr( NF90_INQ_VARID(il_file_id, 'imask', il_indice_id), __LINE__ )
+  CALL hdlerr( NF90_INQ_VARID(il_file_id, 'clo' ,  il_clo_id),    __LINE__)
+  !
+  CALL hdlerr( NF90_INQUIRE_VARIABLE(il_file_id, varid=il_lon_id, ndims=lon_dims, dimids=lon_dims_ids), __LINE__ )
+  !
+  ! The value lon_dims_len(i) is obtained thanks to the lon_dims_ids ID already obtained from the file
+  DO i=1,lon_dims
+    CALL hdlerr( NF90_INQUIRE_DIMENSION(ncid=il_file_id,dimid=lon_dims_ids(i),len=lon_dims_len(i)), __LINE__ )
+  ENDDO
+  !
+  nlon=lon_dims_len(1)
+  nlat=lon_dims_len(2)
+  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  !
+  CALL hdlerr( NF90_INQUIRE_VARIABLE(ncid=il_file_id, varid=il_lat_id, ndims=lat_dims, dimids=lat_dims_ids), __LINE__ )
+  !
+  ! The value lat_dims_len(i) is obtained thanks to the lat_dims_ids ID already obtained from the file
+  DO i=1,lat_dims
+    CALL hdlerr( NF90_INQUIRE_DIMENSION(ncid=il_file_id,dimid=lat_dims_ids(i),len=lat_dims_len(i)), __LINE__ )
+  ENDDO
+  !
+  IF ( (lat_dims_len(1) .NE. lon_dims_len(1)).OR.(lat_dims_len(2) .NE. lon_dims_len(2)) ) THEN
+      WRITE(w_unit,*) 'Problem model1 in read_dimgrid'
+      WRITE(w_unit,*) 'Dimensions of the latitude are not the same as the ones of the longitude'
+      CALL flush(w_unit)
+      STOP
+  ENDIF
+  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  !
+  CALL hdlerr( NF90_INQUIRE_VARIABLE(ncid=il_file_id, varid=il_indice_id, ndims=imask_dims, dimids=imask_dims_ids), __LINE__ )
+  !
+  ! The value imask_dims_len(i) is obtained thanks to the imask_dims_ids ID already obtained from the file
+  DO i=1,imask_dims
+    CALL hdlerr( NF90_INQUIRE_DIMENSION(ncid=il_file_id,dimid=imask_dims_ids(i),len=imask_dims_len(i)), __LINE__ )
+  ENDDO
+  !
+!----------ch201610 added for corner dimension-------------!
+  CALL hdlerr( NF90_INQUIRE_VARIABLE(il_file_id, varid=il_clo_id, ndims=clo_dims, dimids=clo_dims_ids), __LINE__ )
+  !
+  ! The value clo_dims_len(i) is obtained thanks to the lon_dims_ids ID already obtained from the file
+  DO i=1,clo_dims
+    CALL hdlerr( NF90_INQUIRE_DIMENSION(ncid=il_file_id,dimid=clo_dims_ids(i),len=clo_dims_len(i)), __LINE__ )
+  ENDDO
+     nc=clo_dims_len(3)
+!----------end ch201610------added-------------!
+
+
+  CALL hdlerr(NF90_CLOSE(il_file_id), __LINE__ )
+  !
+  WRITE(w_unit,*) 'Reading input file ',data_filename
+  WRITE(w_unit,*) 'Global dimensions nlon=',nlon,' nlat=',nlat
+  WRITE(w_unit,*) 'Global dimensions nc=',nc !ch201610
+  CALL flush(w_unit)
+  !
+  !
+END SUBROUTINE read_dimgrid
+!****************************************************************************************
+
+      end module mod_var_cpl

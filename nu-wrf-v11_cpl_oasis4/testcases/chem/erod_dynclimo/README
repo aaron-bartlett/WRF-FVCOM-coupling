@@ -1,0 +1,12 @@
+Dynamic climatological erodible soil for dust emissions testcase
+
+This is a test case that uses:
+  (a) Middle East / Mediterranean domain (0E-60W, 10N-40N) with 1 nests (20 km)
+      Lambert projection
+  (b) Simulation time period from 00Z 28 Feb 2012 to 00Z 02 Mar 2012
+  (c) MODIS geographical data, NCEP FNL data
+      Uses a monthly surface bareness field derived at 30 arc second
+      resolution from MODIS vegetation (greenness_fpar_modis)
+  (g) Goddard MP (4ice) and Goddard 2014 radiation (option 56)
+      WRF-Chem erod_option = 'dyn_climo'
+

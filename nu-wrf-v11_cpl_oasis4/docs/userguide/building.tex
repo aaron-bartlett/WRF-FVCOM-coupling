@@ -1,0 +1,290 @@
+\section{Building Software}
+\label{sec:Building}
+
+\subsection{Compilers}
+
+The NU-WRF source code requires Fortran 90/2003, C, and C++ compilers. 
+The development version supports Intel compilers.
+(\texttt{ifort}, \texttt{icc}, and \texttt{icpc}) on Discover (version 19.13.304 ) and Pleiades (version 15.0.3.187). GCC (version 9.2 on Discover, 5.3 on Pleiades) is also required for library compatibility for \texttt{icpc}. The \emph{master} branch also works with GNU compilers and HPCX (OpenMPI) on Discover. 
+
+\subsection{External Libraries and Tools}
+\label{subsec:Libraries}
+
+A large number of third party libraries must be installed before building 
+NU-WRF. Except as noted, the libraries must be compiled using the same 
+compilers as NU-WRF, and it is highly recommended that \emph{static} 
+library files be created and linked rather than shared object. Included with 
+the NU-WRF source code are scripts (see scripts/other/baselibs.*) that facilitate the installation of
+all software packages on Discover and Pleiades. The scripts can be adapted to other systems with
+ modifications. The list of libraries is as follows:
+
+\begin{itemize}
+\item An MPI library. (By default, NU-WRF uses Intel MPI on Discover and
+the latest SGI MPT on Pleiades. )
+\item BOXMG 0.1 (Used to build with WRF\_ELEC option).
+\item BUFRLIB 11.0
+\item CAIRO 1.14.8
+\item ECCODES 2.7.0
+\item ESMF 8.0.1 compiled with MPI support.
+\item FORTRANGIS 2.4
+\item FREETYPE 2.7
+\item FLEX (can use precompiled system binary on Linux).
+\item G2CLIB 1.6.0
+\item GDAL 2.4.1
+\item GEOTIFF 1.5.1
+\item GHOSTSCRIPT 8.11
+\item GRIB\_API 1.17.0
+\item GSL 2.3
+\item HDF4 4.2.13
+\item HDF5 1.8.17
+\item HDF-EOS 2.19v1.00
+\item JASPER 1.900.1.
+\item JPEG 9b.
+\item LIBPNG 1.2.56. (The newer 1.5.* versions \emph{cannot} be used due to 
+  incompatibilities with WPS.)
+\item NCAR Graphics 6.0.0. (Newer versions of NCAR Graphics require compilation
+and linking to the CAIRO library, which is currently only supported by MET.)
+\item NETCDF 4.4.1 (C library), NETCDF-Fortran 4.4.4, and NETCDF-CXX 4.2 
+  (C++ library), built with HDF5 compression.
+\item NETCDF 4.4.1.1 (C library) and NETCDF-CXX 4.3.0.1
+  (C++ library) used for MET.
+\item PIXMAN 0.34.0.
+\item YACC (can use preinstalled version on Linux).
+\item ZLIB 1.2.8.
+\end{itemize}
+
+In addition to the above libraries, NU-WRF requires \texttt{perl}, 
+\texttt{python3}, \texttt{bash}, \texttt{tcsh}, \texttt{gmake}, \texttt{sed}, 
+\texttt{awk}, \texttt{m4}, and the UNIX \texttt{uname} command to be available
+on the computer. 
+
+\subsection{Build System}
+\label{subsec:BuildSystem}
+Each component of the NU-WRF modeling system has a unique compilation 
+mechanism, ranging from simple Makefiles to sophisticated Perl and shell 
+scripts. To make it easier for the user to create desired executables and to 
+more easily resolve dependencies between components, NU-WRF includes a 
+build-layer that glues together the entire framework. The build layer consists of a
+Python3-based script system configured by a \emph{config} Python file, basically a text file 
+with a particular structure readable by Python, and used to define the build environment, 
+library paths and  the build options. 
+
+The build system is shipped with the code and is found in the scripts/python/build subfolder. 
+It includes a configuration file \texttt{nu-wrf.cfg} that contains settings for Discover and Pleiades but can be easily configurable for other systems. The settings in the configuration file allows users to specify 
+\texttt{configure} options for the ARWPOST, RIP4, UPP, WPS, and WR components, as well as template \texttt{Makefile} names for the  GSDSU, LVT, and MET components. Not all components 
+need a configuration (e.g. utils) but those that do need it are specified in separate sections. 
+The provided configuration file should aid in porting NU-WRF to new 
+compilers, MPI implementations, and/or operating systems, a process discussed 
+more fully in Appendix~\ref{sec:Porting}. 
+
+Invoking the build system is done in the top level NU-WRF directory by executing the \texttt{build.sh} script.
+The \texttt{build.sh} script represents a thin layer over the python build system that generally acts like the \texttt{build.sh} script of previous NU-WRF versions - with some differences. \texttt{build.sh} requires at least one argument plus a handful of optional arguments. Running \texttt{build.sh} without arguments will print a usage page with the following information:
+
+\begin{itemize}
+
+ \item \textit{Target}. A required argument that defines the NU-WRF component to build.
+
+ \item \textit{Installation}. The \texttt{-p, --prefix} flag followed by a path 
+    will install all built executables in the specified path. If the flag is skipped,
+    \texttt{build.sh} will install the executables in the model directory.
+
+ \item \textit{Configuration}. The \texttt{-c, --config} flag followed by the name
+  of a configuration file specifying critical environment variables (e.g., the
+  path to the netCDF library). Users may develop their own configuration 
+  file to customize settings (see Appendix~\ref{sec:Porting}). If the 
+  config flag is skipped, \texttt{build.sh} will default to 
+   \texttt{nu-wrf.cfg} which works on Discover and Pleiades systems.
+   The software will exit if it is on an unrecognized computer. 
+
+\item \textit{Options}. The \texttt{-o, --options} flag to specify the target options. 
+Valid options are \texttt{cleanfirst}, 
+  \texttt{debug}, \texttt{rebuild}, and/or \texttt{nest=n} where \texttt{n} is an integer 
+  ranging from 1 to 3. Multiple options must be comma-separated,
+   e.g. cleanfirst,debug,nest=2. Note that only one nest option can be specified at a time.
+   
+  \begin{itemize} 
+  
+    \item The \texttt{cleanfirst} option will cause the build system to
+      ``clean'' a target (delete object files and static libraries) before 
+      starting compilation. 
+
+    \item The \texttt{debug} option forces some build subsystems 
+    (\texttt{WRF, WPS, LISF, utils}) to use alternative compilation flags set 
+      in the configuration file (e.g., for disabling optimization and turning 
+      on run-time array bounds checking). This option is currently ignored by 
+      other (\texttt{ARWpost, GSDSU, MET, RIP4, UPP})  NU-WRF components.
+
+    \item The \texttt{rebuild} option is used to re-build the WRF executable - when only 
+    WRF code is modified - while skipping LIS re-compilation. It can thus speed up the 
+    regeneration of the WRF executable. It has no effect on other components.
+               
+    \item The \texttt{nest=n} option specifies compiling WRF with basic
+      nesting (\texttt{n=1}), preset-moves nesting (\texttt{n=2}), or 
+      vortex-tracking nesting (\texttt{n=3}). Basic nesting is assumed by 
+      default. Note that WRF cannot be run coupled to LIS if preset-moves
+      or vortex-tracking nesting is used. Similarly, WRF-Chem only runs
+      with basic nesting.
+            
+  \end{itemize}
+
+  \item The \texttt{-e} flag generates a file, nu.wrf.envs, that specifies
+   all the NU-WRF configuration variables in a bash-script format.
+   This can be useful for debugging or porting to other systems.
+ 
+\item \texttt{Targets}. At least one target is required and multiple targets must be 
+  comma-separated. The recognized targets are (note that all* and ideal* targets are 
+  mutually exclusive):
+
+  \begin{itemize}
+
+  \item The \texttt{all} target compiles all executables without WRF-Chem.
+
+  \item The \texttt{allchem} target compiles all executables with WRF-Chem but
+    without the Kinetic Pre-Processor.
+
+  \item The \texttt{allclean} target deletes all executables, object files,
+    and static libraries.
+
+  \item The \texttt{allkpp} target compiles all executables with WRF-Chem and
+    including the Kinetic Pre-Processor.
+
+  \item The \texttt{arwpost} target compiles executables in the 
+    \texttt{ARWpost/} directory.
+
+  \item The \texttt{casa2wrf} target compiles executables in the
+    \texttt{utils/casa2wrf/} directory.
+
+  \item The \texttt{chem} target compiles executables in the 
+    \texttt{WRF/} directory -- except for LIS -- with WRF-Chem support but 
+    without the Kinetic Pre-Processor. The compiled executables include 
+    CONVERT\_EMISS.
+
+  \item The \texttt{doc} target builds user guide and tutorial PDF documentation.
+
+  \item The \texttt{gocart2wrf} target compiles executables in the
+    \texttt{utils/gocart2wrf/} directory. 
+
+  \item The \texttt{gsdsu} target compiles executables in the \texttt{GSDSU/}
+    directory.
+
+  \item The \texttt{ideal\_*} targets compile ideal preprocessors in the \texttt{WRF/}
+    directory.   These include:
+  \begin{itemize}  
+     \item \texttt{ideal\_scm\_lis\_xy}: Produces inputs for running WRF-LIS in Single Column Mode.
+     \item \texttt{ideal\_b\_wave} Baroclinically unstable jet u(y,z) on an f-plane.
+     \item \texttt{ideal\_convrad}: Idealized 3d convective-radiative equilibrium test with constant SST
+   and full physics at cloud-resolving 1 km grid size.
+     \item \texttt{ideal\_heldsuarez}: Held-Suarez coarse-resolution global forecast model.
+     \item \texttt{ideal\_les}: An idealized large-eddy simulation (LES).
+     \item \texttt{ideal\_quarter\_ss}: 3D quarter-circle shear supercell simulation.
+     \item \texttt{ideal\_scm\_xy}: Single column model.
+     \item \texttt{ideal\_tropical\_cyclone}: Idealized tropical cyclone on an f-plane with constant SST in a
+   specified environment.
+  \end{itemize}
+
+  \item The \texttt{kpp} target compiles executables in the \texttt{WRF/}
+    directory -- except for LIS -- with WRF-Chem and Kinetic Pre-Processor
+    support. The compiled executables include CONVERT\_EMISS.
+  
+  \item The \texttt{ldt} target compiles executables in the \texttt{LISF/ldt/} 
+    directory.
+
+  \item The \texttt{lis} target compiles the LIS standalone executable in the 
+    \texttt{LISF/lis/make/} directory.
+
+  \item The \texttt{lisWrfDomain} target compiles executables in the 
+    \texttt{utils/lisWrfDomain/} directory.
+    
+  \item The \texttt{lis4scm} target compiles executables in the 
+  \texttt{utils/lis4scm} directory. 
+
+  \item The \texttt{lvt} target compiles executables in the \texttt{LISF/lvt/} 
+    directory.
+
+  \item The \texttt{geos2wrf} target compiles executables in the 
+    \texttt{utils/geos2wrf/} directory (both GEOS2WPS and MERRA2WRF).
+
+  \item The \texttt{met} target compiles executables in the \texttt{MET/} 
+    directory.
+
+  \item The \texttt{ndviBareness4Wrf} target compiles executables in the\\
+    \texttt{utils/ndviBareness4Wrf/} directory.
+
+  \item The \texttt{plot\_chem} target compiles executables in the
+    \texttt{utils/plot\_chem/} directory.
+
+  \item The \texttt{prep\_chem\_sources} target compiles executables in the\\
+    \texttt{utils/prep\_chem\_sources/} directory.
+
+  \item The \texttt{rip} target compiles executables in the \texttt{RIP4/}
+    directory.
+
+  \item The \texttt{sst2wrf} target compiles executables in the
+    \texttt{utils/sst2wrf/} directory.
+
+  \item The \texttt{upp} target compiles executables in the \texttt{UPP/}
+    directory.
+
+  \item The \texttt{utils} target compiles all the executables in the \texttt{utils/}
+    directory.
+
+  \item The \texttt{wps} target compiles executables in the \texttt{WPS/}
+    directory.
+
+  \item The \texttt{wrf} target compiles executables in the \texttt{WRF/}
+    directory with LIS-coupling support and without WRF-Chem support.
+    
+  \item The \texttt{wrfonly} is like the \texttt{wrf} target but without LIS coupling 
+    support. Use this option when not using any LISF packages and thus significantly
+    speed up compilation.
+
+
+  \end{itemize}
+
+\end{itemize}
+
+One complication addressed by the build system is that the WPS and
+UPP components are dependent on libraries and object files in the
+\texttt{WRF/} directory. To account for this, the \texttt{wrf} target
+will be automatically built  \textit{if necessary} for WPS and/or UPP, 
+even if the \texttt{wrf} target is not listed on the command line.
+
+A second complication is that the coupling of LIS to WRF requires linking 
+the \texttt{WRF/} code to the ESMF and ZLIB libraries. As a result, the 
+\texttt{configure.wrf} file [see Chapter 2 of \cite{ref:ArwUserGuide}] is 
+modified to link against these libraries. A similar modification occurs for 
+UPP. (No modification is needed for WPS as long as WPS is compiled with GRIB2 
+support.)
+
+Finally, if there are dependent components (WRF, WPS, UPP, LIS) that have been 
+built with different  compilation flags, compiler versions or with/without chemistry, that will 
+result in cleaning the associated directories.
+
+The most straight-forward way to compile the full NU-WRF system on Discover or
+Pleiades is to type \texttt{./build.sh all} in the top level directory. If
+chemistry is required, the command is \texttt{./build.sh~allchem} 
+(\texttt{./build.sh~allkpp} if KPP-enabled chemistry is needed). To fully
+clean the entire system, run \texttt{./build.sh~allclean}. 
+
+The user can selectively build components by listing specific targets. For
+example, to build the WRF model without chemistry along with WPS and UPP,
+type \texttt{./build.sh wrf,wps,upp}.
+
+Finally, on Discover or a system with a proper \emph{pdflatex} installation one can run 
+\texttt{./build.sh~doc} to generate the tutorial and user's guide documentation. The generated pdf files will be under docs/tutorial and docs/userguide respectively.
+
+\subsection{LIBDIR\_TAG}
+\label{subsec:libdir}
+We discussed earlier (section \ref{subsec:Libraries}) that a large number of external 
+libraries, or \emph{baselibs},  must be installed before NU-WRF can be built. Also, the 
+\emph{baselibs} must be compiled using the same  compilers as NU-WRF.  The build 
+systems parses the configuration file, nu-wrf.cfg, and, if on Discover or Pleiades systems, 
+it uses pre-installed \emph{baselibs} determined by the value of the LIBDIR\_TAG environment 
+variable set in scripts/other/set\_module\_env.bash. However, when porting the code to a 
+different system and/or using a newer compiler the environment variable must be set by the user 
+in the configuration file. 
+
+For more information see Appendix~\ref{sec:Porting}. 
+
+
+

@@ -1,0 +1,34 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Computational and Information Science and Technology Office,
+! Code 606.
+!------------------------------------------------------------------------------
+!
+! FILE: namelist.lis4scm
+!
+! AUTHOR:
+! Eric Kemp, NASA CISTO/SSAI
+!
+! DESCRIPTION:
+! Input file for LIS4SCM program -- a program for taking LIS and LDT output
+! on a 2x2 (unstaggered) grid and copying the values from the southwest grid
+! box to the remaining locations.  In the process, this creates horizontally 
+! homogeneous conditions for NU-WRF in Single Column Model mode.
+!
+!------------------------------------------------------------------------------
+!
+! &lis4scm 
+!   lis_restart4lis_filename:  String, gives name of restart file from LIS 
+!                              spinup.
+!   ldt_preproc4real_filename:  String, gives name of file with combined LIS 
+!                               and LDT data prepared by LDT for REAL.
+!   ldt_parameters4lis_filename:  String, gives name of file with LDT 
+!                                 parameter file for LIS.
+!
+!------------------------------------------------------------------------------
+
+  &lis4scm
+    lis_restart4lis_filename = 'LIS_RST_NOAHMP36_200607140000.d01.nc',
+    ldt_preproc4real_filename = 'lis4real_input.d01.nc',
+    ldt_parameters4lis_filename = 'lis_input.d01.nc'
+  /
+

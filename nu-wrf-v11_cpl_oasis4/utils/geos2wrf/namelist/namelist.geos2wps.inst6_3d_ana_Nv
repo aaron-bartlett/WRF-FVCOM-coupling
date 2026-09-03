@@ -1,0 +1,67 @@
+
+&files
+  geosFileFormat=1,
+  geosFileName='MERRA300.prod.assim.inst6_3d_ana_Nv.20090825.SUB.hdf',
+  outputDirectory='./',
+/
+ 
+&coordinates
+ longitudeName='longitude',
+ latitudeName='latitude',
+ hasVerticalDimension=.true.,
+ verticalName='levels',
+/
+
+&forecast
+ numberOfTimes=1,
+ validTimes(1)='2009-08-25_00',
+ timeIndices(1) = 1,
+ forecastHours(1)=0,
+/
+
+&variables
+ numberOfVariables=6,
+
+ variableRanks(1) = 4,
+ variableLevelTypes(1) = 11,
+ variableNamesIn(1)='delp',
+ variableNamesOut(1)='DELP',
+ variableUnits(1)='Pa',
+ variableDescriptions(1)='Layer pressure thickness',
+
+ variableRanks(2) = 4,
+ variableLevelTypes(2) = 11,
+ variableNamesIn(2)='t',
+ variableNamesOut(2)='TT',
+ variableUnits(2)='K',
+ variableDescriptions(2)='Temperature',
+
+ variableRanks(3) = 4,
+ variableLevelTypes(3) = 11,
+ variableNamesIn(3)='u',
+ variableNamesOut(3)='UU',
+ variableUnits(3)='m s-1',
+ variableDescriptions(3)='U',
+
+ variableRanks(4) = 4,
+ variableLevelTypes(4) = 11,
+ variableNamesIn(4)='v',
+ variableNamesOut(4)='VV',
+ variableUnits(4)='m s-1',
+ variableDescriptions(4)='V',
+
+ variableRanks(5) = 4,
+ variableLevelTypes(5) = 11,
+ variableNamesIn(5)='qv',
+ variableNamesOut(5)='SPECHUMD',
+ variableUnits(5)='kg kg-1',
+ variableDescriptions(5)='Specific Humidity',
+
+ variableRanks(6) = 3,
+ variableLevelTypes(6) = 1,
+ variableNamesIn(6)='ps',
+ variableNamesOut(6)='PSFC',
+ variableUnits(6)='Pa',
+ variableDescriptions(6)='Surface Pressure',
+
+/

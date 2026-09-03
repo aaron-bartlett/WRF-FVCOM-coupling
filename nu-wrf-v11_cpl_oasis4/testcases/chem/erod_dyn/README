@@ -1,0 +1,15 @@
+Dynamical erodible soil for dust emissions testcase
+
+This is a test case that uses:
+  (a) CONUS western domain (130W-100W, 20N-50N) with 1 nests (10 km)
+      Lambert projection
+  (b) Simulation time period from 00Z 04 Jul 2011 to 00Z 05 Jul 2011
+  (c) GVFSPORT+MODIS geographical data (processes SPoRT greenness), 
+      NCEP FNL data
+  (d) Create NDVI-based bareness for EROD DYN option
+      Use NVIBARENESS4WRF toll to process NDVI data and generate a bareness
+      field and write into WPS intermediate format for METGRID to ingest.
+      Bareness field based on NASA GIMMS NDVI
+  (g) Goddard MP (4ice) and Goddard 2014 radiation (option 56)
+      WRF-Chem erod_option = 'dyn'
+

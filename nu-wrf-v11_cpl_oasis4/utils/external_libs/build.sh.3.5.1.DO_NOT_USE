@@ -1,0 +1,936 @@
+# BROKEN SCRIPT. DO NOT USE!!! Only included for reference.
+# Eric Kemp, 14 January 2015.
+
+#!/bin/sh
+#
+# Helper script to build and install external libraries required by 
+# NU-WRF.  This is not a "bells and whistles" script; the user will probably
+# need to edit this by hand as library versions and target directory paths
+# change.  Still, this could simplify the user's job.
+#
+# Eric Kemp
+# NASA SSSO/SSAI
+#----------------------------------------------------------------------------
+
+# First, figure out which computer system we're on, based on the $HOSTNAME.
+if [[ "$HOSTNAME" == pfe* ]] ; then
+    platform="pleiades"
+elif [[ "$HOSTNAME" == borg* || 
+        "$HOSTNAME" == dali* ||
+        "$HOSTNAME" == discover* ]] ; then
+    platform="discover"
+else
+    platform="UNKNOWN"
+fi
+
+# Next, set compilers and modules for the known platform.  Make sure
+# LD_LIBRARY_PATH is purged and filled with only the bare minimum of
+# paths--we want to avoid loading shared objects created with a different
+# compiler.  (An example of what happens if you don't do this:  building
+# ZLIB with the Intel compiler will cause the system 'man' command to crash!)
+
+case "$platform" in
+
+    "pleiades")
+	LIBROOT=/nobackupp8/nuwrf/lib/SLES11
+	BUILDROOT=/nobackup/emkemp/NUWRF/builds
+	INSTALLROOT=$LIBROOT
+	. /usr/share/modules/init/bash
+	module purge	
+	unset LD_LIBRARY_PATH       
+	module load comp-intel/2013.1.117
+#	module load mpi-intel/4.0.2.003	
+	module load mpi-sgi/mpt.2.08r7
+	compiler=intel-2013.1.117
+	compiler_mpi=intel-2013.1.117_mpt-2.08r7
+	export CC=icc
+	export CXX=icpc
+	export F77=ifort
+	export FC=$F77
+	;;
+
+    "discover")
+	LIBROOT=/usr/local/other/SLES11.1
+	BUILDROOT=/discover/nobackup/emkemp/NUWRF/builds
+	INSTALLROOT=$LIBROOT
+	. /usr/share/modules/init/bash
+	module purge       
+	unset LD_LIBRARY_PATH
+#	module load comp/intel-13.0.1.117
+#	module load mpi/impi-4.0.3.008
+#	compiler=intel-13.0.1.117
+#	compiler_mpi=intel-13.0.1.117_impi-4.0.3.008
+	module load other/comp/gcc-4.8.1
+	module load other/mpi/openmpi/1.7.2-gcc-4.8.1-shared
+	compiler=gnu-4.8.1
+	compiler_mpi=gnu-4.8.1_openmpi-1.7.2-shared
+#	export CC=icc
+#	export CXX=icpc
+#	export F77=ifort
+#	export FC=$F77
+	export CC=gcc
+	export CXX=g++
+	export F77=gfortran
+	export FC=$F77
+
+	;;
+
+    # Default case
+    *)
+	echo "ERROR, unknown platform $platform"
+	exit 1
+	;;
+esac
+
+echo "Installing for platform $platform"
+
+#------------------------------------------------------------------------------
+
+# Libraries *must* be built with -fpic.  -fp-model strict is necessary for
+# GSL, and is probably a good idea in general.
+export CFLAGS="-fpic -O2 -fp-model strict"
+export CXXFLAGS="-fpic -O2 -fp-model strict"
+export FFLAGS="-fpic -O2 -fp-model strict"
+#export CFLAGS="-fpic -O2"
+#export CXXFLAGS="-fpic -O2"
+#export FFLAGS="-fpic -O2"
+
+export FCFLAGS=$FFLAGS
+export F90FLAGS=$FFLAGS
+
+until [ -z "$1" ]
+do
+    case $1 in
+
+	# Part I:  NetCDF4. This requires the following libraries:
+	# ZLIB, HDF5, netCDF-C, netCDF-Fortran, netCDF-CXX
+	"zlib")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/zlib/1.2.5/$compiler
+	    echo "*** Untarring tar ***"
+	    tar -zxvf zlib-1.2.5.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/zlib-1.2.5
+	    echo "*** Running configure ***"
+	    ./configure --static --64 --prefix=$PREFIX
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    # make install is broken for zlib, so we'll cp files ourselves
+	    echo "*** Installing files ***"
+	    mkdir -p $PREFIX
+	    mkdir -p $PREFIX/include
+	    cp zconf.h $PREFIX/include
+	    cp zlib.h $PREFIX/include
+	    mkdir -p $PREFIX/lib
+	    cp libz.a $PREFIX/lib
+	    mkdir -p $PREFIX/include/pkgconfig
+	    cp zlib.pc $PREFIX/include/pkgconfig
+	    mkdir -p $PREFIX/share/man/man3
+	    cp zlib.3 $PREFIX/share/man/man3
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	"hdf5")
+	    shift
+	    cd $BUILDROOT
+	    # netCDF4 needs HDF5 1.8.11
+	    PREFIX=$INSTALLROOT/hdf5/1.8.11/$compiler
+	    echo "*** Untarring hdf5 ***"
+	    tar -zxvf hdf5-1.8.11.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    for file in intel-flags intel-fflags gnu-flags ; do
+		if [ ! -e "$file" ] ; then
+		    echo "!!!ERROR missing $file file!!!"
+		    exit 1
+		fi
+		cp $file $BUILDROOT/hdf5-1.8.11/config
+	    done
+	    cd $BUILDROOT/hdf5-1.8.11/
+	    echo "*** Running configure ***"
+	    # 20 Aug 2013...netCDF 4.1.3 has problems with szip. Skip it.
+#	    ./configure --disable-shared --prefix=$PREFIX \
+#              --enable-fortran --enable-cxx --enable-production \
+#              --with-zlib=$LIBROOT/zlib/1.2.5/$compiler \
+#              --with-szlib=$LIBROOT/szip/2.1/$compiler
+	    ./configure --disable-shared --prefix=$PREFIX \
+              --enable-fortran --enable-cxx --enable-production \
+	      --disable-silent-rules \
+              --with-zlib=$LIBROOT/zlib/1.2.5/$compiler 
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	"netcdf4-c")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/netcdf4/4.3.0/${compiler}
+	    echo "*** Untarring netcdf ***"
+	    tar -zxvf netcdf-4.3.0.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/netcdf-4.3.0
+	    echo "*** Running configure ***"
+	    export CPPFLAGS="-I$LIBROOT/hdf5/1.8.11/$compiler/include -I$LIBROOT/zlib/1.2.5/$compiler/include"
+	    export LDFLAGS="-L$LIBROOT/hdf5/1.8.11/$compiler/lib -L$LIBROOT/zlib/1.2.5/$compiler/lib" 
+	    ./configure --disable-shared --prefix=$PREFIX \
+		--enable-netcdf4 --enable-large-file-tests \
+                --disable-dap
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    unset LDFLAGS
+	    unset CPPFLAGS
+	    unset LIBS
+	    ;;
+
+	"netcdf4-fortran")
+	    shift
+	    cd $BUILDROOT
+	    # We'll install the Fortran libraries with the C library.
+	    PREFIX=$INSTALLROOT/netcdf4/4.3.0/${compiler}
+	    echo "*** Untarring netcdf ***"
+	    tar -zxvf netcdf-fortran-4.2.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/netcdf-fortran-4.2
+	    echo "*** Running configure ***"
+	    export CPPFLAGS="-I$LIBROOT/netcdf4/4.3.0/$compiler/include -I$LIBROOT/hdf5/1.8.11/$compiler/include -I$LIBROOT/zlib/1.2.5/$compiler/include"
+	    export LDFLAGS="-L$LIBROOT/netcdf4/4.3.0/$compiler/lib -L$LIBROOT/hdf5/1.8.11/$compiler/lib -L$LIBROOT/zlib/1.2.5/$compiler/lib"
+	    export LIBS="-lnetcdf -lhdf5_hl -lhdf5 -lz"
+	    ./configure --disable-shared --enable-netcdf4 --prefix=$PREFIX
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    unset LDFLAGS
+	    unset CPPFLAGS
+	    unset LIBS
+	    ;;
+
+	"netcdf4-cxx")
+	    shift
+	    cd $BUILDROOT
+	    # We'll install the C++ libraries with the C library.
+	    PREFIX=$INSTALLROOT/netcdf4/4.3.0/${compiler}
+	    echo "*** Untarring netcdf ***"
+	    tar -zxvf netcdf-cxx-4.2.1.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/netcdf-cxx4-4.2.1
+	    echo "*** Running configure ***"
+	    export CPPFLAGS="-I$LIBROOT/netcdf4/4.3.0/$compiler/include -I$LIBROOT/hdf5/1.8.11/$compiler/include -I$LIBROOT/zlib/1.2.5/$compiler/include"
+	    export LDFLAGS="-L$LIBROOT/netcdf4/4.3.0/$compiler/lib -L$LIBROOT/hdf5/1.8.11/$compiler/lib -L$LIBROOT/zlib/1.2.5/$compiler/lib"
+	    export LIBS="-lnetcdf -lhdf5_hl -lhdf5 -lz"
+	    ./configure --disable-shared --enable-netcdf4 --prefix=$PREFIX
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    unset LDFLAGS
+	    unset CPPFLAGS
+	    unset LIBS
+	    ;;
+
+	# Part II: WPS GRIB2 Support. This requires:
+	#   ZLIB (handled in Part I), LIBPNG, and JASPER.
+	"libpng")
+	    shift
+	    cd $BUILDROOT
+	    # WPS won't compile with 1.5.x series, so we're stuck with 1.2.x
+	    PREFIX=$INSTALLROOT/libpng/1.2.50/$compiler
+	    echo "*** Untarring tar ***"
+	    tar -zxvf libpng-1.2.50.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/libpng-1.2.50
+	    echo "*** Running configure ***"
+	    ./configure --disable-shared --prefix=$PREFIX
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	"jasper")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/jasper/1.900.1/$compiler
+	    echo "*** Unzipping jasper ***"
+	    unzip jasper-1.900.1.zip
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from unzip!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/jasper-1.900.1
+	    echo "*** Running configure ***"
+	    ./configure --disable-shared --prefix=$PREFIX
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	# Part III: NCAR Graphics (used by WPS and RIP)
+	# NOTE:  NCAR Graphics is a subset of NCL.  NCL is NOT currently 
+	# required for NU-WRF and is a pain in the ass to build.  The 
+	# commands below just build the NCAR Graphics component.
+	"ncarg")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/ncarg/6.0.0/$compiler
+	    echo "*** Untarring NCAR Graphics ***"
+	    tar -zxvf ncl_ncarg-6.0.0.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    export NCARG=$BUILDROOT/ncl_ncarg-6.0.0
+	    # NCARG Configure is broken in 6.0.0.  We have to substitute
+	    # a patched version.
+	    if [ ! -e ./Configure.ncarg.patched ] ; then
+		echo "!!!ERROR, missing Configure.ncarg.patched!!!"
+		exit 1
+	    fi
+	    cp Configure.ncarg.patched $NCARG/Configure
+	    cd $NCARG/config
+	    make -f Makefile.ini
+	    ./ymake -config `pwd`
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from ymake!!!"
+		exit 1
+	    fi
+	    cp LINUX LINUX.orig
+	    # Need to change one CPP macro to reflect location of 64-bit
+	    # libraries on Discover
+	    cat LINUX.64.INTEL > LINUX
+	    echo "*** Running Configure ***"
+	    cd $NCARG
+	    ./Configure <<EOF
+y
+n
+$PREFIX
+y
+n
+n
+/usr/lib64
+/usr/include/X11
+n
+y
+EOF
+	    echo "*** Running make ***"
+	    make Everything
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    # No make check exists for NCAR Graphics, so we'll go to install.
+ 	    echo "*** Running make install ***"
+ 	    make install
+ 	    if [ ! "$?" -eq 0 ] ; then
+ 		echo "!!!ERROR returned from make install!!!"
+ 		exit 1
+ 	    fi
+ 	    chmod -R 775 $PREFIX
+	    unset NCARG
+	    ;;
+
+	# Part IV: HDF-EOS2 (for MODIS verification in MET). This requires:
+	#   ZLIB (handled in Part I above), SZIP, JPEG, HDF4, HDF-EOS
+
+	# Technically SZIP is optional, but who knows.
+	"szip")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/szip/2.1/$compiler
+	    echo "*** Untarring szip ***"
+	    tar -zxvf szip-2.1.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/szip-2.1
+	    echo "*** Running configure ***"
+	    ./configure --disable-shared --prefix=$PREFIX
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	"jpeg")
+	    shift
+	    cd $BUILDROOT
+	    # HDF4 seems to require 6b, and not newer versions.
+	    PREFIX=$INSTALLROOT/jpeg/6b/$compiler
+	    echo "*** Untarring tar ***"
+	    tar -zxvf jpegsrc.v6b.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/jpeg-6b
+	    echo "*** Running configure ***"
+	    ./configure --disable-shared --prefix=$PREFIX
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    # Make install is slightly broken for jpeg.  We need to manually
+	    # create the install directories, and there are extra make targets
+	    # for lib and include files.
+	    mkdir -p $PREFIX/bin
+	    mkdir -p $PREFIX/man/man1	    
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    mkdir -p $PREFIX/lib
+	    mkdir -p $PREFIX/include
+	    echo "*** Running make install-lib ***"
+	    make install-lib
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	"hdf4")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/hdf4/4.2.6/$compiler
+	    echo "*** Untarring hdf4 ***"
+	    tar -zxvf hdf-4.2.6.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/hdf-4.2.6/
+	    echo "*** Running configure ***"
+	    ./configure --disable-shared --prefix=$PREFIX \
+	    --enable-production --enable-fortran \
+            --disable-netcdf \
+	    --with-zlib=$LIBROOT/hdf4/4.2.6/$compiler \
+	    --with-jpeg=$LIBROOT/jpeg/6b/$compiler \
+	    --with-szlib=$LIBROOT/szip/2.1/$compiler 
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	"hdfeos")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/hdfeos/2.18v1/$compiler
+	    echo "*** Untarring hdfeos ***"
+	    tar -zxvf HDF-EOS2.18v1.00.tar.Z
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    # One of the HDFEOS makefiles is greatly out of date and 
+	    # hardwired to use gcc and g77 (!!!). We replace it with a
+	    # patched version.
+	    cp -f makefile.hdfeos.utils $BUILDROOT/hdfeos/util/makefile
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR occurred when updating HDFEOS util makefile!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/hdfeos	    
+	    # We use the INSTALL-HDFEOS script to build the libraries, as the
+	    # more generic INSTALL script requires HDF4, ZLIB, and SZIP to be
+	    # in the same directory.
+	    echo "*** Running bin/INSTALL-HDFEOS ***"
+	    export BRAND=OTHER
+	    export LINUX_BRAND=linux64
+	    export EXT_CC_FLAGS="$CFLAGS"
+	    export EXT_FC_FLAGS="$FCFLAGS"
+	    ./bin/INSTALL-HDFEOS -cc_path `which $CC` -fc_path `which $FC` <<EOF
+$LIBROOT/hdf4/4.2.6/intel-13.0.1.117/lib
+$LIBROOT/hdf4/4.2.6/intel-13.0.1.117/include
+$LIBROOT/szip/2.1/intel-13.0.1.117/lib
+$LIBROOT/szip/2.1/intel-13.0.1.117/include
+EOF
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from INSTALL-HDFEOS!!!"
+		exit 1
+	    fi
+	    # Despite the name, the INSTALL-HDFEOS script doesn't actually
+	    # "install" anything, just builds. We have to move the files we
+	    # need to the final destination.
+	    mkdir -p $PREFIX/bin
+	    cp ./bin/linux/* $PREFIX/bin
+	    mkdir -p $PREFIX/include
+	    cp ./include/*.[h,f] $PREFIX/include
+	    mkdir -p $PREFIX/lib
+	    cp ./lib/linux/*.a $PREFIX/lib
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	# Part V: GSL Scientific Library for MET
+	"gsl")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/gsl/1.16/$compiler
+	    echo "*** Untarring GSL ***"
+	    tar -zxvf gsl-1.16.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/gsl-1.16/
+	    echo "*** Running configure ***"
+	    ./configure --disable-shared --prefix=$PREFIX 
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    ;;	
+
+	# Part VI: BUFRLIB library required by MET.
+	"bufr")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/BUFRLIB/10.2.3/$compiler
+	    echo "*** Untarring BUFRLIB ***"
+	    mkdir $BUILDROOT/BUFRLIB
+	    cd $BUILDROOT/BUFRLIB
+	    tar -xvf ../BUFRLIB_v10-2-3.tar
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    # Preprocessor script is slightly broken, so we substitute.
+	    if [ ! -e ../preproc.sh.patched ] ; then
+		echo "!!!ERROR, cannot find preproc.sh.patched!!!"
+		exit 1
+	    fi
+	    cp ../preproc.sh.patched preproc.sh
+	    echo "*** Running preproc.sh ***"
+	    ./preproc.sh
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from preproc.sh!!!"
+		exit 1
+	    fi
+	    # There's no makefile, so we'll compile it ourselves
+	    for file in `ls *.f` ; do
+		echo $FC $FFLAGS -c $file
+		$FC $FFLAGS -c $file
+	    done
+	    for file in `ls *.c` ; do
+		$CC $CFLAGS -c -DUNDERSCORE $file
+		echo $CC $CFLAGS -c -DUNDERSCORE $file
+	    done
+	    ar crv libbufr.a *.o
+	    mkdir -p $PREFIX/lib
+	    cp libbufr.a $PREFIX/lib
+	    mkdir -p $PREFIX/include
+	    cp bufrlib.h $PREFIX/include
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	# Part VII: Build g2clib for MET.  Requires:
+	#  JASPER, LIBPNG, ZLIB
+	"g2clib")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/g2clib/1.4.0/$compiler	
+	    echo "*** Untarring g2clib ***"
+	    tar -xvf g2clib-1.4.0.tar
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/g2clib-1.4.0
+	    # No configure script exists, but we can override the INC and
+	    # CC variables in the makefile
+	    INC1=-I$LIBROOT/jasper/1.900.1/$compiler/include
+	    INC2=-I$LIBROOT/libpng/1.2.50/$compiler/include
+	    INC3=-I$LIBROOT/zlib/1.2.5/$compiler/include
+	    export INC_INPUT="$INC1 $INC2 $INC3"
+	    export CC_INPUT=$CC
+	    echo "*** Running gmake ***"
+	    gmake 'INC=$(INC_INPUT)' \
+                  'CC=$(CC_INPUT)'
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from gmake!!!"
+		exit 1
+	    fi
+	    # Need to install the library
+	    mkdir -p $PREFIX/lib
+	    cp libgrib2c.a $PREFIX/lib
+	    mkdir -p $PREFIX/include
+	    cp *.h $PREFIX/include
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	# Part VIII: Build ESMF for LIS and WRF/LIS.
+	"esmf")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/esmf/3.1.0rp3/$compiler_mpi
+#	    PREFIX=$INSTALLROOT/esmf/5.2.0rp2/$compiler_mpi
+	    echo "*** Untarring esmf ***"
+	    tar -zxvf esmf_3_1_0rp3_src.tar.gz
+#	    tar -zxvf esmf_5_2_0rp2_src.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/esmf
+	    export ESMF_DIR=$BUILDROOT/esmf
+	    export ESMF_BOPT="O"
+	    export ESMF_COMPILER=intel
+	    export ESMF_ABI=64
+	    export ESMF_INSTALL_PREFIX=$PREFIX
+	    for comm in mpiuni intelmpi ; do
+		export ESMF_COMM=$comm
+		echo "*** Running gmake ***"
+		gmake
+		if [ ! "$?" -eq 0 ] ; then
+		    echo "!!!ERROR returned from gmake!!!"
+		    exit 1
+		fi
+		if [ "$comm" == mpiuni ] ; then
+		    echo "*** Running gmake all_tests ***"
+		    gmake all_tests
+		    if [ ! "$?" -eq 0 ] ; then
+			echo "!!!ERROR returned from make all_tests!!!"
+			exit 1
+		    fi
+		fi
+		echo "*** Running gmake install ***"
+		gmake install
+		if [ ! "$?" -eq 0 ] ; then
+		    echo "!!!ERROR returned from make install!!!"
+		    exit 1
+		fi
+		echo "*** Running gmake installcheck ***"
+		gmake installcheck
+		if [ ! "$?" -eq 0 ] ; then
+		    echo "!!!ERROR returned from make installcheck!!!"
+		    exit 1
+		fi
+	    done
+	    chmod -R 775 $PREFIX
+	    ;;
+
+	# NetCDF4 without HDF5 compression
+	"netcdf-c")
+	    shift
+	    cd $BUILDROOT
+	    PREFIX=$INSTALLROOT/netcdf/4.3.0/${compiler}
+	    echo "*** Untarring netcdf ***"
+	    tar -zxvf netcdf-4.3.0.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/netcdf-4.3.0
+	    echo "*** Running configure ***"
+#	    export CPPFLAGS="-I$LIBROOT/hdf5/1.8.11/$compiler/include -I$LIBROOT/zlib/1.2.5/$compiler/include"
+#	    export LDFLAGS="-L$LIBROOT/hdf5/1.8.11/$compiler/lib -L$LIBROOT/zlib/1.2.5/$compiler/lib" 
+	    ./configure --disable-shared --prefix=$PREFIX \
+		--disable-netcdf-4 --enable-large-file-tests \
+                --disable-dap
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    unset LDFLAGS
+	    unset CPPFLAGS
+	    unset LIBS
+	    ;;
+
+	# NetCDF4 Fortran w/o HDF5 compression
+	"netcdf-fortran")
+	    shift
+	    cd $BUILDROOT
+	    # We'll install the Fortran libraries with the C library.
+	    PREFIX=$INSTALLROOT/netcdf/4.3.0/${compiler}
+	    echo "*** Untarring netcdf ***"
+	    tar -zxvf netcdf-fortran-4.2.tar.gz
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from tar!!!"
+		exit 1
+	    fi
+	    cd $BUILDROOT/netcdf-fortran-4.2
+	    echo "*** Running configure ***"
+	    export CPPFLAGS="-I$LIBROOT/netcdf/4.3.0/$compiler/include"
+	    export LDFLAGS="-L$LIBROOT/netcdf/4.3.0/$compiler/lib"
+	    export LIBS="-lnetcdf"
+	    ./configure --disable-shared --disable-netcdf-4 --prefix=$PREFIX
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from configure!!!"
+		exit 1
+	    fi
+	    echo "*** Running make ***"
+	    make
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make!!!"
+		exit 1
+	    fi
+	    echo "*** Running make check ***"
+	    make check
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make check!!!"
+		exit 1
+	    fi
+	    echo "*** Running make install ***"
+	    make install
+	    if [ ! "$?" -eq 0 ] ; then
+		echo "!!!ERROR returned from make install!!!"
+		exit 1
+	    fi
+	    chmod -R 775 $PREFIX
+	    unset LDFLAGS
+	    unset CPPFLAGS
+	    unset LIBS
+	    ;;
+
+	# Default case
+	*)
+	    echo "ERROR, unknown target $target"
+	    exit 1
+	    ;;
+    esac
+done
+exit 0
+

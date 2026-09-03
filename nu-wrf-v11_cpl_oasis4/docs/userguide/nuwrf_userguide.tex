@@ -1,0 +1,119 @@
+
+\documentclass[titlepage]{article}
+
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{color}
+
+%\usepackage{draftwatermark} % COMMENT OUT FOR PUBLIC RELEASE
+
+\usepackage{eso-pic}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{ifthen}
+%\usepackage{longtable}
+\usepackage{natbib}
+\usepackage{pict2e}
+%\usepackage[nottoc]{tocbibind}
+
+\pagestyle{fancy}
+\rhead{}
+\cfoot{} 
+
+% Begin DRAFT water mark at center header and footer
+%\chead{DRAFT} % COMMENT OUT FOR PUBLIC RELEASE
+%\cfoot{DRAFT} % COMMENT OUT FOR PUBLIC RELEASE
+% End DRAFT water mark at center header and footer
+
+\rfoot{\thepage}
+
+% Begin DRAFT water mark in center of page
+%\SetWatermarkText{DRAFT} % COMMENT OUT FOR PUBLIC RELEASE
+%\SetWatermarkScale{4}    % COMMENT OUT FOR PUBLIC RELEASE
+%\SetWatermarkAngle{45}   % COMMENT OUT FOR PUBLIC RELEASE
+% End DRAFT water mark in center of page
+
+\newcommand{\svnurl}{http://subversion.apache.org}
+\newcommand{\lisurl}{http://lis.gsfc.nasa.gov}
+\newcommand{\lispublicserver}{http://lisdata.gsfc.nasa.gov}
+
+\newboolean{devversion}
+\setboolean{devversion}{false}
+\newcommand{\devonly}[1]{\ifthenelse{\boolean{devversion}}{#1}{}}
+
+% Disable hyphenation of certain words
+\hyphenation{allkpp} 
+\hyphenation{preprocessing}
+\hyphenation{LISCONFIG}
+\hyphenation{LDTCONFIG}
+
+%-----------------------------------------------------------------------------
+
+\begin{document}
+
+%Roman numeral page numbers for start of guide
+\pagenumbering{roman}
+
+%%Manual Title Page
+\begin{titlepage}
+\begin{flushleft}
+  {\bfseries \Huge NU-WRF Version 11}
+  \vskip0.25in
+  {\bfseries \Huge User's Guide}
+  \vskip1in
+  \Large For Ekman Version \\
+  \Large \today
+  \vskip0.75in
+
+\end{flushleft}
+\vskip2.5in
+
+
+\begin{flushleft}
+  \includegraphics[scale=0.125]{meatball.pdf}\\
+  {\bfseries \Large National Aeronautics and Space Administration \\}
+  {\bfseries \Large Goddard Space Flight Center\\}
+  \Large Greenbelt, Maryland 20771 \\
+\end{flushleft}
+
+%\noindent\makebox[\linewidth]{\rule{\paperwidth}{0.4pt}}
+%\noindent\rule{90pt}{0.4pt}
+\begin{flushleft}
+\begin{picture}(1,1)
+\put(-15,  -5){\line(0,1){600}}
+
+
+\end{picture}
+\end{flushleft}
+
+\end{titlepage}
+\setcounter{page}{2} % Undo page count reset by titlepage command
+
+%%END Manual Title page
+
+\tableofcontents
+\thispagestyle{fancy}
+
+%Switch to arabic page numbers
+\newpage
+\pagenumbering{arabic}
+
+\include{introduction}
+\include{system}
+\include{obtaining}
+\include{building}
+\include{workflows}
+\include{postproc}
+\appendix
+\include{faq}
+\include{porting}
+\include{revhist}
+\bibliographystyle{ametsoc}
+%%\addcontentsline{toc}{section}{\refname}
+%%\addcontentsline{toc}{section}{References}
+\bibname{References}
+\bibliography{references}
+\end{document}
+

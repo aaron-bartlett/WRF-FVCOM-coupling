@@ -1,0 +1,428 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{color}
+
+%\usepackage{draftwatermark} % COMMENT OUT FOR PUBLIC RELEASE
+
+\usepackage{eso-pic}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{ifthen}
+\usepackage{longtable}
+\usepackage{natbib}
+\usepackage{pict2e}
+\usepackage{soul}
+\usepackage[nottoc]{tocbibind}
+\usepackage[normalem]{ulem}
+
+\pagestyle{fancy}
+\rhead{}
+\cfoot{} 
+
+% Begin DRAFT water mark at center header and footer
+%\chead{DRAFT} % COMMENT OUT FOR PUBLIC RELEASE
+%\cfoot{DRAFT} % COMMENT OUT FOR PUBLIC RELEASE
+% End DRAFT water mark at center header and footer
+
+\rfoot{\thepage}
+
+% Begin DRAFT water mark in center of page
+%\SetWatermarkText{DRAFT} % COMMENT OUT FOR PUBLIC RELEASE
+%\SetWatermarkScale{4}    % COMMENT OUT FOR PUBLIC RELEASE
+%\SetWatermarkAngle{45}   % COMMENT OUT FOR PUBLIC RELEASE
+% End DRAFT water mark in center of page
+
+%------------------------------------------------------------------------------
+\begin{document}
+
+\pagenumbering{arabic}
+
+\title{User Guide for Diagnosing Surface Bareness from NDVI for NU-WRF}
+\author{Eric Kemp \\ Science Systems and Applications, Inc and \\
+        NASA Goddard Space Flight Center}
+\date{16 September 2016}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:Introduction}
+
+The NASA Unified-Weather Research and Forecasting (NU-WRF) modeling system
+\citep{ref:PetersLidardEtAl2014} includes a NASA-developed dynamic dust 
+emissions scheme described briefly by~\cite{ref:ErodUserGuide}.  Two special
+input fields are required by the emissions scheme:
+
+\begin{enumerate}
+\item A \emph{topographic depression} field ($S$), indicating geographic
+regions where loose soils are likely to collect; and 
+\item A \emph{surface bareness} field ($L$), indicating absence (presence)
+of vegetation to permit (hinder) lofting of loose soils by high winds.
+\end{enumerate}
+
+The $S$ fields are static and are available from the NU-WRF team (the data
+values are based on the 30$''$ GTOPO terrain distributed with the community 
+WRF). In contrast, $L$ must be generated from Normalized Vegetation Difference
+Index (NDVI) data, preferably valid at the NU-WRF simulation start time.  This 
+document describes software for deriving $L$ from NDVI data from on of two 
+possible sources:  the NASA Short-term Prediction Research and Transition 
+Center (SPoRT; \url{http://weather.msfc.nasa.gov/sport/}), and the NASA Global 
+Inventory Modeling and Mapping Studies (GIMMS) group
+(\url{http://gimms.gsfc.nasa.gov/MODIS/}).
+
+\section{Software}
+\label{sec:Software}
+
+\subsection{ndviBareness4Wrf}
+\label{subsec:ndviBareness4Wrf}
+
+A Fortran program (\textit{ndviBareness4Wrf}) has been developed to read 
+quality-controlled NDVI to diagnose $L$ based on user-defined NDVI thresholds,
+and to output the $L$ (also called BARE\_DYN) and NDVI fields in WPS 
+intermediate binary format [see Chapter 2 of \cite{ref:ArwUserGuide}].  
+For simplicity, the data are marked as valid at 00 UTC.  These files are 
+subsequently read by the METGRID preprocessor to horizontally interpolate the 
+fields to the user-specified WRF grid.  The interpolated fields are then 
+passed to REAL for insertion into the initial condition files read by WRF.  
+
+Currently two data formats are supported by the software:
+
+\begin{itemize}
+\item \textbf{NASA SPoRT MODIS NDVI composite data in GrADS binary format}.  
+These NDVI data are in the cylindrical equidistant (latitude-longitude) 
+projection at $0.01^{\circ}$ resolution; cover the contiguous United States, 
+southern Canada, and northern Mexico; and are updated daily based on 
+available Moderate Resolution Imaging Spectroradiometer (MODIS) data
+\citep{ref:CaseEtAl2011}.  The \textit{ndviBareness4Wrf} executable will 
+process the entire SPoRT domain for a specified day.  Per discussions with 
+SPoRT personnel (J. Case, 2014, personnel communication), pixels with NDVI 
+values between zero and 0.05 are reset to 0.05, while negative NDVI values
+are reset to a missing value (-9999). The output file prefix can be set by 
+the user.  If no file is processed, the program will terminate with an error.
+
+\item \textbf{NASA GIMMS MODIS NDVI data in GeoTIFF format}.  These data are 
+in the cylindrical equidistant (latitude-longitude) projection, and are
+organized in $9^{\circ} \times 9^{\circ}$ regional tiles at $0.00225^{\circ}$ 
+resolution every 8 days (see 
+\url{http://gimms.gsfc.nasa.gov/MODIS/README.txt}).  Separate NDVI products 
+are generated from the NASA \textit{Aqua} and \textit{Terra} satellites. Due 
+to the large amount of NDVI data available via GIMMS, 
+\textit{ndviBareness4Wrf} will automatically select only those tiles that 
+include data contained in a user-specified latitude/longitude box.  In 
+addition, each tile will be processed separately and have their own unique WPS
+output file.  The output file prefixes for these data will always be 
+\textit{\textbf{SAT}\_X\textbf{MM}Y\textbf{NN}}, where 
+\textit{\textbf{SAT}} is either \textit{AQUA} or \textit{TERRA}, and 
+\textit{\textbf{MM}} and \textit{\textbf{NN}} are tile number identifiers that
+match the GIMMS tile index convention.  Masked pixel values (e.g., for water, 
+snow, or bare land) are reset to a missing value (-9999). The NDVI pixels are 
+also `flipped' to transform from the GIMMS y-axis convention (data progressing
+north to south) to the WRF y-axis convention (data progressing from south to 
+north). If a GeoTIFF tile file is missing, \textit{ndviBareness4Wrf} will 
+print a warning message and continue (this behavior is due to gaps in tile 
+coverage that exclude the poles and ocean regions far from land).  However, if
+no tiles are processed at all, the program will terminate with an error.
+
+\end{itemize}
+
+The Fortran executable will expect a \textit{namelist.ndviBareness4Wrf} file
+to specify run-time settings.  A single namelist block is used in this file,
+and is documented below.
+
+\begin{tabular}{|l|l|} \hline
+Variable Names & Description \\ \hline
+\&settings & \\ \hline
+ndviFormat & Integer, specified NDVI file format. \\
+           & SPoRT MODIS GrADS = 1 \\
+           & GIMMS MODIS GeoTIFF AQUA = 10 \\ 
+           & GIMMS MODIS GeoTIFF TERRA = 11 \\ \hline
+lowerLeftLat & Real, specifies southwestern latitude limit of required \\
+             & data. Only used for GIMMS GeoTIFF files. \\ \hline
+lowerLeftLon & Real, specifies southwestern longitude limit of required \\
+             & data. Only used for GIMMS GeoTIFF files. \\ \hline
+upperRightLat & Real, specifies northeastern latitude limit of required \\
+              & data. Only used for GIMMS GeoTIFF files. \\ \hline
+upperRightLon & Real, specifies northeastern longitude limit of required \\
+              & data. Only used for GIMMS GeoTIFF files. \\ \hline
+ndviBarenessThreshold1 & Real, specifies lower threshold of NDVI to \\
+                       & diagnose bare soil.  NDVI values below this number \\
+                       & are assumed to indicate water. \\ \hline
+ndviBarenessThreshold2 & Real, specifies upper threshold of NDVI to \\
+                       & diagnose bare soil.  NDVI values above this number \\
+                       & are assumed to indicate vegetation. \\ \hline
+inputDirectory & String, specifies top directory with NDVI input files. \\
+               & For SPoRT, files are assumed to be in subdirectories for \\
+               & year and month (e.g., 2016/07). \\
+               & For GIMMS, files are assumed to be in subdirectories for \\
+               & year and day-of-year (e.g., 2011/185). \\ \hline
+year & Integer, specifies valid year of NDVI data. \\ \hline
+month & Integer, specifies valid month of NDVI data. \\ \hline
+dayOfMonth & Integer, specifies valid day-of-month of NDVI data. \\ \hline
+outputDirectory & String, specifies directory to write output files. \\ \hline
+outputFilePrefix & String, specifies prefix of output file names.  Ignored \\
+                 & if processing GIMMS MODIS GeoTIFF files. \\ \hline
+\end{tabular} \\
+
+\subsection{proc\_sport\_modis\_ndvi.py}
+\label{subsec:procSportModisNdviPy}
+
+To assist users in processing SPoRT files, the Python script 
+\textit{proc\_sport\_modis\_ndvi.py} has been written.  This script will 
+use pre-staged SPoRT GrADS NDVI files.  For each day in the specified date 
+range, the script will generate a customized 
+\textit{namelist.ndviBareness4Wrf} file and run the \textit{ndviBareness4Wrf}
+program to generate WPS intermediate binary files.  The entire SPoRT domain
+will be processed if the file is found; if the file for a particular date is
+missing, the script will write a warning message and continue; and if no
+files are found the script will fail with an error. 
+
+The script uses a configuration file \textit{sport\_modis.cfg} for most
+settings, but will also recognize several optional command line arguments to
+modifiy behavior.  These are described below.
+
+\subsubsection{sport\_modis.cfg}
+\label{subsubsec:sportModisCfg}
+
+This configuration file is designed for use with the Python standard library
+module \textit{ConfigParser} (see 
+\url{https://docs.python.org/2/library/configparser.html}).  It is made up
+of a single `section' of data: \\
+
+\begin{tabular}{|l|l|} \hline
+Variable Names          & Description \\ \hline
+[SPORT\_MODIS]          & \\ \hline
+start\_year:            & Integer, year of first NDVI file to \\
+                        & process. \\ \hline
+start\_month:           & Integer, month of first NDVI file to \\
+                        & process. \\ \hline
+start\_day:             & Integer, day-of-month of first NDVI file to \\
+                        & process. \\ \hline
+end\_year:              & Integer, year of final NDVI file to \\ 
+                        & process. \\ \hline
+end\_month:             & Integer, month of final NDVI file to \\
+                        & process. \\ \hline
+end\_day:               & Integer, day-of-month of final NDVI file to \\
+                        & process. \\ \hline
+ndvi\_bareness\_4\_wrf\_path: & String, path to \textit{ndviBareness4Wrf} \\
+                              & executable. \\ \hline
+top\_work\_dir: & String, path to top level work directory where files \\
+                & will be processed. \\ \hline
+top\_local\_archive\_dir: & String, top-level directory containing \\
+                          & pre-fetched NDVI files.  \\ \hline
+ndvi\_bareness\_threshold\_1: & Real, lower threshold of NDVI to diagnose \\
+                              & bare soil.  NDVI values below this number \\
+                              & are assumed to indicate water. \\ \hline
+ndvi\_bareness\_threshold\_2: & Real, upper threshold of NDVI to diagnose \\
+                              & bare soil.  NDVI values above this number \\
+                              & are assumed to indicate vegetation. \\ \hline
+output\_file\_prefix: & String, will be used as prefix for WPS output \\
+                      & files. \\ \hline
+\end{tabular} \\
+
+\subsection{proc\_gimms\_modis\_ndvi.py}
+\label{subsec:procGimmsModisNdviPy}
+
+Similar to \textit{proc\_sport\_modis\_ndvi.py}, the
+\textit{proc\_gimms\_sport\_ndvi.py} script has been written to simplify
+the process of collecting and processing GIMMS NDVI tiles. This
+script will either download science quality Aqua or Terra NDVI tiles from the 
+GIMMS server (\url{ftp://gimms.gsfc.nasa.gov/MODIS}) or alternatively use 
+files already staged on local disk.  For each day in the specified date range,
+the script will generate a customized \textit{namelist.ndviBareness4Wrf} file 
+and run the \textit{ndviBareness4Wrf} executable to generate WPS intermediate 
+binary files.  If downloading, the script will only fetch those tiles that 
+have data in the user-specified latitude-longitude box; if a tile file is 
+missing, the script will print a warning message and continue.  If no NDVI 
+files can be found for processing, the script will terminate with an error. If
+the script downloads files, it will optionally delete them after processing to
+conserve disk space.
+
+The Python script uses a configuration file \textit{gimms\_modis.cfg} for most 
+settings and recognizes several optional command line flags.
+
+\subsubsection{gimms\_modis.cfg}
+\label{gimmsModisCfg}
+
+This configuration file is similar to \textit{sport\_modis.cfg} but is
+specific to the GIMMS GeoTIFF files.  The options are summarized below:
+
+\begin{tabular}{|l|l|} \hline
+Variable Names          & Description \\ \hline
+[GIMMS\_MODIS]          & \\ \hline
+satellite:              & String, must be either Aqua or Terra. \\ \hline
+start\_year:            & Integer, year of first NDVI file to \\
+                        & process. \\ \hline
+start\_month:           & Integer, month of first NDVI file to \\
+                        & process. \\ \hline
+start\_day:             & Integer, day-of-month of first NDVI file to \\
+                        & process. \\ \hline
+end\_year:              & Integer, year of final NDVI file to \\ 
+                        & process. \\ \hline
+end\_month:             & Integer, month of final NDVI file to \\
+                        & process. \\ \hline
+end\_day:               & Integer, day-of-month of final NDVI file to \\
+                        & process. \\ \hline
+ndvi\_bareness\_4\_wrf\_path: & String, path to \textit{ndviBareness4Wrf} \\
+                              & executable. \\ \hline
+top\_work\_dir: & String, path to top level work directory where files \\
+                & will be processed. \\ \hline
+top\_local\_archive\_dir: & String, top-level directory containing \\
+                          & pre-fetched NDVI files.  Only used if \\
+                          & appropriate command-line flag is invoked; \\
+                          & otherwise, files will be downloaded into work \\
+                          & directory. \\ \hline
+lower\_left\_lat: & Real, southwestern latitude limit of required \\
+                  & data. \\ \hline
+lower\_left\_lon: & Real, southwestern longitude limit of required \\
+                  & data. \\ \hline
+upper\_right\_lat: & Real, northeastern latitude limit of required \\
+                   & data. \\ \hline
+upper\_right\_lon: & Real, northeastern longitude limit of required \\
+                   & data. \\ \hline
+ndvi\_bareness\_threshold\_1: & Real, lower threshold of NDVI to diagnose \\
+                              & bare soil.  NDVI values below this number \\
+                              & are assumed to indicate water. \\ \hline
+ndvi\_bareness\_threshold\_2: & Real, upper threshold of NDVI to diagnose \\
+                              & bare soil.  NDVI values above this number \\
+                              & are assumed to indicate vegetation. \\ \hline
+\end{tabular} \\
+
+\subsubsection{Command line flags}
+\label{subsubsec:GimmsCmdLineFlags}
+
+The following flags are recognized on the command line:
+
+\begin{itemize}
+
+\item \textbf{-H} and \textbf{-{}-help} will cause the script to print 
+a summary of all the command line flag options and then exit.
+
+\item \textbf{-D} and \textbf{-{}-download} instructs the script to
+download any files from the SPoRT server via FTP.  By default, the script will
+process pre-staged files.
+
+\item \textbf{-S} and \textbf{-{}-save} instructs the script not to delete
+any files that have been downloaded.  By default, the downloaded files
+will be deleted after processing to save disk space.
+
+\end{itemize}
+
+\subsection{link\_gimms\_wps\_files.py}
+\label{subsec:linkGimmsWpsFilesPy}
+
+The nominal 8-day resolution of the GIMMS NDVI products presents a challenge,
+since WRF's preprocessors expect all time varying input data to have the same
+valid times and intervals.  Fortunately, it is possible to `trick' the 
+METGRID preprocessor into ingesting the same data multiple times by using
+symbolic links.  To aid the user in creating these, a Python script called
+\textit{link\_gimms\_wps\_files.py} has been developed.  This script will
+loop through a series of date/times, identify when a particular date/time
+has GIMMS WPS files available, record the names of those files (in particular,
+the tile numbers), and for dates/times without data produce symbolic links to 
+the nearest preceding files.  Note that the script will fail if no GIMMS WPS 
+files exist for the start date/time.
+
+The benefit of using this script instead of 
+\textit{link\_wps\_intermediate\_files.py} (see 
+section \ref{subsec:linkWpsIntermediateFilesPy}) is that the present script
+will search for and properly link multiple tiles of Aqua or Terra data.
+
+The script uses a configure file \textit{link\_gimms.cfg} for all user-defined
+settings.  This file contains a single `section' of data: \\
+
+\begin{tabular}{|l|l|} \hline
+Variable Names          & Description \\ \hline
+[LINK\_GIMMS]           & \\ \hline
+satellite:      & String, either Aqua or Terra. \\ \hline
+top\_work\_dir: & String, path to top level work directory where files \\
+                & will be linked. \\ \hline
+start\_year:            & Integer, year of first NDVI file to \\
+                        & link to. \\ \hline
+start\_month:           & Integer, month of first NDVI file to \\
+                        & link to. \\ \hline
+start\_day:             & Integer, day-of-month of first NDVI file to \\
+                        & link to. \\ \hline
+start\_hour:            & Integer, hour (UTC) of first NDVI file to \\
+                        & link to. \\ \hline
+end\_year:              & Integer, final year for linking \\ 
+                        & files. \\ \hline
+end\_month:             & Integer, final month for linking \\
+                        & files. \\ \hline
+end\_day:               & Integer, final day-of-month for linking \\
+                        & files. \\ \hline
+end\_hour:              & Integer, final hour (UTC) for linking \\
+                        & files. \\ \hline
+link\_interval\_in\_hours: & Integer, interval for creating symbolic \\
+                        & links. \\ \hline
+\end{tabular} \\
+
+\subsection{link\_wps\_intermediate\_files.py}
+\label{subsec:linkWpsIntermediateFilesPy}
+
+A generic version of \textit{link\_gimms\_wps\_files.py} is available for
+SPoRT MODIS data or other WPS files with a time interval other
+than the atmospheric lateral boundary conditions.  This script ---
+\textit{link\_wps\_intermediate\_files.py} --- reads a 
+\textit{link\_wps\_int.cfg} file for configuration settings.  However, the 
+script also optionally accepts the WPS file name prefix from the command line 
+with an appropriate flag (see section\ref{subsubsec:LinkWpsCmdLineFlags}). 
+This can be useful if WPS files from multiple sources but identical time 
+characteristics need to be linked, and it would be inconvenient for the user
+to change \textit{link\_wps\_int.cfg} for each data source.
+
+\subsubsection{link\_wps\_int.cfg}
+\label{subsubsec:LinkWpsIntCfg}
+
+The \emph{link\_wps\_int.cfg} file has a single `section' of data:
+
+\begin{tabular}{|l|l|} \hline
+Variable Names          & Description \\ \hline
+[LINK\_WPS\_INT]        & \\ \hline
+prefix:         & String, the exact prefix of the WPS intermediate files.\\
+                & Ignored if valid command line flag is used. \\ \hline
+top\_work\_dir: & String, path to top level work directory where files \\
+                & will be linked. \\ \hline
+start\_year:            & Integer, year of first NDVI file to \\
+                        & link to. \\ \hline
+start\_month:           & Integer, month of first NDVI file to \\
+                        & link to. \\ \hline
+start\_day:             & Integer, day-of-month of first NDVI file to \\
+                        & link to. \\ \hline
+start\_hour:            & Integer, hour (UTC) of first NDVI file to \\
+                        & link to. \\ \hline
+end\_year:              & Integer, final year for linking \\ 
+                        & files. \\ \hline
+end\_month:             & Integer, final month for linking \\
+                        & files. \\ \hline
+end\_day:               & Integer, final day-of-month for linking \\
+                        & files. \\ \hline
+end\_hour:              & Integer, final hour (UTC) for linking \\
+                        & files. \\ \hline
+link\_interval\_in\_hours: & Integer, interval for creating symbolic \\
+                        & links. \\ \hline
+\end{tabular} \\
+
+\subsubsection{Command line flags}
+\label{subsubsec:LinkWpsCmdLineFlags}
+
+The following flags are recognized on the command line:
+
+\begin{itemize}
+
+\item \textbf{-H} and \textbf{-{}-help} will cause the script to print 
+a summary of all the command line flag options and then exit.
+
+\item \textbf{-P PREFIX} and \textbf{-{}-prefix=PREFIX} instructs the script to
+accept the WPS file prefix name from the command line.  In this case, the 
+prefix setting from the \textit{link\_wps\_int\_.cfg} file will be ignored.
+
+\end{itemize}
+
+\bibliographystyle{ametsoc}
+\settocbibname{References}
+\bibliography{references}
+
+\end{document}

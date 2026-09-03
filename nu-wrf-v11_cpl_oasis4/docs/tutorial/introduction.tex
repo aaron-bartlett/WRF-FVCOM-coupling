@@ -1,0 +1,60 @@
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}
+%  \titlepage
+\maketitle
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\section{Introduction}
+%-------------------------------------------------------------------------------------------------------------------
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}{What is in this tutorial?}
+
+\footnotesize{
+This tutorial  describes the process of downloading, compiling, and running NU-WRF (development version) for four different and representative workflows:
+\begin{itemize}
+     \item Basic: Based on WRF ARW.
+     \item WRF-LIS: The recommended non-chemistry NU-WRF workflow (LIS MERRA forcing).
+     \item Chemistry: The recommended chemistry (non-LIS) NU-WRF workflow.
+     \item SCM: The Single Column Model NU-WRF workflow (with LIS coupling).
+\end{itemize}
+Each workflow consists of a series of steps starting with the acquisition of data files followed by the execution of several NU-WRF components. Successful completion of any workflow requires that \textbf{all} steps be completed in the order presented.
+\mbox{}\\
+For any additional information please consult the \href{https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/nuwrf_userguide.pdf}{NU-WRF user's guide} at: https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/nuwrf\_userguide\_v11.pdf
+}
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}{Special instructions}
+
+\footnotesize{
+\begin{itemize}
+\item All workflows are designed with pre-defined settings\footnote{That is, compiler/MPI combination, external libraries and run-time settings.}, including datasets. \emph{Workflows are not guaranteed to work if you deviate from the prescribed instructions}. So, please refrain from editing the inputs unless you know what you are doing. 
+\item It is assumed that users are running on Discover or Pleiades using the bash shell. However, the steps described here \emph{should} work under other shells.
+\end{itemize}
+}
+\textbf{IMPORTANT}:Henceforth all lines starting with '$>$' are Unix commands to be executed by the users.\\
+\textbf{Note on paths}: On Pleiades \emph{most} paths are identical to the ones on Discover. So, in most cases just removing  "/discover" from the path should be enough for the setup instructions to work on both systems.\\
+\textbf{Note on workfows}: Only the basic and default workflows are available on Pleiades.\\
+
+\end{frame}
+
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}{Useful links}
+
+\footnotesize{
+\begin{itemize}
+\item \href{https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.2/contents.html}{Community ARW User Guide} https://www2.mmm.ucar.edu/wrf/users/docs/user\_guide\_v4/v4.2/contents.html
+\item \href{http://www2.mmm.ucar.edu/wrf/OnLineTutorial/index.htm}{Community WRF ARW Online Tutorial} http://www2.mmm.ucar.edu/wrf/OnLineTutorial/index.htm
+\item \href{http://www.nccs.nasa.gov/primer/}{Documentation for using Discover and other NCCS systems} http://www.nccs.nasa.gov/primer/
+\item \href{http://www.nas.nasa.gov/hecc/support/kb//}{Documentation for using Pleiades and other NAS systems} http://www.nas.nasa.gov/hecc/support/kb/
+\end{itemize}
+\textbf{NOTE:} The details for building the software on Discover and Pleiades are automatically handled by 
+NUWRF's build scripts!
+}
+
+\end{frame}
+

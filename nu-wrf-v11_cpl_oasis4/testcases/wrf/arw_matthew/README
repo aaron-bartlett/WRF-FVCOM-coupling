@@ -1,0 +1,10 @@
+WRF ARW tescase: Hurricane Matthew
+
+This is a test case that uses:
+  (a) 1 domain (27km) over Caribbean
+      Mercator projection
+  (b) Simulation time period: 2016-10-06_00 to 2016-10-08_0
+  (c) Default geographical data, NCEP GFS data
+
+Reference:
+https://www2.mmm.ucar.edu/wrf/OnLineTutorial/CASES/SingleDomain/index.php

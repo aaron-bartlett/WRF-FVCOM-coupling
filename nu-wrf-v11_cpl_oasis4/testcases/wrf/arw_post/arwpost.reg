@@ -1,0 +1,20 @@
+#############################
+# BEGIN ARWPOST SEGMENT
+#############################
+THIS=ARWPOST
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.wps is present.
+if [ ! -e namelist.ARWpost ]; then
+    echo "$THIS ERROR: namelist.ARWpost not found!"
+    exit 1
+fi
+
+ln -fs $EXEDIR/ARWpost/ARWpost.exe || exit 1
+if [ ! -e ARWpost.exe ]; then
+    echo "$THIS ERROR: ARWpost.exe does not exist!"
+    exit 1 
+fi
+./ARWpost.exe || exit 1
+

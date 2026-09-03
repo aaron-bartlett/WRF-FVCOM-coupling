@@ -1,0 +1,14 @@
+
+&wrf
+  max_dom = 2,
+  wrf_dir = './',
+/
+
+&gocart_shared
+  gocart_format = 5,
+  gocart_dir = './gocart_data',
+  gocart_prefix  = 'g5e520m0c',
+  gocart_source = 'offline',
+/
+
+

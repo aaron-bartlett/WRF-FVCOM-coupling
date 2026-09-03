@@ -1,0 +1,95 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Software Systems Support Office, Code 610.3
+!------------------------------------------------------------------------------
+!
+! FILE:  namelist.merra2wrf
+!
+! AUTHOR:
+! Eric Kemp, NASA SSSO/Northrop Grumman
+!
+! DESCRIPTION:
+! Lists input and output directories, number of days, dates, and
+! names of MERRA files to process.
+!
+! REVISION:
+! 16 Mar 2012 - First version
+!
+!------------------------------------------------------------------------------
+
+&input
+
+  ! Directory to write output
+  outputDirectory = './',
+
+  ! Directory with input MERRA files
+  merraDirectory = '/discover/nobackup/emkemp/NUWRF/MERRA_GES_DISC',
+
+  ! Format and name of const_2d_asm_Nx file
+  merraFormat_const_2d_asm_Nx = 1,
+  merraFile_const_2d_asm_Nx = 'MERRA300.prod.assim.const_2d_asm_Nx.00000000.hdf',  
+
+  ! Number of days to process.  Note that each file type (excluding const_2d_asm_Nx) 
+  ! will have one file per day.
+  numberOfDays = 9,
+
+  ! Dates of each day being processed (YYYY-MM-DD)
+  merraDates(1) = '2009-08-25',
+  merraDates(2) = '2009-08-26',
+  merraDates(3) = '2009-08-27',
+  merraDates(4) = '2009-08-28',
+  merraDates(5) = '2009-08-29',
+  merraDates(6) = '2009-08-30',
+  merraDates(7) = '2009-08-31',
+  merraDates(8) = '2009-09-01',
+  merraDates(9) = '2009-09-02',
+
+  ! Format and Names of inst6_3d_ana_Nv files.
+  merraFormat_inst6_3d_ana_Nv = 1,
+  merraFiles_inst6_3d_ana_Nv(1) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090825.SUB.hdf',
+  merraFiles_inst6_3d_ana_Nv(2) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090826.SUB.hdf',
+  merraFiles_inst6_3d_ana_Nv(3) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090827.SUB.hdf',
+  merraFiles_inst6_3d_ana_Nv(4) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090828.SUB.hdf',
+  merraFiles_inst6_3d_ana_Nv(5) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090829.SUB.hdf',
+  merraFiles_inst6_3d_ana_Nv(6) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090830.SUB.hdf',
+  merraFiles_inst6_3d_ana_Nv(7) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090831.SUB.hdf',
+  merraFiles_inst6_3d_ana_Nv(8) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090901.SUB.hdf',
+  merraFiles_inst6_3d_ana_Nv(9) = 'MERRA300.prod.assim.inst6_3d_ana_Nv.20090902.SUB.hdf',
+
+  ! Names of inst6_3d_ana_Np files.
+  merraFormat_inst6_3d_ana_Np = 1,
+  merraFiles_inst6_3d_ana_Np(1) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090825.SUB.hdf',
+  merraFiles_inst6_3d_ana_Np(2) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090826.SUB.hdf',
+  merraFiles_inst6_3d_ana_Np(3) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090827.SUB.hdf',
+  merraFiles_inst6_3d_ana_Np(4) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090828.SUB.hdf',
+  merraFiles_inst6_3d_ana_Np(5) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090829.SUB.hdf',
+  merraFiles_inst6_3d_ana_Np(6) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090830.SUB.hdf',
+  merraFiles_inst6_3d_ana_Np(7) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090831.SUB.hdf',
+  merraFiles_inst6_3d_ana_Np(8) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090901.SUB.hdf',
+  merraFiles_inst6_3d_ana_Np(9) = 'MERRA300.prod.assim.inst6_3d_ana_Np.20090902.SUB.hdf',
+
+  ! Names of tavg1_2d_slv_Nx files.
+  merraFormat_tavg1_2d_slv_Nx = 1,
+  merraFiles_tavg1_2d_slv_Nx(1) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090825.SUB.hdf',
+  merraFiles_tavg1_2d_slv_Nx(2) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090826.SUB.hdf',
+  merraFiles_tavg1_2d_slv_Nx(3) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090827.SUB.hdf',
+  merraFiles_tavg1_2d_slv_Nx(4) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090828.SUB.hdf',
+  merraFiles_tavg1_2d_slv_Nx(5) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090829.SUB.hdf',
+  merraFiles_tavg1_2d_slv_Nx(6) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090830.SUB.hdf',
+  merraFiles_tavg1_2d_slv_Nx(7) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090831.SUB.hdf',
+  merraFiles_tavg1_2d_slv_Nx(8) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090901.SUB.hdf',
+  merraFiles_tavg1_2d_slv_Nx(9) = 'MERRA300.prod.assim.tavg1_2d_slv_Nx.20090902.SUB.hdf',
+
+  ! Names of tavg1_2d_ocn_Nx files.
+  merraFormat_tavg1_2d_ocn_Nx = 1,
+  merraFiles_tavg1_2d_ocn_Nx(1) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090825.SUB.hdf',
+  merraFiles_tavg1_2d_ocn_Nx(2) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090826.SUB.hdf',
+  merraFiles_tavg1_2d_ocn_Nx(3) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090827.SUB.hdf',
+  merraFiles_tavg1_2d_ocn_Nx(4) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090828.SUB.hdf',
+  merraFiles_tavg1_2d_ocn_Nx(5) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090829.SUB.hdf',
+  merraFiles_tavg1_2d_ocn_Nx(6) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090830.SUB.hdf',
+  merraFiles_tavg1_2d_ocn_Nx(7) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090831.SUB.hdf',
+  merraFiles_tavg1_2d_ocn_Nx(8) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090901.SUB.hdf',
+  merraFiles_tavg1_2d_ocn_Nx(9) = 'MERRA300.prod.assim.tavg1_2d_ocn_Nx.20090902.SUB.hdf',
+
+/
+

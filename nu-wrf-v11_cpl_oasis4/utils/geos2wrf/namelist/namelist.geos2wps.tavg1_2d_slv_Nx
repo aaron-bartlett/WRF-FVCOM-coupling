@@ -1,0 +1,58 @@
+
+&files
+  geosFileFormat=2,
+  geosFileName='MERRA300.prod.assim.tavg1_2d_slv_Nx.20090825.SUB.nc',
+  outputDirectory='./',
+/
+ 
+&coordinates
+ longitudeName='longitude',
+ latitudeName='latitude',
+/
+
+&forecast
+ numberOfTimes=1,
+ validTimes(1)='2009-08-25_00',
+ timeIndices(1) = 1,
+ forecastHours(1)=0,
+/
+
+&variables
+ numberOfVariables=5,
+
+ variableRanks(1) = 3,
+ variableLevelTypes(1) = 3,
+ variableNamesIn(1)='u10m',
+ variableNamesOut(1)='UU',
+ variableUnits(1)='m s-1',
+ variableDescriptions(1)='U                 at 10 m',
+
+ variableRanks(2) = 3,
+ variableLevelTypes(2) = 3,
+ variableNamesIn(2)='v10m',
+ variableNamesOut(2)='VV',
+ variableUnits(2)='m s-1',
+ variableDescriptions(2)='V                 at 10 m',
+
+ variableRanks(3) = 3,
+ variableLevelTypes(3) = 2,
+ variableNamesIn(3)='t2m',
+ variableNamesOut(3)='TT',
+ variableUnits(3)='K',
+ variableDescriptions(3)='Temperature       at 2 m',
+
+ variableRanks(4) = 3,
+ variableLevelTypes(4) = 2,
+ variableNamesIn(4)='qv2m',
+ variableNamesOut(4)='SPECHUMD',
+ variableUnits(4)='kg kg-1',
+ variableDescriptions(4)='Specific Humidity at 2 m',
+
+ variableRanks(5) = 3,
+ variableLevelTypes(5) = 1,
+ variableNamesIn(5)='ts',
+ variableNamesOut(5)='SKINTEMP',
+ variableUnits(5)='K',
+ variableDescriptions(5)='Skin temperature (can use for SST also)',
+
+/

@@ -1,0 +1,196 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Software Systems Support Office, Code 610.3
+!------------------------------------------------------------------------------
+!
+! FILE:  README.merra2wrf
+!
+! AUTHOR:
+! Eric Kemp, NASA SSSO/SSAI
+!
+! DESCRIPTION:
+! README document for MERRA2WRF 2.0
+!
+!------------------------------------------------------------------------------
+
+INTRODUCTION
+
+MERRA2WRF 2.0 is a completely rewritten Fortran program used to process
+select HDF4, HDFEOS2, or netCDF files from the Modern-Era Retrospective 
+Analysis for Research and Applications (MERRA) dataset, and convert into "WPS 
+intermediate format", a big-endian binary format used by the Weather Research 
+and Forecast (WRF) Preprocessing System (WPS).  The MERRA dataset are 
+available via the NASA Goddard Earth Sciences Data Information Services Center
+(GES DISC) web page, at http://disc.sci.gsfc.nasa.gov/daac-bin/DataHoldings.pl.
+
+The WPS is responsible for collecting basic meteorological fields for use
+as initial and lateral boundary conditions in the WRF model.  Basic 
+requirements are:  
+* pressure
+* geopotential heights
+* horizontal winds
+* temperature, and
+* moisture (preferably relative humidity w.r.t. liquid).  
+
+Additional fields useful when interpolating or extrapolating near the WRF 
+model terrain field include:
+* surface pressure
+* sea level pressure
+* land-sea mask
+* sea-ice fraction
+* 2-m temperature
+* 2-m relative humidity
+* 10-m horizontal winds
+* skin temperature, and 
+* terrain height.  
+
+Although many of these fields are available in the raw MERRA files, some must 
+be derived from other variables (e.g., geopotential height on model levels) 
+or only exist as 1-hour averages rather than instantaneous analysis fields.  
+Variables are also distributed among several different file types (called 
+"collections" in the MERRA terminology).  Thus, MERRA2WRF is designed to 
+process certain variables in specific collection files before writing out the 
+data in WPS format.
+
+(NOTE:  A more generic GEOS2WRF software package is also available and is 
+designed to handle multiple sources of GEOS data, including MERRA.  See
+README.geos2wrf for more information.  The MERRA2WRF program may be retired
+if the GES DISC files are changed.)
+
+The MERRA2WRF (and GEOS2WRF) software is released under the terms of the NASA
+Open Source License.
+
+DATA REQUIREMENTS
+
+NOTE:  The raw MERRA files are in HDFEOS2 format, and are available via the
+OPeNDAP interface, while the Data Subsetter feature at GES DISC copies the
+MERRA data into HDF4 or netCDF.  This is important, because the variable
+names are a bit different in the original HDFEOS2 files.  To see if you have
+HDFEOS2 or HDF4 files, use the 'ncdump-hdf4' utility that comes with HDF4;
+if you see variables with "EOSGRID" as part of their name, the file is HDFEOS2,
+and the user should specify format=4 to process them correctly.
+
+When using MERRA2WRF, the following files and variables MUST be available 
+in HDF4, HDFEOS2, or netCDF format:
+
+const_2d_asm_Nx data (always in HDFEOS2 format):
+* 'XDim' (longitude)
+* 'YDim' (latitude)
+* 'PHIS' (surface geopotential)
+* 'FRLAKE' (lake fraction)
+* 'FROCEAN' (ocean fraction)
+
+inst6_3d_ana_Nv data (variable names are HDF4/netCDF or HDFEOS2):
+* 'longitude' or 'XDim' (longitude)
+* 'latitude' or 'YDim' (latitude)
+* 'time' or 'TIME:EOSGRID' (synoptic hour)
+* 'levels' or 'Height' (nominal pressure for each model level)
+* 'ps' or 'PS' (surface pressure)
+* 'delp' or 'DELP' (layer pressure thicknesses)
+* 't' or 'T' (layer temperature)
+* 'u' or 'U' (layer eastward wind)
+* 'v' or 'V' (layer northward wind)
+* 'qv' or 'QV' (layer specific humidities)
+
+inst6_3d_ana_Np data (variable names are HDF4/netCDF or HDFEOS2):
+* 'longitude' or 'XDim' (longitude)
+* 'latitude' or 'YDim' (latitude)
+* 'time' or 'TIME:EOSGRID' (synoptic hours)
+* 'slp' or 'SLP' (sea level pressure)
+
+tavg1_2d_slv_Nx data (variable names are HDF4/netCDF or HDFEOS2):
+* 'longitude' or 'XDim' (longitude)
+* 'latitude' or 'YDim' (latitude)
+* 'time' or 'TIME:EOSGRID' (synoptic hours)
+* 'u10m' or 'U10M' (10-meter eastward wind)
+* 'v10m' or 'V10M' (10-meter northward wind)
+* 't2m' or 'T2M' (2-meter temperature)
+* 'qv2m' or 'QV2M' (2-meter specific humidity)
+* 'ts' or 'TS' (skin temperature)
+
+tavg1_2d_ocn_Nx data (variable names are HDF4/netCDF or HDFEOS2):
+* 'longitude' or 'XDim' (longitude)
+* 'latitude' or 'YDim' (latitude)
+* 'time' or 'TIME:EOSGRID' (synoptic hours)
+* 'frseaice' or 'FRSEAICE' (sea ice fraction)
+
+NOTE:  The tavg1_2d_slv_Nx and tavg1_2d_ocn_Nx files contain 1-hourly 
+averages that are nominally valid at the bottom of an hour.  For simplicity,
+the code is designed to use the 00:30Z averaged data with 00Z instantaneous
+fields, 06:30Z hourly data with 06Z instantaneous fields, and so on.
+
+NAMELIST FILE
+
+A namelist.merra2wrf file is provided, and contains one namelist block:
+
+&input
+
+  outputDirectory ! String, lists directory for writing WPS output files
+  merraDirectory ! String, lists directory containing MERRA input files
+  merraFormat_const_2d_asm_Nx ! Integer, specifies format of const_2d_asm_Nx
+                              ! file.  1=HDF4, 2=netCDF, 4=HDFEOS2
+  merraFile_const_2d_asm_Nx ! String, name of const_2d_asm_Nx file
+  numberOfDays ! Integer, lists number of days to process.  Each MERRA 
+               ! collection (excluding const_2d_asm_Nx) will have one file
+               ! per day.
+  merraDates(:) ! Array of strings, listing each day to be processed 
+                ! (format is YYYY-MM-DD).
+  merraFormat_inst6_3d_ana_Nv ! Integer, specifies format of inst6_3d_ana_Nv
+                              ! files.  1=HDF4, 2=netCDF, 4=HDFEOS2
+  merraFiles_inst6_3d_ana_Nv(:) ! Array of strings, specifying names of
+                                ! inst6_3d_ana_Nv files.
+  merraFormat_inst6_3d_ana_Np ! Integer, specifies format of inst6_3d_ana_Np
+                              ! files.  1=HDF4, 2=netCDF, 4=HDFEOS2
+  merraFiles_inst6_3d_ana_Np(:) ! Array of strings, specifying names of
+                                ! inst6_3d_ana_Np files.
+  merraFormat_tavg1_2d_slv_Nx ! Integer, specifies format of tavg1_2d_slv_Nx
+                              ! files.  1=HDF4, 2=netCDF, 4=HDFEOS2
+  merraFiles_tavg1_2d_slv_Nx(:) ! Array of strings, specifying names of
+                                ! tavg1_2d_slv_Nx files.
+  merraFormat_tavg1_2d_ocn_Nx ! Integer, specifies format of tavg1_2d_ocn_Nx
+                              ! files.  1=HDF4, 2=netCDF, 4=HDFEOS2
+  merraFiles_tavg1_2d_ocn_Nx(:) ! Array of strings, specifying names of
+                                ! tavg1_2d_ocn_Nx files.
+/
+
+COMPILIATION
+
+The user will need to modify the Makefile to list the paths to both HDF4 
+and netCDF.  Then, type 'make' to compile the MERRA2WRF executable.  To
+remove object files and the executable, type 'make clean'.
+
+FOR NU-WRF USERS:  The NU-WRF build system has been modified to support
+the MERRA2WRF 2.0 as a new target.  In the top level directory, type
+'./build.sh merra2wrf' to compile.  The discover.cfg and pleiades.cfg
+list the paths to the HDF4 and netCDF libraries, and the build scripts pass
+this information down to the Makefile.
+
+RUNNING
+
+To run the software, simply type './merra2wrf namelist.merra2wrf'.  The output
+files will be named MERRA:$YYYY-$MM-$DD_$HH, where $YYYY is the four-digit 
+year, $MM is the two-digit month, $DD is the two-digit day, and $HH is the
+two-digit hour.  These files are readable by the WPS METGRID program, which
+will interpolate the data horizontally to the specified WRF grid.
+
+OTHER COMMENTS
+
+MERRA2WRF does not process any soil data (temperatures, moisture, etc.),
+as the land surface model used with MERRA (the GEOS Catchment model) is not
+used by WRF.  NU-WRF users should use a LIS restart file and run NU-WRF with 
+LIS coupling.  Users of the community WRF are encouraged to use GRIB files 
+from LIS; otherwise, soil conditions from another source (e.g., GFS) will have
+to be used.
+
+MERRA2WRF does not process any chemistry or aerosol fields, as these variables
+are not supported by WPS.
+
+Some care is needed when selecting specific times, as these data are not
+conveniently stored within the HDF4, HDFEOS2 or netCDF files themselves.  In 
+practice, when ordering data from GES DISC it is recommended to request all 
+available times for a particular day, and have MERRA2WRF sift through the data
+and pick out those values for 00Z, 06Z, 12Z, and 18Z.
+
+Eric Kemp
+NASA SSSO/SSAI
+6 June 2012
+

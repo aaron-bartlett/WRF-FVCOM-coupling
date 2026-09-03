@@ -1,0 +1,90 @@
+# OASIS3-MCT namcouple - WRF/FVCOM coupling
+# Runtime: 12 hours | Frequency: 1hr | Lag: 0
+ $NFIELDS
+  11
+ $END
+ $NBMODEL
+  2  wrfexe  ocean1 8 6
+ $END
+ $RUNTIME
+  43200
+ $END
+ $NLOGPRT
+  2
+ $END
+ $STRINGS
+#####################################################################
+# ocean1 -> wrfexe (unstructured -> structured): DISTWGT
+#####################################################################
+# Lake/Sea Surface Temperature
+ ocean1_LST    wrfexe_SST    1  3600  1  rst_fvc_lst.nc   EXPORTED
+ fvcom_grid  wrf_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  DISTWGT LR SCALAR LATLON 1 4
+# Ice Cover (fraction 0-1)
+ ocean1_ICEFRA  wrfexe_ICEFRA  1  3600  1  rst_fvc_ice.nc  EXPORTED
+ fvcom_grid  wrf_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  DISTWGT LR SCALAR LATLON 1 4
+#####################################################################
+# wrfexe -> ocean1 (structured -> unstructured)
+# State variables: BILINEAR
+# Radiation fluxes: CONSERV (energy-conserving)
+#####################################################################
+# 2m Air Temperature
+ wrfexe_T2     ocean1_T2     1  3600  1  rst_wrf_t2.nc    EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Surface Pressure
+ wrfexe_PSFC   ocean1_PSFC   1  3600  1  rst_wrf_psfc.nc  EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Relative Humidity
+ wrfexe_RH     ocean1_RH     1  3600  1  rst_wrf_rh.nc    EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Specific Humidity
+ wrfexe_Q2     ocean1_Q2     1  3600  1  rst_wrf_q2.nc    EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Total Cloud Cover
+ wrfexe_CLDFRA  ocean1_CLDFRA  1  3600  1  rst_wrf_cld.nc  EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# 10m Wind - U component
+ wrfexe_U10    ocean1_U10    1  3600  1  rst_wrf_u10.nc   EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# 10m Wind - V component
+ wrfexe_V10    ocean1_V10    1  3600  1  rst_wrf_v10.nc   EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Downward Shortwave Radiation (CONSERV - energy flux)
+ wrfexe_SWDOWN  ocean1_SWDOWN  1  3600  1  rst_wrf_sw.nc   EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  CONSERV LR SCALAR LATLON 1 FRACNNEI FIRST
+# Downward Longwave Radiation (CONSERV - energy flux)
+ wrfexe_GLW    ocean1_GLW    1  3600  1  rst_wrf_lw.nc    EXPORTED
+ wrf_grid  fvcom_grid  LAG=0
+ R  0  R  0
+ SCRIPR
+  CONSERV LR SCALAR LATLON 1 FRACNNEI FIRST
+ $END

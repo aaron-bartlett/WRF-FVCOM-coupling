@@ -1,0 +1,36 @@
+#!/bin/bash
+# Adjust LIS domains to be consistent with WRF GEOGRID
+# source common file for modules and paths
+source ./common.reg || exit 1
+
+cd $RUNDIR || exit 1
+
+ln -fs $NUWRFDIR/utils/bin/lisWrfDomain.x  || exit 1
+if [ ! -e lisWrfDomain.x ] ; then 
+    echo "$THIS ERROR: lisWrfDomain.x does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/scripts/python/utils/adjust_liswrf_domain.py || exit 1
+if [ ! -e adjust_liswrf_domain.py ] ; then 
+    echo "$THIS ERROR: adjust_liswrf_domain.py does not exist!"
+    exit 1
+fi
+./adjust_liswrf_domain.py  ./lisWrfDomain.x lis.config.coldstart ldt.config.prelis  ./ || exit 1
+if [ -e lis.config.coldstart.new ]; then
+   echo update lis.config.coldstart
+   mv lis.config.coldstart.new lis.config.coldstart
+fi
+if [ -e ldt.config.prelis.new ]; then
+   echo update ldt.config.prelis
+   mv ldt.config.prelis.new ldt.config.prelis
+fi
+./adjust_liswrf_domain.py  ./lisWrfDomain.x lis.config.wrf ldt.config.postlis  ./ || exit 1
+if [ -e lis.config.wrf.new ]; then
+   echo update lis.config.wrf
+   mv lis.config.wrf.new lis.config.wrf
+fi
+if [ -e ldt.config.postlis.new ]; then
+   echo update ldt.config.postlis
+   mv ldt.config.postlis.new ldt.config.postlis
+fi
+exit 0

@@ -1,0 +1,16 @@
+Dynamical erodible soil for dust emissions with LIS coupling testcase
+
+This is a test case that uses:
+  (a) CONUS western domain (130W-100W, 20N-50N) with 2 nests (9,3 km)
+      Lambert projection
+  (b) Simulation time period from 00Z 04 Jul 2011 to 00Z 05 Jul 2011
+  (c) MODIS geographical data, MERRA2 meteorological data
+  (d) Create NDVI-based bareness for EROD DYN option
+      Use NVIBARENESS4WRF toll to process NDVI data and generate a bareness
+      field and write into WPS intermediate format for METGRID to ingest.
+      Bareness field based on NASA GIMMS NDVI
+  (e) Noah-3.6 LSM with MERRA2 forcing and budget-bilinear Interpolation
+  (f) 1-month LIS spinup
+  (g) Goddard MP (4ice) and Goddard 2014 radiation (option 56)
+      WRF-Chem erod_option = 'dyn'
+

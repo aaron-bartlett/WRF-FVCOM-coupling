@@ -1,0 +1,12 @@
+NOAH-MP401 GDAS Forcing Testcase
+
+This is a test case that uses:
+  (a) Eastern CONUS region with 1 nest (9km)
+      Lambert projection
+  (b) Simulation time period from 12Z 19 Jan 2007 to 12Z 20 Jan 2007
+  (c) MODIS geographical data
+  (d) uses the lapse-rate based elevation correction using GTOPO30
+      elevation data
+  (e) 30day LIS spinup Noah-MP401 LSM with GDAS forcing and budget-bilinear Interpolation
+  (f) Goddard MP (3ice) and Goddard 2017 radiation
+  (g) 1day WRF simulation with WRF-LIS coupling (NoahMP401 LSM) 

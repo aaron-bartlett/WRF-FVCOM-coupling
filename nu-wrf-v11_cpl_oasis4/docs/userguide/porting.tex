@@ -1,0 +1,217 @@
+\section{Porting NU-WRF}
+\label{sec:Porting}
+
+Currently NU-WRF is only fully supported for Intel compilers, for SGI MPT (on 
+Discover and Pleiades), and for Intel MPI (on Discover).  The current development 
+branch also works with GNU compilers and OpenMPI or MVAPICH2 on Discover. 
+The underlying  software should, however, run on other systems as long as the 
+appropriate tools (compilers, MPI implementation, make, Perl, csh, bash, etc.) are 
+available.  Users who wish to port NU-WRF will need to take the following 
+steps:
+
+\begin{itemize}
+\item Libraries:
+  \begin{itemize}
+
+  \item Compile the libraries listed in section~\ref{subsec:Libraries}.
+
+  \item Determine the paths to the \texttt{yacc} binary and the \texttt{flex} 
+    library. Make sure \texttt{yacc} and \texttt{flex} are in your 
+    \texttt{PATH} environment variable.
+
+  \item Copy \texttt{scripts/python/build/nu-wrf.cfg} to a new top level build configuration file 
+    (here called \texttt{newconfig.cfg}, but any unique name can be used).
+
+  \item Edit \texttt{newconfig.cfg} and update the library paths.
+
+  \item Edit \texttt{scripts/other/set\_module\_env.bash}. Remove hardwired checks for 
+   pleiades and discover that will about execution of the script. Next, set LIBDIR\_TAG as described
+    in section~\ref{subsec:libdir} and change modules for system binaries and 
+    libraries (compilers, MPI, etc). If the Environmental Modules package 
+    (\url{http://modules.sourceforge.net/}) is not installed on your system, 
+    comment out the module commands and explicitly edit the \texttt{PATH} and 
+    \texttt{LD\_LIBRARY\_PATH} environment variables.  
+  \end{itemize}
+
+\item ARWPOST:
+
+  \begin{itemize}
+
+  \item Inspect and edit \texttt{ARWpost/arch/configure.defaults} to ensure a 
+    block exists for the desired operating system, hardware, and 
+    compilers. Note that ARWPOST is serial only (no MPI support).
+
+  \item Run \texttt{ARWpost/configure} at the command line to identify the 
+    integer value of the appropriate build selection.
+
+  \item Edit \texttt{newconfig.cfg} to enter the configure option as
+    environment variable ARWPOST\_CONFIGURE\_OPT.
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} arwpost} to test the 
+    build.
+
+  \end{itemize}
+
+\item GSDSU:
+  \begin{itemize}
+
+  \item Create a new makefile template in directory \texttt{GSDSU/SRC/} 
+    specifying the appropriate compilers, compiler flags, and MPI library 
+    if applicable.
+
+  \item Edit \texttt{newconfig.cfg} to enter the new makefile template
+    name as environment variable SDSU\_MAKEFILE.
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} gsdsu} to test the 
+    build.
+
+  \end{itemize}
+
+\item LDT:
+  \begin{itemize}
+
+  \item Edit \texttt{LISF/ldt/arch/Config.pl} to specify the compiler flags. 
+    Compilers are specified using the LDT\_ARCH environment flag (e.g.,
+    `linux\_ifc' indicates Intel compilers on Linux).
+
+  \item Edit \texttt{newconfig.cfg} to specify the correct LDT\_ARCH value.
+    If necessary, also edit the LDT\_FC and LDT\_CC variables to specify the
+    correct MPI compiler wrappers.
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} ldt} to test the 
+    build.
+
+  \end{itemize}
+
+\item LVT:
+  \begin{itemize}
+
+  \item Edit \texttt{LISF/lvt/arch/Config.pl} to specify the compiler flags. 
+    Compilers are specified using the LVT\_ARCH environment flag (e.g.,
+    'linux\_ifc' indicates Intel compilers on Linux).
+
+  \item Edit \texttt{newconfig.cfg} to specify the correct LVT\_ARCH value.
+    If necessary, also edit the LVT\_FC and LVT\_CC variables to specify the
+    correct MPI compiler wrappers.
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} ldt} to test the build.
+
+  \end{itemize}
+
+\item MET:
+  \begin{itemize}
+
+  \item Edit \texttt{newconfig.cfg} to set the CXX, CC, and F77 environment
+    variables, which defines the names of the C++, C, and Fortran compilers,
+    respectively.
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} met} to test the 
+    build.
+
+  \end{itemize}
+
+\item RIP4:
+  \begin{itemize}
+
+  \item Inspect and edit \texttt{RIP4/arch/configure.defaults} to ensure a 
+    block exists for the desired operating system, hardware, and 
+    compilers. Note that RIP4 is serial only (no MPI support).
+
+  \item Run \texttt{RIP4/configure} at the command line to identify the 
+    integer value of the appropriate build selection.
+
+  \item Edit \texttt{newconfig.cfg} to enter the configure option as
+    environmental variable RIP\_CONFIGURE\_OPT.
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} rip} to test the 
+    build.
+
+  \end{itemize}
+
+\item UPP:
+  \begin{itemize}
+
+  \item \emph{NOTE: Make sure WRF is ported first.}
+
+  \item Inspect and edit \texttt{UPP/arch/configure.defaults} to ensure a 
+    block exists for the desired operating system, hardware, compilers, 
+    and MPI implementation. 
+
+  \item Run \texttt{UPP/configure} at the command line to identify the integer
+    value of the appropriate build selections.
+
+  \item Edit \texttt{newconfig.cfg} to enter the configure option as
+    environment variable UPP\_CONFIGURE\_MPI\_OPT. 
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} upp} to test the build.
+
+  \end{itemize}
+
+\item WPS:
+  \begin{itemize}
+
+  \item \emph{NOTE: Make sure WRF is ported first.}
+
+  \item Inspect and edit \texttt{WPS/arch/configure.defaults} to ensure a 
+    block exists for the desired operating system, hardware, compilers, 
+    and MPI implementation.
+
+  \item Run \texttt{WPS/configure} at the command line to identify the integer
+    value of the appropriate build selection.
+
+  \item Edit \texttt{newconfig.cfg} to enter the configure option as
+    environmental variable WPS\_CONFIGURE\_MPI\_OPT.  If necessary, also edit
+    the WPS\_DEBUG\_CFLAGS, WPS\_DEBUG\_FFLAGS, and WPS\_DEBUG\_F77FLAGS
+    variables to specify appropriate debugging flags for your compilers.
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} wps} to test the 
+    build.
+
+  \end{itemize}
+
+\item WRF and LIS:
+  \begin{itemize}
+
+  \item Inspect and edit \texttt{WRF/arch/configure\_new.defaults} to ensure
+    a block exists for the desired operating system, hardware, compilers, 
+    and MPI implementation.
+
+  \item Run \texttt{WRF/configure} to identify the integer value of the 
+    appropriate build selection.
+
+  \item Create a new configure.lis makefile template in 
+    \texttt{LISF/lis/arch/} with appropriate compiler selection. NOTE:
+    This approach is used instead of running the LIS \texttt{configure} 
+    script because LDFLAGS must be absent from the configure.lis
+    file if the LIS code is compiled for coupling; also, it is easier
+    to pass consistent debugging compiler flags to WRF and LIS by 
+    having the NU-WRF build system do it on the fly.
+
+  \item Edit the \texttt{newconfig.cfg} to enter the configure option as
+    environmental variable WRF\_CONFIGURE\_MPI\_OPT.
+    Also list the makefile template with environmental variable 
+    WRF\_CONFIGURE\_LIS\_MPI.  Also, set environmental 
+    variable LIS\_ARCH to the value appropriate for your operating system
+    and compiler [see~\cite{ref:LisUserGuide} for options].  If necessary,
+    also edit the WRF\_DEBUG\_CFLAGS\_LOCAL and WRF\_DEBUG\_FCOPTIM
+    variables to specify appropriate debugging flags for your compilers.
+
+  \item In the top NU-WRF directory, run 
+    \texttt{./build.sh -\--config \mbox{newconfig.cfg} wrf} to test the 
+    build. Also test with the chem and kpp targets.
+
+  \end{itemize}
+
+\end{itemize}
+
+Porting the programs under \texttt{utils/} (GEOS2WRF, CASA2WRF, SST2WRF, etc.) only
+requires that the file path of the external NU-WRF libraries, LIBRDIR\_TAG, described at the end of 
+section~\ref{subsec:libdir} be correctly specified. 

@@ -1,0 +1,9 @@
+NOAH-MP-3.6 NLDAS2 forcing LIS spin up
+
+This is a test case that uses:
+  (a) the NOAH-MP-3.6 LSM option 
+  (b) the NLDAS2 forcing
+  (c) using the Nearest Neighbor Interpolation
+  (d) uses no elevation correction (This is built into the forcing data).
+  (e) North American domain at 1/8 degree spatial resolution.
+  (f) a time period from Jun 1, 1985, hr 1 to Jun 2, 1985, hr 1.

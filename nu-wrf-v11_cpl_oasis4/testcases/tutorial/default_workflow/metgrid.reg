@@ -1,0 +1,61 @@
+#!/bin/bash
+# Do not change the following settings
+#SBATCH -J metgrid
+#SBATCH -t 0:30:00
+#SBATCH -o metgrid.slurm.out
+#SBATCH --ntasks=112
+# You may edit the following:
+#SBATCH -A s0942
+##SBATCH --qos=debug
+##SBATCH --mail-user=user@nasa.gov
+
+#---------------------- metgrid script -----------------------------
+
+# Load config file for modules and paths
+source ./common.reg || exit 1
+
+if [ -z "$NUWRFDIR" ] ; then
+    echo "ERROR, NUWRFDIR is not defined!"
+    exit 1
+fi
+
+# Move to work directory
+if [ -z "$RUNDIR" ] ; then
+    echo "ERROR, RUNDIR is not defined!"
+    exit 1
+fi
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.wps is present.
+if [ ! -e namelist.wps ] ; then
+   echo "ERROR, namelist.wps not found!"
+   exit 1
+fi
+
+# Put metgrid TBL look-up file into metgrid subdirectory
+
+if [ -e metgrid ] ; then
+    rm -rf metgrid || exit 1
+fi
+mkdir -p metgrid || exit 1
+
+ln -fs $NUWRFDIR/WPS/metgrid/METGRID.TBL.ARW metgrid/METGRID.TBL || exit 1
+if [ ! -e metgrid/METGRID.TBL ] ; then 
+    echo "ERROR, metgrid/METGRID.TBL does not exist!"
+    exit 1
+fi
+# Run metgrid.exe
+ln -fs $NUWRFDIR/WPS/metgrid/src/metgrid.exe metgrid.exe || exit 1
+if [ ! -e "metgrid.exe" ] ; then
+    echo "ERROR, metgrid.exe does not exist!"
+    exit 1
+fi
+mpirun -np 112 ./metgrid.exe || exit 1
+
+# Tidy up logs
+mkdir -p metgrid_logs || exit 1
+mv metgrid.log.* metgrid_logs
+
+# The end
+exit 0

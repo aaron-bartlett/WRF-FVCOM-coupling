@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+
+# This script sets the path of the NU-WRF external libraries (i.e.
+# zlib, netcdf4, hdf5, etc...) and the common modules (compilers) used
+# by the external libraries and the NU-WRF build.
+#
+# The path for the NU-WRF external libraries is specified in the variable
+# LIBDIR_TAG, which, together with variables COMPILER_VENDOR and MPI_VENDOR
+# must be specified. If not specified then script will exit with the exception
+# of DISCOVER and PLEIADES machines where there are defaults.
+#
+# There are valid VENDOR values:
+#    COMPILER_VENDOR: intel or gnu
+#    MPI_VENDOR: intelmpi or openmpi
+#
+# NU-WRF porting notes:
+# ---------------------
+# If the user is attempting to port NU-WRF and "modules"(*) are not installed
+# on their system then you need to make some changes in this file. Namely:
+#
+# 1) Remove "module" commands and references to them.
+# 2) Make sure the environment variables (look for "export" in
+#    this file) are set to a valid value on your system.
+# (*) http://modules.sourceforge.net/
+#
+
+MACHINE=$(uname -n)
+if [[ ("$MACHINE" == *"discover"* || "$MACHINE" =~ *"borg"*) && "$MACHINE" =~ "pfe" ]]; then
+   echo "ERROR in $0:"
+   echo " --> "$MACHINE" is not supported. To continue, comment out call to this"
+   echo " --> script making sure your computational environment is setup before"
+   echo " --> proceeding. That is, make sure all the exported variables in this"
+   echo " --> script are defined."
+   return 1
+fi
+THIS=$(pwd)
+
+[ -z "$NUWRFDIR" ] && NUWRFDIR=$THIS/../../
+echo "Using NUWRFDIR=$NUWRFDIR"
+
+# The following variable is used to locate the NU-WRF third-party libraries
+if [[ "$MACHINE" =~ "discover" || "$MACHINE" =~ "borg" ]]; then
+   export platform="discover"
+   [ -z "$LIBDIR" ] && LIBDIR_=/discover/nobackup/projects/nu-wrf/lib
+elif [[ "$MACHINE" =~ "pfe" ]]; then
+   export platform="pleiades"
+   [ -z "$LIBDIR" ] && LIBDIR_=/nobackupp8/nuwrf/lib
+fi
+[ -z "$LIBDIR" ] && echo "ENV: LIBDIR is not set. Use default installation on ${platform}"
+LIBDIR=$LIBDIR_
+[ -z "$LIBDIR" ] && LIBDIR=$LIBDIR_
+echo "Using LIBDIR=$LIBDIR"
+
+
+# If LIBDIR_TAG is not defined then construct sensible default
+if [ -z "$LIBDIR_TAG" ]; then
+
+# Defaults on Discover and Pleiades
+   if [ -z "$LIBDIR_TAG" ]; then
+      echo "ENV: LIBDIR_TAG is not set. Use default installation on ${platform}"
+      if [ "${platform}" == "discover" ]; then
+         #LIBDIR_TAG=${LIBDIR}/sles12/ekman/intel-intelmpi
+	 #-chenfu
+         LIBDIR_TAG=${LIBDIR}/intel-sgimpt-bjerknes-p5
+      elif [ "${platform}" == "pleiades" ]; then
+         LIBDIR_TAG=${LIBDIR}/intel-intelmpi
+      fi
+      #MPI_VENDOR=intelmpi
+      #chenfu
+      MPI_VENDOR=sgimpt
+   fi
+
+   COMPILER_VENDOR=intel
+
+fi # Finish setting up LIBDIR_TAG
+echo "Using LIBDIR_TAG=$LIBDIR_TAG"
+echo "$COMPILER_VENDOR"
+
+# This will be skipped if we are using defaults, otherwise user needs to set VENDOR variables.
+if [ -z "$COMPILER_VENDOR" ] || [ -z "$MPI_VENDOR" ]; then
+
+   if [ -z "$COMPILER_VENDOR" ]; then
+      echo "ENV: COMPILER_VENDOR is not set (options are intel, gnu)"
+      return 1
+   else
+      [[ "$COMPILER_VENDOR" == "gnu" ]] || [[ "$COMPILER_VENDOR" == "intel" ]]
+      if [ $? != 0 ]; then
+         echo "ENV: COMPILER_VENDOR valid options are intel or gnu."
+         return 1
+      fi
+   fi
+   if [ -z "$MPI_VENDOR" ]; then
+      echo "   ENV: MPI_VENDOR is not set (options are intelmpi, sgimpt, openmpi, mvapich2)"
+      return 1
+   else
+      [[ "${MPI_VENDOR}" == "sgimpt" ]] || [[ "${MPI_VENDOR}" == "openmpi" ]]  || [[ "${MPI_VENDOR}" == "mvapich2" ]] || [[ "${MPI_VENDOR}" == "intelmpi" ]]
+      if [ $? != 0 ]; then
+         echo "ENV: MPI_VENDOR valid options are sgimpt or openmpi."
+         return 1
+      fi
+   fi
+
+fi
+
+echo "Found COMPILER_VENDOR : $COMPILER_VENDOR"
+echo "Found MPI_VENDOR      : $MPI_VENDOR"
+export COMPILER_VENDOR
+export MPI_VENDOR
+export LIBDIR_TAG=$LIBDIR_TAG
+
+#-------------------------
+# Load environment modules
+#-------------------------
+
+if [[ "$platform" == "discover" || "$platform" == "pleiades" ]]; then
+   source /usr/share/modules/init/bash
+   module purge
+fi
+unset LD_LIBRARY_PATH
+
+# Python
+if [ "${platform}" == "discover" ]; then
+   module load python/GEOSpyD/Ana2019.10_py3.7
+elif [[ "$platform" == "pleiades" ]]; then
+   module load python3/3.7.0
+fi
+
+if [ "$COMPILER_VENDOR" == "gnu" ]; then
+   
+   if [ "${platform}" == "discover" ]; then
+      module load comp/gcc/9.3.0
+   elif [[ "$platform" == "pleiades" ]]; then
+      echo "Option not available on machine $MACHINE"
+      return 1
+   fi
+
+   export CC=gcc
+   export CXX=g++
+   export FC=gfortran
+   export F90=gfortran
+   export F77=gfortran
+   export CFLAGS="-fpic -O2"
+   export FFLAGS="-fpic -O2"
+   export CXXFLAGS="-fpic -O2"
+   export ESMF_COMPILER=gfortran        
+   if [ "$MPI_VENDOR" == "openmpi" ]; then
+      module load mpi/hpcx/2.4.0
+      export ESMF_COMM=openmpi
+      export MPI_IMPLEMENTATION="OPENMPI"
+      export mpi=openmpi
+   else
+      echo Illegal mpi choice
+      usage
+   fi
+   export MPICC_CC=gcc
+   export MPIF90_F90=gfortran
+   export MPICXX_CXX=g++
+
+   export NUWRF_FC=gfortran
+   export compiler=gfortran
+   export TRACEBACK_FLAG=-fbacktrace
+
+elif [ "$COMPILER_VENDOR" == "intel" ]; then
+   
+   export CC=icc
+   export CXX=icpc
+   export FC=ifort
+   export F77=ifort
+   export ESMF_COMPILER=intel
+   if [ "${platform}" == "discover" ]; then
+       #module load comp/gcc/9.2.0
+       #module load comp/intel/19.1.3.304
+       #module load mpi/impi/19.1.3.304
+       #chenfu
+       module load comp/gcc/6.5.0
+       module load comp/intel/17.0.7.259
+       module load lib/mkl/17.0.7.259
+       module load mpi/sgi-mpt/2.16
+   elif [ "${platform}" == "pleiades" ]; then
+       module load gcc/6.2
+       module load comp-intel/2018.3.222
+       module load /nasa/intel/impi/2019.5.281/impi/2019.5.281/intel64/modulefiles/mpi
+   fi
+   #export ESMF_COMM=intelmpi
+   #export MPI_IMPLEMENTATION="INTEL"
+   export ESMF_COMM=sgimpt
+   export MPI_IMPLEMENTATION="SGI_MPT"
+   export MPICC_CC=icc
+   export MPIF90_F90=ifort
+   export MPICXX_CXX=icpc
+   export NUWRF_FC=ifort
+   export compiler=intel
+   export TRACEBACK_FLAG=-traceback
+
+else
+   
+   echo Illegal compiler choice
+   usage
+   
+fi
+export LD_LIBRARY_PATH=$LIBDIR_TAG/jasper/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LIBDIR_TAG/gdal/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LIBDIR_TAG/eccodes/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64
+export PATH=$LIBDIR_TAG/netcdf4/bin:$PATH
+
+m=$(module list)
+rm -f $NUWRFDIR/.modules
+echo $m > $NUWRFDIR/.modules
+#cat $NUWRFDIR/.modules

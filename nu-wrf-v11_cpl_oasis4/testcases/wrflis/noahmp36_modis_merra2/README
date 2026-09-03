@@ -1,0 +1,13 @@
+NOAHMP-3.6 MERRA2 Forcing Testcase
+
+This is a test case that uses:
+  (a) CONUS NE quadrant domain (98W-68W, 34N-53N) with 1 nest (9km)
+      Lambert projection
+  (b) Simulation time period from 12Z 11 Jul 2015 to 12Z 12 Jul 2015
+  (c) MODIS geographical data
+  (d) Noah-3.6 LSM with MERRA2 forcing and budget-bilinear Interpolation
+      with 4-day LIS spinup
+  (e) Goddard MP (3ice) and Goddard 2014 radiation
+  (f) Use MERRA2 MET data, daily average air temperature for small water
+      bodies and SST for oceans and great lakes.
+

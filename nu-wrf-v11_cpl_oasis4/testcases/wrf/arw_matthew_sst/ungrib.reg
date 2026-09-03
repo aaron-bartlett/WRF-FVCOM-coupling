@@ -1,0 +1,47 @@
+#############################
+# BEGIN UNGRIB SEGMENT
+#############################
+THIS=UNGRIB
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.wps is present.
+
+ln -fs namelist.wps.ungrib.gfs namelist.wps
+# Link-in the GFS Vtable
+ln -fs $NUWRFDIR/WPS/ungrib/Variable_Tables/Vtable.GFS Vtable || exit 1
+if [ ! -e Vtable ] ; then 
+    echo "$THIS ERROR: Vtable does not exist!"
+    exit 1
+fi
+
+# Create GRIBFILE symbolic links to grib files.
+ln -fs $NUWRFDIR/WPS/link_grib.csh link_grib.csh || exit 1
+if [ ! -e link_grib.csh ] ; then
+    echo "$THIS ERROR: link_grib.csh does not exist!"
+    exit 1
+fi
+./link_grib.csh $DATADIR/ungrib_input/gfs* || exit 1
+
+# Run ungrib.exe.  No MPI is used since the program is serial.
+ln -fs $EXEDIR/WPS/ungrib.exe ungrib.exe || exit 1
+if [ ! -e ungrib.exe ] ; then
+    echo "$THIS ERROR: ungrib.exe does not exist!"
+    exit 1
+fi
+./ungrib.exe >& ungrib_out1.log || exit 1
+
+ln -fs namelist.wps.ungrib.sst namelist.wps
+# Link-in the SST Vtable
+ln -fs $NUWRFDIR/WPS/ungrib/Variable_Tables/Vtable.SST Vtable || exit 1
+# Create GRIBFILE symbolic links to grib files.
+./link_grib.csh $DATADIR/ungrib_input/matthew_sst/rtg_sst_grb || exit 1
+# Run ungrib.exe.  No MPI is used since the program is serial.
+./ungrib.exe >& ungrib_out.log || exit 1
+
+# Tidy up logs
+mkdir -p ungrib_logs || exit 1
+mv -f ungrib_out*.log ungrib_logs 2>/dev/null
+mv -f ungrib*.log ungrib_logs 2>/dev/null
+
+exit 0

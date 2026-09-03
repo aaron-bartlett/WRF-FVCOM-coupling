@@ -1,0 +1,48 @@
+
+--- NU-WRF documents and references---
+
+ARWUsersGuideV3.pdf: ARW Version 3 Modeling System User's Guide, 
+    http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_V3.8/ARWUsersGuideV3.8.pdf
+
+arw_v3.pdf: A description of the Advanced Research WRF Version 3, 
+    http://www2.mmm.ucar.edu/wrf/users/docs/arw_v3.pdf
+
+Emission_guide.pdf: WRF-Chem Emissions Guide, 
+    http://ruc.noaa.gov/wrf/wrf-chem/Emission_guide.pdf
+
+GSDSU_User_Guide_V3.5.1.pdf: User Guide: Goddard Satellite Data Simulator Unit
+			     Version 3.5.1, June 2016 (NASA)
+    https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/GSDSU_User_Guide_V3.5.1.pdf
+
+LDT_usersguide.pdf: LDT 7.1 Users' Guide, November 2016 (NASA)
+    https://modelingguru.nasa.gov/docs/DOC-2555
+
+LIS_usersguide.pdf: LIS 7.1 Users' Guide, August 2016 (NASA)
+    https://modelingguru.nasa.gov/docs/DOC-2557
+
+LVT_usersguide.7.1rp1.pdf: LVT 7.1 rp1 Users' Guide, October 2015 (NASA)
+    https://lis.gsfc.nasa.gov/sites/default/files/LIS/LVT/LVT_usersguide.7.1rp1.pdf
+
+MET_Users_Guide_v5.1.pdf: Model Evaluation Tools Version 5.1 User's Guide,
+   http://www.dtcenter.org/met/users/docs/users_guide/MET_Users_Guide_v5.1.pdf
+
+nuwrf_userguide_dust_dkim6_v3.pdf: A brief description of new dust source
+				   functions in NU-WRF Version 7, 
+				   July 2014 (NASA)
+    https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/nuwrf_userguide_dust_dkim6_v3.pdf
+
+nuwrf_userguide.pdf: NU-WRF Version 8 User's Guide, December 2016 (NASA)
+    http://nuwrf.gsfc.nasa.gov/sites/default/files/docs/nuwrf_userguide.pdf
+
+upp_users_guide.pdf: User's Guide for the NCEP Unified Post Processor 
+    http://www.dtcenter.org/upp/users/docs/user_guide/V3/upp_users_guide.pdf
+
+UserGuide_CASA2WRF.pdf: User's Guide for CASA2WRF, December 2015 (NASA)
+    https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/UserGuide_CASA2WRF.pdf
+
+UserGuide_Radiation2014.pdf:  User Guide: Goddard radiation scheme for NU-WRF
+			      Version 2014, June 2014 (NASA)
+    https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/UserGuide_Radiation2014.pdf
+
+Users_guide.pdf: WRF-Chem Version 3.8.1 User's Guide, 
+    http://ruc.noaa.gov/wrf/wrf-chem/Users_guide.pdf

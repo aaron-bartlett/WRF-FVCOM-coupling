@@ -1,0 +1,40 @@
+This directory contains source code for the plot_chem program, a very simple
+application that uses NCAR Graphics to plot emissions data from 
+prep_chem_sources.  
+
+INPUT:
+
+* 'grads.ctl'  A GrADS control file produced by prep_chem_sources.  Users may
+               wish to create a symbolic link that points to the actual
+               control file, which will have a name like 
+	       'india-lc-T-2008-06-11-000000-g1.ctl'
+
+* A GrADS binary file corresponding to the grads.ctl file.  The convention
+  followed by prep_chem_sources is to name this file identical to the
+  control file *except* that the '.ctl' suffix is replace with '.gra'
+  (e.g., 'india-lc-T-2008-06-11-000000-g1.gra')
+
+* An ASCII "map" file containing critical map projection information.  This
+  is produced in the NU-WRF modified version of prep_chem_sources.  The naming
+  convention is similar to that of the binary file, except the suffix is
+  ".map" (e.g., 'india-lc-T-2008-06-11-000000-g1.map')
+
+NOTE:  plot_chem will read in the control file and extract the name of the
+binary file from the first line.  It will automatically determine the name
+of the "map" file by replacing the suffix.  DO NOT RENAME THE BINARY OR
+MAP FILES FROM PREP_CHEM_SOURCES.
+
+OUTPUT:
+
+A NCAR Graphics GKS file called 'gmeta'.  This can be displayed using the
+NCAR Graphics idt program ('idt gmeta').
+
+COMMENTS:
+
+This is a simple program intended to quickly generate plots for sanity-checks.
+No options are given to change colors, change the contour levels, etc.
+Publication-quality plots will require different software.
+
+Eric Kemp
+NASA SSSO/Northrop Grumman
+11 January 2012

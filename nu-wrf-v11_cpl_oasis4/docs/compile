@@ -1,0 +1,8 @@
+#!/bin/csh -f
+
+echo " "
+echo "**** Building documentation ****"
+echo " "
+( cd tutorial ; make -i -r all )
+( cd userguide ; make -i -r all )
+exit(0)

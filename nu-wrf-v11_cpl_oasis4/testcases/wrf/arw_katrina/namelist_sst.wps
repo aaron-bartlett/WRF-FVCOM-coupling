@@ -1,0 +1,14 @@
+&share
+wrf_core = 'ARW',
+max_dom = 1,
+start_date = '2005-08-28_00:00:00', '2005-08-28_00:00:00',
+end_date = '2005-08-29_00:00:00', '2005-08-28_00:00:00',
+interval_seconds = 21600
+io_form_geogrid = 2,
+/
+
+&ungrib
+out_format = 'WPS',
+prefix = SST,
+/
+

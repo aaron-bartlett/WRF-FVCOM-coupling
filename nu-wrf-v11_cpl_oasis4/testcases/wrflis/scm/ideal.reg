@@ -1,0 +1,35 @@
+#############################
+# BEGIN IDEAL SEGMENT
+#############################
+THIS=IDEAL
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.input is present.
+if [ ! -e namelist.input ] ; then
+    echo "$THIS ERROR: namelist.input not found!" && exit 1
+fi
+# Make lis connections as appropriate
+if [ -f lis.config.wrf ] ; then
+  rm -f lis.config
+  ln -s lis.config.wrf lis.config || exit 1
+fi
+
+# Run ideal.exe
+ln -fs $EXEDIR/WRF/main/ideal.exe $RUNDIR/ideal.exe || exit 1
+if [ ! -e $RUNDIR/ideal.exe ] ; then
+    echo "$THIS ERROR: $RUNDIR/ideal.exe does not exist!" && exit 1
+fi
+cd $RUNDIR || exit 1
+
+$MPIRUN ./ideal.exe || exit 1
+
+# Move the RSL log files.
+if [ -e $RUNDIR/ideal_logs ] ; then
+    rm -rf $RUNDIR/ideal_logs || exit 1
+fi
+mkdir $RUNDIR/ideal_logs || exit 1
+rsl_files=`ls rsl.*`
+for file in $rsl_files ; do
+    mv -f $file $RUNDIR/ideal_logs/$file || exit 1 2>/dev/null
+done

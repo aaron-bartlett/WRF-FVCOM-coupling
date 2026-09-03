@@ -1,0 +1,118 @@
+# OASIS3-MCT namcouple - WRF/FVCOM coupling
+# Runtime: 12 hours | Frequency: 1hr | Lag: 0
+#
+# WRF-side field names follow module_cpl.F's cpl_init naming convention:
+#   clprefix = 'WRF_'//d<NN(wrf domain)>//'_EXT_'//d<NN(external domain)>//'_'
+# This file assumes WRF domain 1 coupled to external (FVCOM) domain 1 -> prefix WRF_d01_EXT_d01_
+# WRF-side grid names follow module_cpl_oasis3.F's cpl_oasis_define:
+#   wrf1_d<NN> = grid used when WRF is the SOURCE (sending)
+#   wrf2_d<NN> = grid used when WRF is the DESTINATION (receiving)
+#
+# FVCOM-side field names follow OASIS3MCT.F's ini_coupler oasis_def_var calls
+# (fixed strings, not domain-parameterized): fvcom_send_sst, fvcom_send_aice,
+# fvcom_recv_airt, fvcom_recv_airp, fvcom_recv_rhumidity, fvcom_recv_spq,
+# fvcom_recv_cloud, fvcom_recv_u10, fvcom_recv_v10, fvcom_recv_shortwave,
+# fvcom_recv_longwave.
+# FVCOM-side grid names follow OASIS3MCT.F's ini_coupler oasis_write_grid calls:
+#   fvcomM = node-based grid (MGL points) -- used for sst, aice
+#   fvcomN = cell-based grid (NGL points) -- used for all atm->ocean fields
+#
+# IMPORTANT: OASIS3MCT.F's get_namcpl_index matches namcouple entries by testing
+# whether the SOURCE field name starts with 'fvcom' (ocn->atm direction) or 'WRF'
+# (atm->ocn direction), and the DESTINATION field name starts with the other.
+# This is how FVCOM looks up cpl_dt/cpl_lag/restart file for each direction, so
+# field name prefixes below are not cosmetic -- get them wrong and FVCOM's
+# get_namcpl_index returns -999 for that direction (silently broken coupling).
+#
+# NOT verified in this pass: the '$NBMODEL' component name 'ocean1' below --
+# FVCOM's own oasis_init_comp() call (which must match it) is not in OASIS3MCT.F;
+# it lives in FVCOM's main driver, which wasn't reviewed here.
+#
+ $NFIELDS
+  11
+ $END
+ $NBMODEL
+  2  wrfexe  ocean1 70 55
+ $END
+ $RUNTIME
+  43200
+ $END
+ $NLOGPRT
+  2
+ $END
+ $STRINGS
+#####################################################################
+# ocean1(fvcom) -> wrfexe (unstructured node grid -> structured): DISTWGT
+#####################################################################
+# Lake Surface Temperature
+ fvcom_send_sst      WRF_d01_EXT_d01_SST    1  3600  1  rst_fvc_sst.nc    EXPORTED
+ fvcomM  wrf2_d01  LAG=0
+ R  0  R  0
+ SCRIPR
+  DISTWGT LR SCALAR LATLON 1 4
+# Ice Cover (fraction 0-1)
+ fvcom_send_aice     WRF_d01_EXT_d01_AICE   1  3600  1  rst_fvc_aice.nc   EXPORTED
+ fvcomM  wrf2_d01  LAG=0
+ R  0  R  0
+ SCRIPR
+  DISTWGT LR SCALAR LATLON 1 4
+#####################################################################
+# wrfexe -> ocean1(fvcom) (structured -> unstructured cell grid)
+# State variables: BILINEAR
+# Radiation fluxes: BILINEAR 
+#####################################################################
+# 2m Air Temperature (NOTE: module_cpl.F sends grid%t2 - 273.15 -> degrees C, not K)
+ WRF_d01_EXT_d01_airt    fvcom_recv_airt       1  3600  1  rst_wrf_airt.nc   EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Surface Pressure (Pa)
+ WRF_d01_EXT_d01_airp    fvcom_recv_airp       1  3600  1  rst_wrf_airp.nc   EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Relative Humidity
+ WRF_d01_EXT_d01_rh      fvcom_recv_rhumidity  1  3600  1  rst_wrf_rh.nc     EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Specific Humidity @2m (grid%q2)
+ WRF_d01_EXT_d01_spq     fvcom_recv_spq        1  3600  1  rst_wrf_spq.nc    EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Total Cloud Cover (grid%cldt)
+ WRF_d01_EXT_d01_cloud   fvcom_recv_cloud      1  3600  1  rst_wrf_cloud.nc  EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# 10m Wind - U component
+ WRF_d01_EXT_d01_u10     fvcom_recv_u10        1  3600  1  rst_wrf_u10.nc    EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# 10m Wind - V component
+ WRF_d01_EXT_d01_v10     fvcom_recv_v10        1  3600  1  rst_wrf_v10.nc    EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Downward Shortwave Radiation (CONSERV - energy flux)
+ WRF_d01_EXT_d01_shortwave   fvcom_recv_shortwave  1  3600  1  rst_wrf_sw.nc  EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+# Downward Longwave Radiation (CONSERV - energy flux)
+ WRF_d01_EXT_d01_longwave    fvcom_recv_longwave   1  3600  1  rst_wrf_lw.nc  EXPORTED
+ wrf1_d01  fvcomN  LAG=0
+ R  0  R  0
+ SCRIPR
+  BILINEAR LR SCALAR LATLON 1
+ $END

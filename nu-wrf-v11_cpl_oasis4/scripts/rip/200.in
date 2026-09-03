@@ -1,0 +1,35 @@
+&userin
+ idotitle=1,titlecolor='def.foreground',
+ ptimes=0,-120,3,
+ ptimeunits='h',tacc=120,timezone=-7,iusdaylightrule=1,
+ iinittime=1,ifcsttime=1,ivalidtime=1,inearesth=0,
+ flmin=.09, frmax=.92, fbmin=.10, ftmax=.85,
+ ntextq=0,ntextcd=0,fcoffset=0.0,idotser=0,
+ idescriptive=1,icgmsplit=0,maxfld=10,itrajcalc=0,imakev5d=0,
+ ncarg_type='cgm'
+ /
+ &trajcalc
+ rtim=15,ctim=6,dtfile=3600.,dttraj=600.,vctraj='s',
+ xjtraj=95,90,85,80,75,70,65,80.6,80.6,80.6,80.6,80.6,80.6,
+ yitraj=50,55,60,65,70,75,80,77,77,77,77,77,77,
+ zktraj=25,25,25,25,25,25,25,27,25,22,19,16,13,
+ ihydrometeor=0
+ /
+===========================================================================
+----------------------    Plot Specification Table    ---------------------
+===========================================================================
+feld=wspk; ptyp=hc; vcor=p; levs=200; cint=20; linw=1; cbeg=70; cmth=fill;>
+    cosq=60.,white,80.,cyan,100.,light.blue,120.,blue,>
+    140.,very.dark.blue,160.,light.violet; nohl; dash=11
+feld=wspk; ptyp=hc; cint=20.; levs=200; linw=1;cbeg=10.; cmth=cont;>
+    colr=dark.gray; nohl; dash=11; mjsk=0; pwlb=0
+feld=uuu,vvv; ptyp=hv; vcmx=-1; colr=dark.gray; intv=10; fulb=10kts
+#feld=uuu,vvv; ptyp=hs; colr=dark.gray; intv=150; linw=1
+feld=tmc; ptyp=hc; vcor=p; levs=200; cint=5; linw=2; cbeg=5; cend=100; >
+   colr=red; nohl; dash=41; mjsk=0
+feld=tmc; ptyp=hc; cint=5; levs=200; cbeg=-100; linw=2; cend=0; colr=blue; >
+   nohl; dash=41; mjsk=0
+feld=ght; ptyp=hc; levs=200; cint=120; linw=2; nohl; mjsk=0
+feld=map; ptyp=hb; colr=brown
+feld=tic; ptyp=hb; axlg=100; axtg=20
+===========================================================================

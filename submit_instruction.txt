@@ -1,0 +1,47 @@
+Write and edit bash and/or python scripts which accomplish the following within the coupled-run directory. Follow the structure as described below and ask questions if anything is unclear or if a decision must be made. Use sbatch to submit bash scripts, source load_modules.sh when needed.
+
+log.glm_restart - Highest level log. Each run of glm_restart.sh prints the current datetime to log along with errors and logs of other scripts called
+
+glm_restart.sh - First script run from which all others follow
+ - Runs squeue and grep for job names 'coupled_run_glm' 'real_glm' 'metgrid_glm' and if any of those are running currently then print that to log and exit. go no further
+ - Checks the last entry in WRF and FVCOM output
+   - WRF: timestamps derived from most recently edited filenames wrfrst_d01_YYYY-MM-DD_HH:00:00 
+   - FVCOM: timestamps derived from most recently edited restart via ncdump output/gl_restart_*.nc -v Times where the last two lines should look like   
+  "YYYY-MM-DDTHH:00:00.000000" ;
+}
+   - Compare the two timestamps. If not equal, print this to log and move forward with earliest timestamp
+ - Runs check_wrf_inputs.sh to ensure restart is within valid window
+ - If check_wrf_inputs.sh passes without needing to run WPS, modify start time for WRF namelist.input ensure WRF namelist.input restart == true and modify start time as well as first out times to be the restart time
+ - run submit_coupledrun.sh
+ - run wget_cdsapi_requests.sh at end of each glm_restart.sh regardless of previous actions
+
+check_wrf_inputs.sh - Checks if WRF WPS and real.exe have been run for the upcoming time period
+ - Runs ncdump wrfbdy_d01 -v Times. If restart time is equal to or later than the second to last row ( format   "YYYY-MM-DDTHH:00:00.000000" ; ) then run submit_WPS.sh
+
+submit_WPS.sh - Runs WPS pipeline to process ERA5 grib inputs into wrfbdy and wrfinput data
+ - sets end date 4 years after restart date
+ - checks if ERA5_download/surface-ERA5/era5_surf_YYYY.grib and ERA5_download/plevs-ERA5/plevs-ERA5-YYYY/era5_plevs_YYYY-MM.grib exists for all months in WPS 4 year window. If not. submit submit_ERA5_download.sh for each year in the window and exit with error to log
+ - Run WPS process by doing:
+   - link_grib.csh on PLEVS data first, editing namelist.wps to include proper dates and ungrib previx = 'ERA5-PRES' then running ungrib on PLEVS data
+   - link_grib.csh on SURFACE data next, editing namelist.wps to ungrib previx = 'ERA5-SURF' then running ungrib on SURFACE data
+   - run metgrid via submit_metgrid.sh to create met_em files for full window
+   - delete existing met_em files in WRF/run and link new met_em files into WRF/run directory
+   - change WRF namelist.input to contain the correct start and end times, run submit_real.sh to create wrf inputs
+ - additionally change FVCOM namelist end time to be equal to new WRF namelist end time
+ * at each step, check that the previous step ran successfully
+
+submit_ERA5_download.sh --input-year
+ * EDIT existing scripts in ERA5_download directory to execute workflow properly
+ * for each of the following, check if the file exists in the ERA5_download directories before submitting request
+ - runs cdsapi request scripts to request levels data for each month in input_year individually. runs cdsapi request scripts to request surface data for entire input_year as one file
+ - writes to cdsapi_requests.csv with columns:
+   - request timestamp (time of request being submitted)
+   - request year (input_year)
+   - request month (only valid for levels data)
+   - request ID as returned by cdsapi
+   - flag of whether data has been successfully downloaded 0 = not downloaded, 1 = downloaded
+ 
+wget_cdsapi_requests.sh
+ - for all rows in cdsapi_requests.csv if flag == 0 (not downloaded), attempt to wget the file and move it to the correct destination based on the rest of the csv row. If fails (data not available), continue without error/warning. If successful, write to log.cdsapi_downloads
+
+

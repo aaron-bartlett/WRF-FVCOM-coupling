@@ -1,0 +1,72 @@
+#!/bin/bash
+
+#---------------------- ungrib script -----------------------------
+
+# Change to the directory where job was submitted.
+if [ ! -z $SLURM_SUBMIT_DIR ] ; then
+    cd $SLURM_SUBMIT_DIR || exit 1
+fi
+
+# Load config file for modules and paths
+source ./common.reg || exit 1
+
+if [ -z "$NUWRFDIR" ] ; then
+    echo "ERROR, NUWRFDIR is not defined!"
+    exit 1
+fi
+
+# Move to work directory
+if [ -z "$RUNDIR" ] ; then
+    echo "ERROR, RUNDIR is not defined!"
+    exit 1
+fi
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.wps is present.
+if [ ! -e namelist.wps ] ; then
+    echo "ERROR, namelist.wps not found!"
+    exit 1
+fi
+
+# Make sure Vtable is present.
+# NOTE:  User may need to change source Vtable name depending on their data
+# source.
+
+if [ -e Vtable ] ; then
+    rm -f Vtable || exit 1
+fi
+ln -fs $NUWRFDIR/WPS/ungrib/Variable_Tables/Vtable.GFS Vtable || exit 1
+if [ ! -e Vtable ] ; then 
+    echo "ERROR, Vtable does not exist!"
+    exit 1
+fi
+# Create GRIBFILE symbolic links to grib files.
+# NOTE:  User may need to change the grib file prefix depending on their
+# data source.
+ln -fs $NUWRFDIR/WPS/link_grib.csh link_grib.csh || exit 1
+if [ ! -e link_grib.csh ] ; then
+    echo "ERROR, link_grib.csh does not exist!"
+    exit 1
+fi
+./link_grib.csh data/ungrib/fnl_* || exit 1
+
+# Run ungrib.exe.  No MPI is used since the program is serial.
+ln -fs $NUWRFDIR/WPS/ungrib/src/ungrib.exe ungrib.exe || exit 1
+if [ ! -e ungrib.exe ] ; then
+    echo "ERROR, ungrib.exe does not exist!"
+    exit 1
+fi
+
+./ungrib.exe >& ungrib_out.log || exit 1
+
+# Tidy up logs
+mkdir -p ungrib_logs || exit 1
+
+mv ungrib_out.log ungrib_logs
+mv ungrib.log ungrib_logs
+
+rm -f GRIBFILE.??? 
+
+# The end
+exit 0

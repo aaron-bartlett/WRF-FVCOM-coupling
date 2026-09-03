@@ -1,0 +1,23 @@
+________________________________________________________________
+Job Resource Usage Summary for 19504135 
+Note: SLURM doesn't account for the exact same resource types as PBS.  
+      Also, you may see some values missing or zero, typically for 
+      very short jobs.  However, please do contact NCCS USG if you 
+      think the values below are in error.
+
+  CPU Time Used		: 00:07:56
+  Memory Used		: 1688K
+  Virtual Memory Used	: 100852K
+  Walltime Used		: 00:00:17
+
+  Memory Requested	: 0n (n=per node; c=per core)
+  CPUs Requested / Allocated : 1 / 28
+  Walltime Requested	: 01:00:00
+
+  Execution Queue	: compute
+  Head Node		: borgr036
+  Charged to		: s0942
+
+  Job Stopped		: Thu Nov  2 15:43:26 EDT 2017
+_____________________________________________________________________
+

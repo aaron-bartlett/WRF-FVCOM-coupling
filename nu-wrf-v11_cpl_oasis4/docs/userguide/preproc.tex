@@ -1,0 +1,106 @@
+\section{Preprocessors}
+\label{sec:Preprocessors}
+
+\subsection{WPS}
+
+The WRF Preprocessing System is part of the official WRF modeling system, 
+and includes a terrestrial data processor (GEOGRID), a GRIB data reader
+(UNGRIB), and a preprocessor for horizontally interpolating meteorological 
+data to the WRF grid (METGRID). These programs are described in Chapter 3 
+of~\cite{ref:ArwUserGuide}. Only a brief summary of NU-WRF specific changes 
+will be provided here.
+
+The NU-WRF build system compiles WPS with GRIB 2 support (linking against the
+JasPer, PNG, and zlib libraries) and with full netCDF4 support (with HDF5
+compression). The former is an optional configuration in the community version,
+while the latter is not possible without editing lower level Perl scripts
+to add recognition of HDF5 and related compression libraries. We have made
+both features mandatory in NU-WRF for simplicity, generality (GRIB2 has been
+the standard WMO gridded data format for a number of years, and adding support
+does not remove the ability to process older GRIB1 files), and file system
+efficiency (NetCDF4/HDF5 compression can reduce file sizes by 50\%). 
+
+In NU-WRF, a new \textit{GEOGRID.TBL.ARW\_CHEM\_NUWRF} look-up table has been
+added to list new erodible soil related data sets:
+\begin{itemize}
+\item \textit{EROD\_MDB\_SAND} New seasonal erodible sand based on MODIS-Deep
+Blue data.
+\item \textit{EROD\_MDB\_SILT} New seasonal erodible silt based on MODIS-Deep
+Blue data.
+\item \textit{EROD\_MDB\_CLAY} New seasonal erodible clay based on MODIS-Deep
+Blue data.
+\item \textit{BARENESS\_DYN\_CLIMO} New monthly bareness derived from MODIS 
+monthly greenness, MODIS and USGS landuse, and soil type.
+\item \textit{TOPODEP} New topographic depression dataset derived from standard
+WRF GTOPO 30 arc second terrain.
+\end{itemize}
+
+Also, the community \textit{EROD} option is renamed to \textit{EROD\_STATIC} to
+better discriminate from the NU-WRF datasets. Finally, the entry for 
+\textit{GREENFRAC} has been modified to allow use of daily NASA SPoRT
+GVF products in GEOGRID binary format. 
+
+As with the other variants, users who wish to use this file should copy to 
+\textit{GEOGRID.TBL} before running GEOGRID.
+
+\subsection{GEOS2WRF}
+\subsection{SST2WRF}
+\subsection{LISCONFIG}
+\subsection{LDT}
+
+The Land Data Toolkit is a new preprocessor developed for use with LIS 7. This
+program serves three purposes:
+
+\begin{itemize}
+\item Interpolate all required LIS terrestrial data (land use, soil type, 
+terrain, etc) to the LIS grids;
+\item Preprocess and quality control observations for use by the
+LIS data assimilation package; and
+\item Combine LIS dynamic output fields with the input terrestrial fields
+for use by the WRF REAL preprocessor.
+\end{itemize}
+
+The tool is described in~\cite{ref:LdtUserGuide}. Note that in the present
+version, LDT can only be run in serial mode, and the NU-WRF build system 
+will compile it accordingly.
+
+Several useful tips when running LDT as part of NU-WRF:
+\begin{itemize}
+\item Run GEOGRID first, and then use the LISCONFIG utility to customize the
+ldt.config file to use the WRF grid. 
+\item Select Noah.3.3 as the land surface model. Note that work is planned to 
+allow NU-WRF to run coupled with LIS with Noah-MP, CLM, and a newer version of
+Noah.
+\item Set ``Include water points:'' to ``.false.'' to ensure only land points
+are considered by LIS. This will save computational time.
+\item Set ``Bottom temperature topographic downscaling:'' to ``lapse-rate''.
+This will apply the standard lapse rate to the climatological skin temperature
+map (assumed to be valid at mean sea level) and cool the temperatures in
+higher terrain. This should result in similar bottom temperatures as those
+normally processed by REAL for WRF.
+\item When running to provide input to LIS, set the 
+``Processed LSM parameter filename:'' to use ``lis\_input'' as part of the 
+output file name. Otherwise, when processing the LIS output for use by REAL,
+set the ``Processed NUWRF file for input to real:'' to use ``lis\_output'' as
+part of the output file name. 
+\end{itemize}
+
+
+\subsection{REAL}
+
+Described in Chapter 4 of~\cite{ref:ArwUserGuide}.
+
+\subsection{PREP\_CHEM\_SOURCES}
+
+Described by~\cite{ref:FreitasEtAl2011}.
+
+\subsection{PLOT\_CHEM}
+\subsection{CONVERT\_EMISS}
+
+Described in Chapters 2 and 3 of~\cite{ref:WrfChemUserGuide}.
+
+\subsection{GOCART2WRF}
+
+\subsection{CASA2WRF}
+
+

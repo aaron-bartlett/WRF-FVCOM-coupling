@@ -1,0 +1,26 @@
+#############################
+# BEGIN MERRA2WRF SEGMENT
+#############################
+THIS=MERRA2WRF
+
+cd $RUNDIR || exit 1
+
+rm -f $RUNDIR/Run_MERRA2.csh
+if [ ! -e $NUWRFDIR/utils/geos2wrf/scripts/run_merra/Run_MERRA2.csh ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/utils/geos2wrf/scripts/run_merra/Run_MERRA2.csh does not exist!"
+    exit 1
+fi  
+ln -s $NUWRFDIR/utils/geos2wrf/scripts/run_merra/Run_MERRA2.csh  || exit 1
+
+chmod +x Run_MERRA2.csh
+
+# Change the start/end dates as needed
+./Run_MERRA2.csh 20110706 20110707 . $EXEDIR >& merra2wrf.log || exit
+
+mv data/merra2wrf/MERRA* .
+
+# Tidy up logs
+mkdir -p runmerra_logs || exit 1
+mv -f runmerra.log runmerra_logs 2>/dev/null
+
+

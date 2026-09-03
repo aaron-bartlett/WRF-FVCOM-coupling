@@ -1,0 +1,49 @@
+#############################
+# BEGIN CASA2WRF SEGMENT
+#############################
+THIS=CASA2WRF
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.casa2wrf is present.
+if [ ! -e namelist.casa2wrf ] ; then
+    echo "$THIS ERROR: namelist.casa2wrf not found!"
+    exit 1
+fi
+
+# Location of CO2/wrfout data assumed to be in conc, flux and ./
+if [ ! -e $DATADIR/CO2_data/CASA/conc ] ; then 
+    echo "$THIS ERROR: $DATADIR/CO2_data/CASA/conc does not exist!"
+    exit 1
+fi
+ln -fs $DATADIR/CO2_data/CASA/conc || exit 1
+
+if [ ! -e $DATADIR/CO2_data/CASA/flux ] ; then 
+    echo "$THIS ERROR: $DATADIR/CO2_data/CASA/flux does not exist!"
+    exit 1
+fi
+ln -fs $DATADIR/CO2_data/CASA/flux || exit 1
+
+for f in `ls $DATADIR/wrfout*`; do
+   ln -sf $f
+done
+
+# Run casa2wrf.  No MPI is used since the program is serial.
+ln -fs $EXEDIR/utils/bin/casa2wrf.x || exit 1
+if [ ! -e casa2wrf.x ] ; then
+    echo "$THIS ERROR: casa2wrf.x not found!"
+    exit 1
+fi
+./casa2wrf.x || exit 1
+
+# Backup casa2wrf's output files
+
+bdy_files=`ls wrfbdy_d??`
+for file in $bdy_files ; do
+    cp $file ${file}.casa2wrf
+done
+
+input_files=`ls wrfinput_d??`
+for file in $input_files ; do
+    cp $file ${file}.casa2wrf
+done

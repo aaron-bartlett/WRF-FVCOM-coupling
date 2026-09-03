@@ -1,0 +1,32 @@
+#############################
+# BEGIN SST2WRF SEGMENT
+#############################
+THIS=SST2WRF
+
+cd $RUNDIR || exit 1
+
+if [ -z ${SBATCH_JOB_ID+x} ]; then
+   echo 'Using pre-staged data'
+   SST_DATA=(`ls $DATADIR/SSTRSS/*`)
+   for file in "${SST_DATA[@]}"; do
+      ln -sf $file
+   done
+   exit 0
+fi
+
+rm -f $RUNDIR/Run_SST.csh
+if [ ! -e $NUWRFDIR/utils/sst2wrf/scripts/Run_SST.csh ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/utils/sst2wrf/scripts/Run_SST.csh does not exist!"
+    exit 1
+fi  
+ln -s $NUWRFDIR/utils/sst2wrf/scripts/Run_SST.csh  || exit 1
+
+chmod +x Run_SST.csh
+
+./Run_SST.csh 20070119 20070120 mw_ir . $NUWRFDIR >& runsst.log || exit
+
+# Tidy up logs
+mkdir -p runsst_logs || exit 1
+mv -f runsst.log runsst_logs 2>/dev/null
+
+

@@ -1,0 +1,9 @@
+User must provide FNL meteorological data in a directory tree
+   data/ungrib
+that must exist in the run directory.
+
+See ungrib.reg script to see how it would be used
+
+Data and files for this tutorial can be obtained from:
+
+/discover/nobackup/projects/nu-wrf/tutorial/basic_workflow

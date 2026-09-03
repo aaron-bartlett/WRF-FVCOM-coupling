@@ -1,0 +1,29 @@
+#!/bin/bash
+#SBATCH -J lis4scm
+#SBATCH -o /discover/nobackup/ccruz/scratch/nu-wrf/dev_scm/results/intel-intelmpi.2019-12-13_13-31-47/wrflis_scm/lis4scm.out
+#SBATCH -e /discover/nobackup/ccruz/scratch/nu-wrf/dev_scm/results/intel-intelmpi.2019-12-13_13-31-47/wrflis_scm/lis4scm.err
+#SBATCH --account=s0942
+#SBATCH --ntasks=1
+#SBATCH --constraint=hasw
+#SBATCH --qos=allnccs
+#SBATCH --time=2:00:00
+# source common file for modules and paths 
+source ./common.reg || exit 1 
+export MPIRUN='mpirun -np 1' 
+#############################
+# BEGIN LIS4SCM SEGMENT
+#############################
+THIS=LIS4SCM
+
+cd $RUNDIR || exit 1
+
+if [ ! -e namelist.lis4scm ] ; then
+    echo "$THIS ERROR: namelist.lis4scm not found!"
+fi
+
+ln -sf $EXEDIR/utils/bin/lis4scm.x
+if [ ! -e lis4scm.x ] ; then
+    echo "$THIS ERROR: lis4scm.x does not exist!"
+    exit 1
+fi
+./lis4scm.x

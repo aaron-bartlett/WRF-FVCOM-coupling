@@ -1,0 +1,86 @@
+netcdf gl_fvcom_forcing_2018_0801to0805 {
+dimensions:
+	Time = UNLIMITED ; // (97 currently)
+	south_north = 231 ;
+	west_east = 351 ;
+	DateStrLen = 26 ;
+variables:
+	float Longwave(Time, south_north, west_east) ;
+		Longwave:long_name = "long wave radiation" ;
+		Longwave:units = "W/m2" ;
+		Longwave:description = "longwave,upward is negative" ;
+		Longwave:coordinates = "XLONG XLAT" ;
+	float SPQ(Time, south_north, west_east) ;
+		SPQ:long_name = "specific humidity" ;
+		SPQ:description = "sea surface specific humidity" ;
+		SPQ:units = "kg/kg" ;
+		SPQ:coordinates = "XLONG XLAT" ;
+	float Shortwave(Time, south_north, west_east) ;
+		Shortwave:long_name = "short wave radiation" ;
+		Shortwave:units = "W/m2" ;
+		Shortwave:description = "upward is negative" ;
+		Shortwave:coordinates = "XLONG XLAT" ;
+	char Times(Time, DateStrLen) ;
+		Times:time_zone = "UTC" ;
+	float U10(Time, south_north, west_east) ;
+		U10:long_name = "eastward wind speed" ;
+		U10:units = "m/s" ;
+		U10:description = "U at 10m" ;
+		U10:coordinates = "XLONG XLAT" ;
+	float V10(Time, south_north, west_east) ;
+		V10:long_name = "northward wind speed" ;
+		V10:units = "m/s" ;
+		V10:description = "V at 10m" ;
+		V10:coordinates = "XLONG XLAT" ;
+	float XLAT(south_north, west_east) ;
+		XLAT:long_name = "latitude" ;
+		XLAT:description = "latitude,south is negative" ;
+		XLAT:units = "degrees_north" ;
+	float XLONG(south_north, west_east) ;
+		XLONG:long_name = "longitude" ;
+		XLONG:description = "longitude,west is negative" ;
+		XLONG:units = "degrees_east" ;
+	float air_pressure(Time, south_north, west_east) ;
+		air_pressure:long_name = "air pressure" ;
+		air_pressure:description = "sea surface air pressure" ;
+		air_pressure:units = "Pa" ;
+		air_pressure:coordinates = "XLONG XLAT" ;
+	float air_temperature(Time, south_north, west_east) ;
+		air_temperature:long_name = "air temperature" ;
+		air_temperature:description = "sea surface air temperature" ;
+		air_temperature:units = "degree (C)" ;
+		air_temperature:coordinates = "XLONG XLAT" ;
+	float cloud_cover(Time, south_north, west_east) ;
+		cloud_cover:long_name = "cloud cover" ;
+		cloud_cover:description = "cloud cover,0-1" ;
+		cloud_cover:units = "" ;
+		cloud_cover:coordinates = "XLONG XLAT" ;
+	float dew_point(Time, south_north, west_east) ;
+		dew_point:long_name = "dew point" ;
+		dew_point:description = "dew point temperature" ;
+		dew_point:units = "degree (C)" ;
+		dew_point:coordinates = "XLONG XLAT" ;
+	float relative_humidity(Time, south_north, west_east) ;
+		relative_humidity:long_name = "relative humidity" ;
+		relative_humidity:description = "sea surface relative humidity" ;
+		relative_humidity:units = "kg/kg" ;
+		relative_humidity:coordinates = "XLONG XLAT" ;
+	float time(Time) ;
+		time:long_name = "time" ;
+		time:units = "days since 1858-11-17 00:00:00" ;
+		time:format = "modified julian day (MJD)" ;
+		time:time_zone = "UTC" ;
+	float x(south_north, west_east) ;
+		x:long_name = "nodal x-coordinate" ;
+		x:units = "meters" ;
+	float y(south_north, west_east) ;
+		y:long_name = "nodal y-coordinate" ;
+		y:units = "meters" ;
+
+// global attributes:
+		:title = "FVCOM wrf_grid forcing" ;
+		:source = "wrf2fvcom version 0.13 (2007-07-19) (Bulk method: COARE 2.6Z)" ;
+		:modeler = "Xue\'s Group @MTU" ;
+		:history = "Wed Jun 25 15:04:24 2025: ncks -F -d Time,1945,2041 gl_fvcom_forcing_2018_0512to0830_nocpl.nc gl_fvcom_forcing_2018_0801to0805.nc" ;
+		:NCO = "netCDF Operators version 4.7.5 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+}

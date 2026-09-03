@@ -1,0 +1,81 @@
+
+\section{Introduction}
+\label{sec:Introduction}
+
+\subsection{This Document}
+\label{subsec:ThisDocument}
+This is the NASA Unified-Weather Research and Forecasting (NU-WRF) Version 11 
+User's Guide. This document provides an overview of NU-WRF; describes how to 
+download, compile, and run the NU-WRF software; and provides guidance on 
+porting the software to new platforms.
+
+This document consists of six sections and three appendices:
+
+\begin{itemize}
+\item Section~\ref{sec:Introduction} is the present introductory section.
+
+\item Section~\ref{sec:System} provides general information about the 
+NU-WRF project and its components.
+
+\item Section~\ref{sec:Obtaining} provides information on obtaining a
+software usage agreement and the NU-WRF source code.
+
+\item Section~\ref{sec:Building} describes how to compile the NU-WRF software;
+
+\item Section~\ref{sec:FrontWorkflows} describes several front-end workflows 
+that can be employed with the NU-WRF modeling system, ranging from basic 
+weather simulation to advanced aerosol-microphysics-radiation coupling to
+alternate initialization methods.  This includes information on new 
+pre-processors and NASA changes to the community WRF model.
+
+\item Section~\ref{sec:PostProc} describes several post-processors for 
+visualization and/or verification.
+
+\item Finally, Appendix~\ref{sec:FAQ} answers Frequently Asked Questions about
+NU-WRF, Appendix~\ref{sec:Porting} provides guidance on porting NU-WRF
+to new platforms and Appendix~\ref{sec:revhist} lists the NU-WRF revision history.
+
+\end{itemize}
+
+\subsection{Acknowledgments}
+The development of NU-WRF has been funded by the NASA Modeling, Analysis, and 
+Prediction Program. The Goddard microphysics, radiation, aerosol coupling 
+modules, and G-SDSU are developed and maintained by the Mesoscale 
+Atmospheric Processes Laboratory at NASA Goddard Space Flight Center (GSFC). 
+The GOCART and NASA dust aerosol emission modules are developed and maintained
+by the GSFC Atmospheric Chemistry and Dynamics Laboratory. The LIS, LDT, and 
+LVT components are developed and maintained by the GSFC Hydrological Sciences 
+Laboratory. The CASA2WRF, GEOS2WRF, GOCART2WRF, LISWRFDOMAIN, LIS4SCM, 
+NEVS, NDVIBARENESS4WRF, and SST2WRF components are maintained by the GSFC 
+Computational and Information Sciences and Technology Office. SST2WRF includes
+binary reader source code developed by Remote Sensing Systems.
+
+Past and present contributors affiliated with the NU-WRF effort include:
+Kristi Arsenault, Clay Blankenship, Scott Braun, Rob Burns, Jon Case, Mian 
+Chin, Tom Clune, David Considine, Carlos Cruz, John David, Craig Ferguson, Jim Geiger, 
+Mei Han, Ken Harrison, Arthur Hou, Takamichi Iguchi, Jossy Jacob, Randy Kawa, 
+Eric Kemp, Dongchul Kim, Kyu-Myong Kim, Jules Kouatchou, Anil Kumar, Sujay 
+Kumar, William Lau, Tricia Lawston, David Liu, Yuqiong Liu, Toshi Matsui, 
+Hamid Oloso, Christa Peters-Lidard, Chris Redder, Scott Rheingrover, Joe 
+Santanello, Roger Shi, David Starr, Rahman Syed, Qian Tan, Wei-Kuo Tao, 
+Zhining Tao, Eduardo Valente, Bruce Van Aartsen, Gary Wojcik, Di Wu,  Jinwoong Yoo, Benjamin Zaitchik, Brad Zavodsky, Sara Zhang, Shujia Zhou, and Milija Zupanski.
+
+The upstream community WRF, WPS, and ARWPOST components are developed and 
+supported by the National Center for Atmospheric Research (NCAR), which is 
+operated by the University Corporation for Atmospheric Research and sponsored
+by the National Science Foundation (NSF). The Kinetic Pre-Processor included 
+with WRF-Chem was primarily developed by Dr.~Adrian Sandu of the Virginia 
+Polytechnic Institute and State University. The community RIP4 is maintained 
+by NCAR and was developed primarily by Dr.~Mark Stoelinga, formerly of the 
+University of Washington. The UPP is developed by the National Centers 
+for Environmental Prediction; the community version is maintained by the 
+Developmental Testbed Center (DTC), which is sponsored by the National Oceanic
+and Atmospheric Administration, the United States Air Force, and the NSF. DTC 
+also develops and maintains the community MET package.  The community 
+PREP\_CHEM\_SOURCES is primarily developed by the Centro de Previs\~{a}o de 
+Tempo e Estudos Clim\'{a}ticos, part of the Instituto Nacional de Pesquisas 
+Espaciais, Brazil.
+
+NU-WRF Version 11, ``Ekman'', is named after Vagn Walfrid Ekman, a Swedish oceanographer
+best known for his studies of the dynamics of ocean currents. Common oceanographic terms
+such as Ekman layer, Ekman spiral and Ekman transport derive from his research.

@@ -1,0 +1,14 @@
+
+&input
+ directory='./',
+ prefix='GEOS',
+ year=2009,
+ month=08,
+ day=25,
+ hour=00,
+ processSurfacePressure=.true.,
+ surfacePressureName='PSFC',
+ pressureName='PRESSURE',
+ temperatureName='TT',
+ specificHumidityName='SPECHUMD',
+/

@@ -1,0 +1,45 @@
+! FILE:  namelist.merra2wrf
+! AUTHOR:
+! Feb 2015 Jossy Jacob
+! DESCRIPTION:
+! Lists input and output directories, number of days, dates, and
+! names of MERRA2 files to process.
+!------------------------------------------------------------------------------
+
+&input
+
+  ! Directory to write output
+  outputDirectory = './data/merra2wrf',
+
+  ! Directory with input MERRA files
+  merraDirectory = './data',
+
+  ! Format and name of const_2d_asm_Nx file
+  merraFormat_const_2d_asm_Nx = 2,
+  merraFile_const_2d_asm_Nx = 'MERRA2_300.const_2d_asm_Nx.00000000.nc4',  
+
+  ! Number of days to process.  Note that each file type (excluding const_2d_asm_Nx) 
+  ! will have one file per day.
+  numberOfDays = 1,
+
+  ! Dates of each day being processed (YYYY-MM-DD)
+  !merraDates(1) = '2009-08-25',
+  merraDates(1) = 2006-01-05,
+
+  ! Format and Names of inst6_3d_ana_Nv files.
+  merraFormat_inst6_3d_ana_Nv = 2,
+  merraFiles_inst6_3d_ana_Nv(1) = 'MERRA2_300.inst6_3d_ana_Nv.20060105.nc4',
+
+  ! Names of inst6_3d_ana_Np files.
+  merraFormat_inst6_3d_ana_Np = 2,
+  merraFiles_inst6_3d_ana_Np(1) = 'MERRA2_300.inst6_3d_ana_Np.20060105.nc4',
+
+  ! Names of tavg1_2d_slv_Nx files.
+  merraFormat_tavg1_2d_slv_Nx = 2,
+  merraFiles_tavg1_2d_slv_Nx(1) = 'MERRA2_300.tavg1_2d_slv_Nx.20060105.nc4',
+
+  ! Names of tavg1_2d_ocn_Nx files.
+  merraFormat_tavg1_2d_ocn_Nx = 2,
+  merraFiles_tavg1_2d_ocn_Nx(1) = 'MERRA2_300.tavg1_2d_ocn_Nx.20060105.nc4',
+
+/

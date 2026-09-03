@@ -1,0 +1,9 @@
+This case is the East Coast Winter Storm of January 24-25, 2000 
+(http://cimss.ssec.wisc.edu/goes/misc/000125.html) 
+
+This is a test case that uses:
+  (a) East west CONUS domain with 1 nest (30 km)
+  (b) Simulation time period 00z 2000-01-24_12 to 00z 2000-01-25_12
+  (c) MODIS geographican data, 
+      input data are the operational NCEP Eta/NAM 212 grid (40km) model analyses (AWIP) 
+  (d) mp_physics = 3, ra_lw_physics = 1, ra_sw_physics = 1

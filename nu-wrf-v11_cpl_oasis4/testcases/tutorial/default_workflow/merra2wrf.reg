@@ -1,0 +1,11 @@
+#!/bin/bash
+# Load config file for modules and paths
+source ./common.reg || exit 1
+
+cd $RUNDIR || exit 1
+
+ln -sf $NUWRFDIR/scripts/python/utils/merra2wrf.py  || exit 1
+
+./merra2wrf.py 20150715 20150716 -n $NUWRFDIR >& merra2wrf.log || exit
+
+

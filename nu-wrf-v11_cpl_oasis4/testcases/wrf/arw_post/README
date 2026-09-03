@@ -1,0 +1,10 @@
+WRF-ARW Testcase with ARWpost post processing
+
+This is a test case that uses:
+  (a) CONUS SE quadrant domain (98W-75W, 25N-42N) with 2 nests (12-4 km)
+      Lambert projection
+  (b) Simulation time period from 12Z 10 Apr 2009 to 12Z 11 Apr 2009
+  (c) MODIS geographical data, NCEP NAM data
+  (d) Goddard MP (3ice+hail) and Goddard 2014 radiation (option 56)
+  (e) ARWpost generates GrADS output file test.dat
+      To view: run grads and open test.ctl

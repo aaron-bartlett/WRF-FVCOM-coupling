@@ -1,0 +1,16 @@
+&share
+ wrf_core = 'ARW',
+ max_dom = 1,
+ start_date = '2016-01-01_00:00:00',
+ end_date   = '2016-01-01_12:00:00',
+ interval_seconds = 21600,
+ io_form_geogrid = 2,
+ debug_level = 0,
+/
+
+&ungrib
+ out_format = 'WPS',
+ prefix = 'SFC',
+/
+
+

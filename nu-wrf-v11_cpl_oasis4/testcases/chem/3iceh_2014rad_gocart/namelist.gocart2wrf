@@ -1,0 +1,13 @@
+
+&wrf
+  max_dom = 2,
+  wrf_dir = './',
+/
+
+&gocart_shared
+  gocart_format = 5,
+  gocart_dir = './gocart'
+  gocart_prefix  = 'trainning.inst3d_aer_v',
+/
+
+

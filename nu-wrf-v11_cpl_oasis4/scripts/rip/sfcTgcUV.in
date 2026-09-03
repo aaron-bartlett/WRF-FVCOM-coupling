@@ -1,0 +1,35 @@
+&userin
+ idotitle=1,titlecolor='def.foreground',
+ ptimes=0,-120,3,
+ ptimeunits='h',tacc=120,timezone=-7,iusdaylightrule=1,
+ iinittime=1,ifcsttime=1,ivalidtime=1,inearesth=0,
+ flmin=.09, frmax=.92, fbmin=.10, ftmax=.85,
+ ntextq=0,ntextcd=0,fcoffset=0.0,idotser=0,
+ idescriptive=1,icgmsplit=0,maxfld=10,itrajcalc=0,imakev5d=0,
+ ncarg_type='cgm'
+ /
+ &trajcalc
+ rtim=15,ctim=6,dtfile=3600.,dttraj=600.,vctraj='s',
+ xjtraj=95,90,85,80,75,70,65,80.6,80.6,80.6,80.6,80.6,80.6,
+ yitraj=50,55,60,65,70,75,80,77,77,77,77,77,77,
+ zktraj=25,25,25,25,25,25,25,27,25,22,19,16,13,
+ ihydrometeor=0
+ /
+===========================================================================
+----------------------    Plot Specification Table    ---------------------
+===========================================================================
+feld=rtot6hin; ptyp=hc;cbeg=0.25;cend=250.;cint=2;mult;cmth=fill;>
+    cosq=0.25,white,2.5,light.green,>
+    6.25,green,12.5,dark.green,18.8,dark.blue,25.0,powder.blue,>
+    31.25,blue,37.5,cyan,43.75,light.violet,50.0,violet,62.5,dark.violet,>
+    75.0,dark.red,100.0,red,125.0,light.orange,150.00,orange,175.0,tan,>
+    200.00,gold,225.0,light.yellow,250.00,yellow
+feld=slp; ptyp=hc; cint=4; linw=2; nohl=Z; pwlb=0
+feld=tgc; ptyp=hc; linw=2; cint=5; cbeg=5;  cmth=cont; >
+    colr=red; nohl
+feld=tgc; ptyp=hc; linw=2; cint=5; cbeg=-100; cend=-0;  cmth=cont; >
+    colr=blue; nohl
+feld=uuu,vvv; ptyp=hv; vcmx=-1;colr=very.dark.blue; intv=10; fulb=10kts
+feld=map; ptyp=hb; colr=brown
+feld=tic; ptyp=hb; axlg=100; axtg=20
+===========================================================================

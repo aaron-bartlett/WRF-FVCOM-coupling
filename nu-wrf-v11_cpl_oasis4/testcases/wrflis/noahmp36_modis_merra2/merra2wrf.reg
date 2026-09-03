@@ -1,0 +1,18 @@
+#############################
+# BEGIN MERRA2WRF SEGMENT
+#############################
+THIS=MERRA2WRF
+
+cd $RUNDIR || exit 1
+
+# Block for regression testing
+
+if [ -z ${SBATCH_JOB_ID+x} ]; then
+   echo 'Using pre-staged data'
+   MERRA_DATA=(`ls $DATADIR/MERRA_201507/MERRA*`)
+   for file in "${MERRA_DATA[@]}"; do
+      ln -sf $file
+   done
+   exit 0
+fi
+

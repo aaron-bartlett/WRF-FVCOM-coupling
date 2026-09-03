@@ -1,0 +1,1262 @@
+ (oasis_namcouple_init) open namcouple file namcouple with unit number 
+        9998
+  
+ (mod_oasis_namcouple:inipar_alloc)
+   ROUTINE inipar_alloc - Level 0
+   ********************   *******
+  
+   Initialization of run parameters
+  
+   Reading input file namcouple
+  
+  
+   Executing valid keyword check 
+     Found valid keyword = $NFIELDS
+     Found valid keyword = $END
+     Found valid keyword = $NBMODEL
+     Found valid keyword = $END
+     Found valid keyword = $RUNTIME
+     Found valid keyword = $END
+     Found valid keyword = $NLOGPRT
+     Found valid keyword = $END
+     Found valid keyword = $STRINGS
+     Found valid keyword = $END
+  
+  ***WARNING*** $NBMODEL is obsolete in OASIS3-MCT
+* ===>>> : The maximum number of exchanged fields set in namcouple is nfield =                 11
+  ------   -------------------------------------------------------------------  
+
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: 
+ #####################################################################
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  fvcom_send_sst      WRF_d01_EXT_d01_SST    1  3600  1  rst_fvc_sst.nc    EXPOR
+ TED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            1  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            1  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  fvcomM  wrf2_d01  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   DISTWGT LR SCALAR LATLON 1 4
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: # Ice Cover (fraction 0-1)
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  fvcom_send_aice     WRF_d01_EXT_d01_AICE   1  3600  1  rst_fvc_aice.nc   EXPOR
+ TED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            2  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            2  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  fvcomM  wrf2_d01  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   DISTWGT LR SCALAR LATLON 1 4
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: 
+ #####################################################################
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_airt    fvcom_recv_airt       1  3600  1  rst_wrf_airt.nc   EX
+ PORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            3  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            3  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: # Surface Pressure (Pa)
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_airp    fvcom_recv_airp       1  3600  1  rst_wrf_airp.nc   EX
+ PORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            4  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            4  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: # Relative Humidity
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_rh      fvcom_recv_rhumidity  1  3600  1  rst_wrf_rh.nc     EX
+ PORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            5  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            5  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: 
+ # Specific Humidity @2m (grid%q2)
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_spq     fvcom_recv_spq        1  3600  1  rst_wrf_spq.nc    EX
+ PORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            6  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            6  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: # Total Cloud Cover (grid%cldt)
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_cloud   fvcom_recv_cloud      1  3600  1  rst_wrf_cloud.nc  EX
+ PORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            7  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            7  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: # 10m Wind - U component
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_u10     fvcom_recv_u10        1  3600  1  rst_wrf_u10.nc    EX
+ PORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            8  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            8  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: # 10m Wind - V component
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_v10     fvcom_recv_v10        1  3600  1  rst_wrf_v10.nc    EX
+ PORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :            9  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :            9  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: 
+ # Downward Shortwave Radiation (CONSERV - energy flux)
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_shortwave   fvcom_recv_shortwave  1  3600  1  rst_wrf_sw.nc  E
+ XPORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :           10  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :           10  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ (mod_oasis_namcouple:inipar_alloc)1 Read line: 
+ # Downward Longwave Radiation (CONSERV - energy flux)
+ (mod_oasis_namcouple:inipar_alloc)parsing 1 Read line, clvari in 5 position: 
+  WRF_d01_EXT_d01_longwave    fvcom_recv_longwave   1  3600  1  rst_wrf_lw.nc  E
+ XPORTED1
+ (mod_oasis_namcouple:inipar_alloc)field jf :           11  lg_state(jf) :  T
+ (mod_oasis_namcouple:inipar_alloc)field jf :           11  endflag :  F
+ (mod_oasis_namcouple:inipar_alloc)2 Read line:  wrf1_d01  fvcomN  LAG=0
+ (mod_oasis_namcouple:inipar_alloc)3 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar_alloc)4 Read line_aux:  SCRIPR
+ (mod_oasis_namcouple:inipar_alloc)5 Read line:   BILINEAR LR SCALAR LATLON 1
+ found namcouple couplings =     11
+ lncdfrst = F
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ LG_STATE cg_c= SCRIPR
+ Max number of neighbors for GAUSSIAN interp :            1
+  
+ Maximum number of different GAUSSIAN interpolations :            1
+  
+  
+ (mod_oasis_namcouple:inipar_alloc)-- End of ROUTINE --
+  
+ (mod_oasis_namcouple:inipar)
+    ROUTINE inipar  -  Level 0
+    **************     *******
+  
+    Initialization of run parameters
+    Reading input file namcouple
+  
+  ***WARNING*** $NBMODEL is obsolete in OASIS3-MCT
+* ===>>> : The total time for this run is ntime =              43200
+  ------   --------------------------------------                               
+
+         ***WARNING*** Nothing on input for time statistic for $NLOGPRT
+  Default value 0 will be used 
+  
+         ***WARNING*** Nothing on input for load balancing analysis for $NLOGPRT
+  Default value 0 will be used 
+  
+* ===>>> : The printing level is nlogprt =                  2
+  ------   -------------------------------                                      
+
+* ===>>> : The time statistics level is ntlogprt =                  0
+  ------   ---------------------------------------                              
+
+* ===>>> : The load balancing analysis level is nlblogprt =                  0
+  ------   ------------------------------------------------                     
+
+* ===>>> : The allow_no_restart flag is set to false                   0
+  ------   ------------------------------------------                           
+
+  The mapdec value is nmapdec = decomp_1d
+  The matxrd value is nmatxrd = ceg
+  The cdftyp value is ncdftyp = cdf1
+  The wgtopt value is nwgtopt = abort_on_bad_index
+* ===>>> : The min IO unit number is nuntmin =               1024
+  ------   -----------------------------------                                  
+
+* ===>>> : The max IO unit number is nuntmax =               9999
+  ------   -----------------------------------                                  
+
+
+     The lag for the field   1   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field   2   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field   3   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field   4   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field   5   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field   6   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field   7   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field   8   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field   9   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field  10   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+     The lag for the field  11   is :        0
+ (mod_oasis_namcouple:inipar)9 Read line:  R  0  R  0
+ (mod_oasis_namcouple:inipar)9 Read line : R  0  R  0  clvari in 1 position: R
+
+
+                 FIELD NUMBER   1
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = fvcom_send_sst
+            Output field symbolic name      = WRF_d01_EXT_d01_SST
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_fvc_sst.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = fvcomM.lon
+            Source latitude file string     = fvcomM.lat
+            Source mask file string         = fvcomM.msk
+            Source surface file string      = fvcomM.srf
+            Source surf frac.s file string  = fvcomM.frc
+            Target longitude file string    = wrf2_d01.lon
+            Target latitude file string     = wrf2_d01.lat
+            Target mask file string         = wrf2_d01.msk
+            Target surface file string      = wrf2_d01.srf
+            Target surf frac.s file string  = wrf2_d01.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = DISTWGT
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER   2
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = fvcom_send_aice
+            Output field symbolic name      = WRF_d01_EXT_d01_AICE
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_fvc_aice.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = fvcomM.lon
+            Source latitude file string     = fvcomM.lat
+            Source mask file string         = fvcomM.msk
+            Source surface file string      = fvcomM.srf
+            Source surf frac.s file string  = fvcomM.frc
+            Target longitude file string    = wrf2_d01.lon
+            Target latitude file string     = wrf2_d01.lat
+            Target mask file string         = wrf2_d01.msk
+            Target surface file string      = wrf2_d01.srf
+            Target surf frac.s file string  = wrf2_d01.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = DISTWGT
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER   3
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_airt
+            Output field symbolic name      = fvcom_recv_airt
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_airt.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER   4
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_airp
+            Output field symbolic name      = fvcom_recv_airp
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_airp.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER   5
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_rh
+            Output field symbolic name      = fvcom_recv_rhumidity
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_rh.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER   6
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_spq
+            Output field symbolic name      = fvcom_recv_spq
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_spq.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER   7
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_cloud
+            Output field symbolic name      = fvcom_recv_cloud
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_cloud.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER   8
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_u10
+            Output field symbolic name      = fvcom_recv_u10
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_u10.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER   9
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_v10
+            Output field symbolic name      = fvcom_recv_v10
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_v10.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER  10
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_shortwave
+            Output field symbolic name      = fvcom_recv_shortwave
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_sw.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+
+
+                 FIELD NUMBER  11
+                 ************  
+
+            Field parameters 
+            ****************  
+
+
+            Input field symbolic name       = WRF_d01_EXT_d01_longwave
+            Output field symbolic name      = fvcom_recv_longwave
+            Field exchange frequency        =     3600
+            Model sequential index          =  1
+            Field Lag                       =        0
+            Field I/O status                = EXPORTED
+            Number of basic operations      =    1
+
+
+            Restart file name               = rst_wrf_lw.nc
+
+
+            Source grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+            Target grid periodicity type is      = R
+            Number of overlapped grid points is  =  0
+
+
+            Source longitude file string    = wrf1_d01.lon
+            Source latitude file string     = wrf1_d01.lat
+            Source mask file string         = wrf1_d01.msk
+            Source surface file string      = wrf1_d01.srf
+            Source surf frac.s file string  = wrf1_d01.frc
+            Target longitude file string    = fvcomN.lon
+            Target latitude file string     = fvcomN.lat
+            Target mask file string         = fvcomN.msk
+            Target surface file string      = fvcomN.srf
+            Target surf frac.s file string  = fvcomN.frc
+
+
+            ANALYSIS PARAMETERS 
+            ******************* 
+
+
+       ANALYSIS number  1 is SCRIPR
+       ***************  
+
+      Remapping method is               = BILINEAR
+      Field type is                     = SCALAR
+      Normalization option is           = NONORM
+      Seach restriction type is         = LATLON
+      Number of search bins is          =    1
+  
+ (mod_oasis_namcouple:inipar)-- End of ROUTINE --
+ (oasis_namcouple_init) allocating ig_final_nfield          11
+  
+ (oasis_namcouple_init)namlogprt,t,lb           2           0           0
+ (oasis_namcouple_init)namcdftyp     cdf1
+ (oasis_namcouple_init)namuntmin,max         1024        9999
+ (oasis_namcouple_init)namnorest      F
+ (oasis_namcouple_init)nammapdec     decomp_1d
+ (oasis_namcouple_init)nammatxrd     ceg
+ (oasis_namcouple_init)namwgtopt     abort_on_bad_index
+  
+ (oasis_namcouple_init)           1 namsrcfld fvcom_send_sst
+ (oasis_namcouple_init)           1 namdstfld WRF_d01_EXT_d01_SST
+ (oasis_namcouple_init)           1 namsrcgrd fvcomM
+ (oasis_namcouple_init)           1 namsrc_nx            0
+ (oasis_namcouple_init)           1 namsrc_ny            0
+ (oasis_namcouple_init)           1 namdstgrd wrf2_d01
+ (oasis_namcouple_init)           1 namdst_nx            0
+ (oasis_namcouple_init)           1 namdst_ny            0
+ (oasis_namcouple_init)           1 namfldseq            1
+ (oasis_namcouple_init)           1 namfldops            1
+ (oasis_namcouple_init)           1 namfldtrn            1
+ (oasis_namcouple_init)           1 namfldcon            0
+ (oasis_namcouple_init)           1 namfldcoo bfb
+ (oasis_namcouple_init)           1 namflddti         3600
+ (oasis_namcouple_init)           1 namfldlag            0
+ (oasis_namcouple_init)           1 nammapfil idmap
+ (oasis_namcouple_init)           1 nammaploc src
+ (oasis_namcouple_init)           1 nammapopt bfb
+ (oasis_namcouple_init)           1 namrstfil rst_fvc_sst.nc
+ (oasis_namcouple_init)           1 naminpfil 
+ (oasis_namcouple_init)           1 namchecki  F
+ (oasis_namcouple_init)           1 namchecko  F
+ (oasis_namcouple_init)           1 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           1 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           1 namflddno            1
+ (oasis_namcouple_init)           1 namflddna 
+ (oasis_namcouple_init)           1 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           1 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           1 namscrmet DISTWGT
+ (oasis_namcouple_init)           1 namscrnor NONORM
+ (oasis_namcouple_init)           1 namscrtyp SCALAR
+ (oasis_namcouple_init)           1 namscrord 
+ (oasis_namcouple_init)           1 namscrres LATLON
+ (oasis_namcouple_init)           1 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           1 namscrnbr            4
+ (oasis_namcouple_init)           1 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           1 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           1 namscrbin            1
+  
+ (oasis_namcouple_init)           2 namsrcfld fvcom_send_aice
+ (oasis_namcouple_init)           2 namdstfld WRF_d01_EXT_d01_AICE
+ (oasis_namcouple_init)           2 namsrcgrd fvcomM
+ (oasis_namcouple_init)           2 namsrc_nx            0
+ (oasis_namcouple_init)           2 namsrc_ny            0
+ (oasis_namcouple_init)           2 namdstgrd wrf2_d01
+ (oasis_namcouple_init)           2 namdst_nx            0
+ (oasis_namcouple_init)           2 namdst_ny            0
+ (oasis_namcouple_init)           2 namfldseq            1
+ (oasis_namcouple_init)           2 namfldops            1
+ (oasis_namcouple_init)           2 namfldtrn            1
+ (oasis_namcouple_init)           2 namfldcon            0
+ (oasis_namcouple_init)           2 namfldcoo bfb
+ (oasis_namcouple_init)           2 namflddti         3600
+ (oasis_namcouple_init)           2 namfldlag            0
+ (oasis_namcouple_init)           2 nammapfil idmap
+ (oasis_namcouple_init)           2 nammaploc src
+ (oasis_namcouple_init)           2 nammapopt bfb
+ (oasis_namcouple_init)           2 namrstfil rst_fvc_aice.nc
+ (oasis_namcouple_init)           2 naminpfil 
+ (oasis_namcouple_init)           2 namchecki  F
+ (oasis_namcouple_init)           2 namchecko  F
+ (oasis_namcouple_init)           2 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           2 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           2 namflddno            1
+ (oasis_namcouple_init)           2 namflddna 
+ (oasis_namcouple_init)           2 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           2 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           2 namscrmet DISTWGT
+ (oasis_namcouple_init)           2 namscrnor NONORM
+ (oasis_namcouple_init)           2 namscrtyp SCALAR
+ (oasis_namcouple_init)           2 namscrord 
+ (oasis_namcouple_init)           2 namscrres LATLON
+ (oasis_namcouple_init)           2 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           2 namscrnbr            4
+ (oasis_namcouple_init)           2 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           2 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           2 namscrbin            1
+  
+ (oasis_namcouple_init)           3 namsrcfld WRF_d01_EXT_d01_airt
+ (oasis_namcouple_init)           3 namdstfld fvcom_recv_airt
+ (oasis_namcouple_init)           3 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)           3 namsrc_nx            0
+ (oasis_namcouple_init)           3 namsrc_ny            0
+ (oasis_namcouple_init)           3 namdstgrd fvcomN
+ (oasis_namcouple_init)           3 namdst_nx            0
+ (oasis_namcouple_init)           3 namdst_ny            0
+ (oasis_namcouple_init)           3 namfldseq            1
+ (oasis_namcouple_init)           3 namfldops            1
+ (oasis_namcouple_init)           3 namfldtrn            1
+ (oasis_namcouple_init)           3 namfldcon            0
+ (oasis_namcouple_init)           3 namfldcoo bfb
+ (oasis_namcouple_init)           3 namflddti         3600
+ (oasis_namcouple_init)           3 namfldlag            0
+ (oasis_namcouple_init)           3 nammapfil idmap
+ (oasis_namcouple_init)           3 nammaploc src
+ (oasis_namcouple_init)           3 nammapopt bfb
+ (oasis_namcouple_init)           3 namrstfil rst_wrf_airt.nc
+ (oasis_namcouple_init)           3 naminpfil 
+ (oasis_namcouple_init)           3 namchecki  F
+ (oasis_namcouple_init)           3 namchecko  F
+ (oasis_namcouple_init)           3 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           3 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           3 namflddno            1
+ (oasis_namcouple_init)           3 namflddna 
+ (oasis_namcouple_init)           3 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           3 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           3 namscrmet BILINEAR
+ (oasis_namcouple_init)           3 namscrnor NONORM
+ (oasis_namcouple_init)           3 namscrtyp SCALAR
+ (oasis_namcouple_init)           3 namscrord 
+ (oasis_namcouple_init)           3 namscrres LATLON
+ (oasis_namcouple_init)           3 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           3 namscrnbr            0
+ (oasis_namcouple_init)           3 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           3 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           3 namscrbin            1
+  
+ (oasis_namcouple_init)           4 namsrcfld WRF_d01_EXT_d01_airp
+ (oasis_namcouple_init)           4 namdstfld fvcom_recv_airp
+ (oasis_namcouple_init)           4 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)           4 namsrc_nx            0
+ (oasis_namcouple_init)           4 namsrc_ny            0
+ (oasis_namcouple_init)           4 namdstgrd fvcomN
+ (oasis_namcouple_init)           4 namdst_nx            0
+ (oasis_namcouple_init)           4 namdst_ny            0
+ (oasis_namcouple_init)           4 namfldseq            1
+ (oasis_namcouple_init)           4 namfldops            1
+ (oasis_namcouple_init)           4 namfldtrn            1
+ (oasis_namcouple_init)           4 namfldcon            0
+ (oasis_namcouple_init)           4 namfldcoo bfb
+ (oasis_namcouple_init)           4 namflddti         3600
+ (oasis_namcouple_init)           4 namfldlag            0
+ (oasis_namcouple_init)           4 nammapfil idmap
+ (oasis_namcouple_init)           4 nammaploc src
+ (oasis_namcouple_init)           4 nammapopt bfb
+ (oasis_namcouple_init)           4 namrstfil rst_wrf_airp.nc
+ (oasis_namcouple_init)           4 naminpfil 
+ (oasis_namcouple_init)           4 namchecki  F
+ (oasis_namcouple_init)           4 namchecko  F
+ (oasis_namcouple_init)           4 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           4 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           4 namflddno            1
+ (oasis_namcouple_init)           4 namflddna 
+ (oasis_namcouple_init)           4 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           4 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           4 namscrmet BILINEAR
+ (oasis_namcouple_init)           4 namscrnor NONORM
+ (oasis_namcouple_init)           4 namscrtyp SCALAR
+ (oasis_namcouple_init)           4 namscrord 
+ (oasis_namcouple_init)           4 namscrres LATLON
+ (oasis_namcouple_init)           4 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           4 namscrnbr            0
+ (oasis_namcouple_init)           4 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           4 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           4 namscrbin            1
+  
+ (oasis_namcouple_init)           5 namsrcfld WRF_d01_EXT_d01_rh
+ (oasis_namcouple_init)           5 namdstfld fvcom_recv_rhumidity
+ (oasis_namcouple_init)           5 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)           5 namsrc_nx            0
+ (oasis_namcouple_init)           5 namsrc_ny            0
+ (oasis_namcouple_init)           5 namdstgrd fvcomN
+ (oasis_namcouple_init)           5 namdst_nx            0
+ (oasis_namcouple_init)           5 namdst_ny            0
+ (oasis_namcouple_init)           5 namfldseq            1
+ (oasis_namcouple_init)           5 namfldops            1
+ (oasis_namcouple_init)           5 namfldtrn            1
+ (oasis_namcouple_init)           5 namfldcon            0
+ (oasis_namcouple_init)           5 namfldcoo bfb
+ (oasis_namcouple_init)           5 namflddti         3600
+ (oasis_namcouple_init)           5 namfldlag            0
+ (oasis_namcouple_init)           5 nammapfil idmap
+ (oasis_namcouple_init)           5 nammaploc src
+ (oasis_namcouple_init)           5 nammapopt bfb
+ (oasis_namcouple_init)           5 namrstfil rst_wrf_rh.nc
+ (oasis_namcouple_init)           5 naminpfil 
+ (oasis_namcouple_init)           5 namchecki  F
+ (oasis_namcouple_init)           5 namchecko  F
+ (oasis_namcouple_init)           5 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           5 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           5 namflddno            1
+ (oasis_namcouple_init)           5 namflddna 
+ (oasis_namcouple_init)           5 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           5 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           5 namscrmet BILINEAR
+ (oasis_namcouple_init)           5 namscrnor NONORM
+ (oasis_namcouple_init)           5 namscrtyp SCALAR
+ (oasis_namcouple_init)           5 namscrord 
+ (oasis_namcouple_init)           5 namscrres LATLON
+ (oasis_namcouple_init)           5 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           5 namscrnbr            0
+ (oasis_namcouple_init)           5 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           5 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           5 namscrbin            1
+  
+ (oasis_namcouple_init)           6 namsrcfld WRF_d01_EXT_d01_spq
+ (oasis_namcouple_init)           6 namdstfld fvcom_recv_spq
+ (oasis_namcouple_init)           6 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)           6 namsrc_nx            0
+ (oasis_namcouple_init)           6 namsrc_ny            0
+ (oasis_namcouple_init)           6 namdstgrd fvcomN
+ (oasis_namcouple_init)           6 namdst_nx            0
+ (oasis_namcouple_init)           6 namdst_ny            0
+ (oasis_namcouple_init)           6 namfldseq            1
+ (oasis_namcouple_init)           6 namfldops            1
+ (oasis_namcouple_init)           6 namfldtrn            1
+ (oasis_namcouple_init)           6 namfldcon            0
+ (oasis_namcouple_init)           6 namfldcoo bfb
+ (oasis_namcouple_init)           6 namflddti         3600
+ (oasis_namcouple_init)           6 namfldlag            0
+ (oasis_namcouple_init)           6 nammapfil idmap
+ (oasis_namcouple_init)           6 nammaploc src
+ (oasis_namcouple_init)           6 nammapopt bfb
+ (oasis_namcouple_init)           6 namrstfil rst_wrf_spq.nc
+ (oasis_namcouple_init)           6 naminpfil 
+ (oasis_namcouple_init)           6 namchecki  F
+ (oasis_namcouple_init)           6 namchecko  F
+ (oasis_namcouple_init)           6 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           6 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           6 namflddno            1
+ (oasis_namcouple_init)           6 namflddna 
+ (oasis_namcouple_init)           6 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           6 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           6 namscrmet BILINEAR
+ (oasis_namcouple_init)           6 namscrnor NONORM
+ (oasis_namcouple_init)           6 namscrtyp SCALAR
+ (oasis_namcouple_init)           6 namscrord 
+ (oasis_namcouple_init)           6 namscrres LATLON
+ (oasis_namcouple_init)           6 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           6 namscrnbr            0
+ (oasis_namcouple_init)           6 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           6 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           6 namscrbin            1
+  
+ (oasis_namcouple_init)           7 namsrcfld WRF_d01_EXT_d01_cloud
+ (oasis_namcouple_init)           7 namdstfld fvcom_recv_cloud
+ (oasis_namcouple_init)           7 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)           7 namsrc_nx            0
+ (oasis_namcouple_init)           7 namsrc_ny            0
+ (oasis_namcouple_init)           7 namdstgrd fvcomN
+ (oasis_namcouple_init)           7 namdst_nx            0
+ (oasis_namcouple_init)           7 namdst_ny            0
+ (oasis_namcouple_init)           7 namfldseq            1
+ (oasis_namcouple_init)           7 namfldops            1
+ (oasis_namcouple_init)           7 namfldtrn            1
+ (oasis_namcouple_init)           7 namfldcon            0
+ (oasis_namcouple_init)           7 namfldcoo bfb
+ (oasis_namcouple_init)           7 namflddti         3600
+ (oasis_namcouple_init)           7 namfldlag            0
+ (oasis_namcouple_init)           7 nammapfil idmap
+ (oasis_namcouple_init)           7 nammaploc src
+ (oasis_namcouple_init)           7 nammapopt bfb
+ (oasis_namcouple_init)           7 namrstfil rst_wrf_cloud.nc
+ (oasis_namcouple_init)           7 naminpfil 
+ (oasis_namcouple_init)           7 namchecki  F
+ (oasis_namcouple_init)           7 namchecko  F
+ (oasis_namcouple_init)           7 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           7 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           7 namflddno            1
+ (oasis_namcouple_init)           7 namflddna 
+ (oasis_namcouple_init)           7 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           7 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           7 namscrmet BILINEAR
+ (oasis_namcouple_init)           7 namscrnor NONORM
+ (oasis_namcouple_init)           7 namscrtyp SCALAR
+ (oasis_namcouple_init)           7 namscrord 
+ (oasis_namcouple_init)           7 namscrres LATLON
+ (oasis_namcouple_init)           7 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           7 namscrnbr            0
+ (oasis_namcouple_init)           7 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           7 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           7 namscrbin            1
+  
+ (oasis_namcouple_init)           8 namsrcfld WRF_d01_EXT_d01_u10
+ (oasis_namcouple_init)           8 namdstfld fvcom_recv_u10
+ (oasis_namcouple_init)           8 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)           8 namsrc_nx            0
+ (oasis_namcouple_init)           8 namsrc_ny            0
+ (oasis_namcouple_init)           8 namdstgrd fvcomN
+ (oasis_namcouple_init)           8 namdst_nx            0
+ (oasis_namcouple_init)           8 namdst_ny            0
+ (oasis_namcouple_init)           8 namfldseq            1
+ (oasis_namcouple_init)           8 namfldops            1
+ (oasis_namcouple_init)           8 namfldtrn            1
+ (oasis_namcouple_init)           8 namfldcon            0
+ (oasis_namcouple_init)           8 namfldcoo bfb
+ (oasis_namcouple_init)           8 namflddti         3600
+ (oasis_namcouple_init)           8 namfldlag            0
+ (oasis_namcouple_init)           8 nammapfil idmap
+ (oasis_namcouple_init)           8 nammaploc src
+ (oasis_namcouple_init)           8 nammapopt bfb
+ (oasis_namcouple_init)           8 namrstfil rst_wrf_u10.nc
+ (oasis_namcouple_init)           8 naminpfil 
+ (oasis_namcouple_init)           8 namchecki  F
+ (oasis_namcouple_init)           8 namchecko  F
+ (oasis_namcouple_init)           8 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           8 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           8 namflddno            1
+ (oasis_namcouple_init)           8 namflddna 
+ (oasis_namcouple_init)           8 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           8 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           8 namscrmet BILINEAR
+ (oasis_namcouple_init)           8 namscrnor NONORM
+ (oasis_namcouple_init)           8 namscrtyp SCALAR
+ (oasis_namcouple_init)           8 namscrord 
+ (oasis_namcouple_init)           8 namscrres LATLON
+ (oasis_namcouple_init)           8 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           8 namscrnbr            0
+ (oasis_namcouple_init)           8 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           8 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           8 namscrbin            1
+  
+ (oasis_namcouple_init)           9 namsrcfld WRF_d01_EXT_d01_v10
+ (oasis_namcouple_init)           9 namdstfld fvcom_recv_v10
+ (oasis_namcouple_init)           9 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)           9 namsrc_nx            0
+ (oasis_namcouple_init)           9 namsrc_ny            0
+ (oasis_namcouple_init)           9 namdstgrd fvcomN
+ (oasis_namcouple_init)           9 namdst_nx            0
+ (oasis_namcouple_init)           9 namdst_ny            0
+ (oasis_namcouple_init)           9 namfldseq            1
+ (oasis_namcouple_init)           9 namfldops            1
+ (oasis_namcouple_init)           9 namfldtrn            1
+ (oasis_namcouple_init)           9 namfldcon            0
+ (oasis_namcouple_init)           9 namfldcoo bfb
+ (oasis_namcouple_init)           9 namflddti         3600
+ (oasis_namcouple_init)           9 namfldlag            0
+ (oasis_namcouple_init)           9 nammapfil idmap
+ (oasis_namcouple_init)           9 nammaploc src
+ (oasis_namcouple_init)           9 nammapopt bfb
+ (oasis_namcouple_init)           9 namrstfil rst_wrf_v10.nc
+ (oasis_namcouple_init)           9 naminpfil 
+ (oasis_namcouple_init)           9 namchecki  F
+ (oasis_namcouple_init)           9 namchecko  F
+ (oasis_namcouple_init)           9 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)           9 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)           9 namflddno            1
+ (oasis_namcouple_init)           9 namflddna 
+ (oasis_namcouple_init)           9 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)           9 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)           9 namscrmet BILINEAR
+ (oasis_namcouple_init)           9 namscrnor NONORM
+ (oasis_namcouple_init)           9 namscrtyp SCALAR
+ (oasis_namcouple_init)           9 namscrord 
+ (oasis_namcouple_init)           9 namscrres LATLON
+ (oasis_namcouple_init)           9 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)           9 namscrnbr            0
+ (oasis_namcouple_init)           9 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)           9 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)           9 namscrbin            1
+  
+ (oasis_namcouple_init)          10 namsrcfld WRF_d01_EXT_d01_shortwave
+ (oasis_namcouple_init)          10 namdstfld fvcom_recv_shortwave
+ (oasis_namcouple_init)          10 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)          10 namsrc_nx            0
+ (oasis_namcouple_init)          10 namsrc_ny            0
+ (oasis_namcouple_init)          10 namdstgrd fvcomN
+ (oasis_namcouple_init)          10 namdst_nx            0
+ (oasis_namcouple_init)          10 namdst_ny            0
+ (oasis_namcouple_init)          10 namfldseq            1
+ (oasis_namcouple_init)          10 namfldops            1
+ (oasis_namcouple_init)          10 namfldtrn            1
+ (oasis_namcouple_init)          10 namfldcon            0
+ (oasis_namcouple_init)          10 namfldcoo bfb
+ (oasis_namcouple_init)          10 namflddti         3600
+ (oasis_namcouple_init)          10 namfldlag            0
+ (oasis_namcouple_init)          10 nammapfil idmap
+ (oasis_namcouple_init)          10 nammaploc src
+ (oasis_namcouple_init)          10 nammapopt bfb
+ (oasis_namcouple_init)          10 namrstfil rst_wrf_sw.nc
+ (oasis_namcouple_init)          10 naminpfil 
+ (oasis_namcouple_init)          10 namchecki  F
+ (oasis_namcouple_init)          10 namchecko  F
+ (oasis_namcouple_init)          10 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)          10 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)          10 namflddno            1
+ (oasis_namcouple_init)          10 namflddna 
+ (oasis_namcouple_init)          10 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)          10 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)          10 namscrmet BILINEAR
+ (oasis_namcouple_init)          10 namscrnor NONORM
+ (oasis_namcouple_init)          10 namscrtyp SCALAR
+ (oasis_namcouple_init)          10 namscrord 
+ (oasis_namcouple_init)          10 namscrres LATLON
+ (oasis_namcouple_init)          10 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)          10 namscrnbr            0
+ (oasis_namcouple_init)          10 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)          10 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)          10 namscrbin            1
+  
+ (oasis_namcouple_init)          11 namsrcfld WRF_d01_EXT_d01_longwave
+ (oasis_namcouple_init)          11 namdstfld fvcom_recv_longwave
+ (oasis_namcouple_init)          11 namsrcgrd wrf1_d01
+ (oasis_namcouple_init)          11 namsrc_nx            0
+ (oasis_namcouple_init)          11 namsrc_ny            0
+ (oasis_namcouple_init)          11 namdstgrd fvcomN
+ (oasis_namcouple_init)          11 namdst_nx            0
+ (oasis_namcouple_init)          11 namdst_ny            0
+ (oasis_namcouple_init)          11 namfldseq            1
+ (oasis_namcouple_init)          11 namfldops            1
+ (oasis_namcouple_init)          11 namfldtrn            1
+ (oasis_namcouple_init)          11 namfldcon            0
+ (oasis_namcouple_init)          11 namfldcoo bfb
+ (oasis_namcouple_init)          11 namflddti         3600
+ (oasis_namcouple_init)          11 namfldlag            0
+ (oasis_namcouple_init)          11 nammapfil idmap
+ (oasis_namcouple_init)          11 nammaploc src
+ (oasis_namcouple_init)          11 nammapopt bfb
+ (oasis_namcouple_init)          11 namrstfil rst_wrf_lw.nc
+ (oasis_namcouple_init)          11 naminpfil 
+ (oasis_namcouple_init)          11 namchecki  F
+ (oasis_namcouple_init)          11 namchecko  F
+ (oasis_namcouple_init)          11 namfldsmu    1.00000000000000     
+ (oasis_namcouple_init)          11 namfldsad   0.000000000000000E+000
+ (oasis_namcouple_init)          11 namflddno            1
+ (oasis_namcouple_init)          11 namflddna 
+ (oasis_namcouple_init)          11 namflddmu    1.00000000000000     
+ (oasis_namcouple_init)          11 namflddad   0.000000000000000E+000
+ (oasis_namcouple_init)          11 namscrmet BILINEAR
+ (oasis_namcouple_init)          11 namscrnor NONORM
+ (oasis_namcouple_init)          11 namscrtyp SCALAR
+ (oasis_namcouple_init)          11 namscrord 
+ (oasis_namcouple_init)          11 namscrres LATLON
+ (oasis_namcouple_init)          11 namscrvam    1.00000000000000     
+ (oasis_namcouple_init)          11 namscrnbr            0
+ (oasis_namcouple_init)          11 namscrnth    2.00000000000000     
+ (oasis_namcouple_init)          11 namscrsth   -2.00000000000000     
+ (oasis_namcouple_init)          11 namscrbin            1
+  
+ (oasis_namcouple_init) sort            1           1           1           1
+ (oasis_namcouple_init) sort            2           2           2           1
+ (oasis_namcouple_init) sort            3           3           3           1
+ (oasis_namcouple_init) sort            4           4           4           1
+ (oasis_namcouple_init) sort            5           5           5           1
+ (oasis_namcouple_init) sort            6           6           6           1
+ (oasis_namcouple_init) sort            7           7           7           1
+ (oasis_namcouple_init) sort            8           8           8           1
+ (oasis_namcouple_init) sort            9           9           9           1
+ (oasis_namcouple_init) sort           10          10          10           1
+ (oasis_namcouple_init) sort           11          11          11           1
+ Total number of coupling fields :          22
+ (oasis_init_comp)   COUPLED models            1 wrfexe T
+ (oasis_init_comp)cdnam :wrfexe mynummod :           1

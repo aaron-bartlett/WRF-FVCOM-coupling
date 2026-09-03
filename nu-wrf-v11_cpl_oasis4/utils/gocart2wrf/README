@@ -1,0 +1,110 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Software Systems Support Office, Code 610.3
+!------------------------------------------------------------------------------
+!
+! FILE:  README 
+!
+! AUTHOR:
+! Eric Kemp, NASA SSSO/Northrop Grumman
+!
+! Jossy Jacob: Added processing for MERRAero data files
+! (Added the data directory structure change for MERRAero)
+! 10/10/2014
+!
+! Updated 9 Oct 2015 to support MERRA2 and Offline GOCART data (Eric Kemp).
+!
+! DESCRIPTION:
+! README document for GOCART2WRF 2.0
+!
+!------------------------------------------------------------------------------
+
+INTRODUCTION
+
+GOCART2WRF 2.0 is a completely rewritten Fortran program used to:  (1) extract
+aerosol data from NASA netCDF4 GOCART files; (2) horizontally and vertically
+interpolate the fields to the WRF grid; and (3) append them to the initial and
+lateral boundary condition files of WRF (wrfinput_d* and wrfbdy_d01).  
+
+A namelist.gocart2wrf file is provided, and contains two namelist blocks:
+
+&wrf
+  max_dom ! Integer, number of WRF domains to process
+  wrf_dir ! String, lists directory path containing wrfinput and wrfbdy files
+/
+
+&gocart_shared
+  gocart_format ! Integer, specifies format of GOCART data; currently
+                ! must be set to 5 (for netCDF4 files)
+  gocart_source ! String, lists source of GOCART data. 4 options are available:
+                ! 'GEOS5'    : Output from GEOS-5 (default)
+		! 'MERRA2'   : Output from MERRA2 reanalysis
+		! 'MERRAERO' : Output from MERRAERO reanalysis
+		! 'OFFLINE'  : Output from offline GOCART
+  gocart_dir    ! String, lists directory path containing NetCDF4 GOCART
+                ! files to process.
+		! NOTE: If processing MERRAERO or MERRA2 data, files are
+		! assumed to be in subdirectories, e.g.,
+		! For MERRAERO:  gocart_dir/Y2005/M05/
+		! For MERRA2:    gocart_dir/$STREAM/stage/Y2005/M05/
+		!   where $STREAM is MERRA2_100 (for data before 1992), 
+		!   MERRA2_200 (for data from 1992 to 2000), 
+		!   MERRA3_300 (for data from 2001 to 2010), or
+		!   MERRA2_400 (for data from 2011 on)
+  gocart_prefix ! String, lists file name prefix for netCDF4 GOCART
+                ! files. Ignored if processing MERRA2 or MERRAERO data.
+
+/
+
+DATA REQUIREMENTS
+
+GOCART2WRF only supports four types of GOCART netCDF4 files:
+
+GEOS5: $PREFIX.$YYYY$MM$DD_$HH$mmz.nc4, where $PREFIX is the string defined 
+in the namelist.gocart2wrf "gocart_prefix" variable; $YYYY is the 4-digit year;
+$MM is the 2-digit month, $DD is the 2-digit day of the month; $HH is the 
+2-digit hour of the day, and $mm is the 2-digit minute of the hour. It is 
+assumed each file has a SINGLE time level.
+
+MERRA2: $STREAM.inst3_3d_aer_Nv.$YYYY$MM$DD.nc4, where $STREAM is the 
+year-dependent MERRA2 stream (see above), and $YYY, $MM, and $DD have the same
+meaning as for GEOS5. It is assumed each file has EIGHT time levels (3-hourly
+starting from 00Z).
+
+MERRAERO: dR_MERRA-AA-r2.inst3d_aer_v.$YYYY$MM$DD_$HH$mmz.nc4, where $YYYY, 
+$MM, $DD, and $mm have the same meaning as for GEOS5. It is assumed each file
+has a SINGLE time level.
+
+OFFLINE: Four different filetypes must be used together:
+
+$PREFIX_cc_tracer_3HINST_$YYYY$MM$DD.nc
+$PREFIX_du_tracer_3HINST_$YYYY$MM$DD.nc
+$PREFIX_ss_tracer_3HINST_$YYYY$MM$DD.nc
+$PREFIX_su_tracer_3HINST_$YYYY$MM$DD.nc
+
+where $PREFIX, $YYYY, $MM, and $DD are specified as for GEOS5. It is assumed
+each file has EIGHT time levels (3-hourly starting from 00Z).
+
+When run, GOCART2WRF will first loop through the wrfinput and wrfbdy files to
+collect the specific dates and times required for processing, and then open
+and read the GOCART files as necessary.  The wrfinput and wrfbdy files *will be
+changed* to add the interpolated GOCART variables, so it is recommended that
+"backup" copies of these files be kept (e.g., with a _orig suffix).  If an
+array to be written already exists, the values will be overwritten unless
+the datatype and dimensions differ from what GOCART2WRF wants to write; in
+this special case the program will abort.
+
+Other comments:
+
+* Currently the input and output variables names are hardwired in the code.
+  If the version of GOCART in WRF changes, or if the GOCART file contents 
+  differ from what is expected, then the user will need to edit the source 
+  code accordingly.
+* The version of GOCART in WRF does not exactly match that used by NASA.
+  The major difference is that the first sea salt category (ss001) is 
+  excluded in WRF.  Thus, when running, GOCART2WRF will substitute
+  ss002 for SEAS_1 (in the wrfinput file), ss003 for SEAS_2, etc.
+* GOCART2WRF 2.0 must be linked against a version of netCDF4 that was built
+  with HDF5.  This will allow the program to read netCDF4 files that
+  were written with compression.
+
+

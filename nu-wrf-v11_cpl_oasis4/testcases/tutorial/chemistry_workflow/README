@@ -1,0 +1,12 @@
+User must provide NAM meteorological data in a directory tree
+   data/ungrib
+and GOCART data in 
+   data/gocart
+Both must exist in the run directory.
+
+See ungrib.reg script to see how NAM data would be used.
+See namelist.gocart2wrf to see about GOCART data use.
+
+Data and files for this tutorial can be obtained from:
+
+/discover/nobackup/projects/nu-wrf/tutorial/chemistry_workflow

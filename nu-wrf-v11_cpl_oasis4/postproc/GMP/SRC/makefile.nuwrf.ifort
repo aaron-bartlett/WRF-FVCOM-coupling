@@ -1,0 +1,84 @@
+SHELL=/bin/sh
+EXEC =		GMP.x
+#
+# - dependency rule -
+# 1) module_floating_point.o must comes first. 
+# 2) module_simulator.o (and other 3D array looping module) depends on
+#    module_mpi.o.  So they should comes after module_mpi.
+# 3) main_SDSU.o must be at the end.  
+#
+
+OBJSGCEM=       module_floating_point.o module_mpi.o module_dm_stubs.o module_wrf_error.o module_checkerror.o module_runtime_param.o module_wrf_offline.o module_mp_radar.o module_mp_goddard_unified.o module_mp_gsfcgce_4ice_nuwrf.o module_physics_init.o module_microphysics_driver.o main.o
+
+
+############################################################################
+#                        Makefile User Modification
+#                      Satellite Data Simulation Unit       
+#
+# CPP is C-preprocessor
+# CF is fortran compiler
+# CFFLAGS is fortran compiler flag
+# INC_NETCDF is netcdf include file directly
+QRUN      = ./../QRUN
+
+# NCCS DISCOVER (modules: comp/intel-12.1.0.233 mpi/impi-4.0.3.008 )
+CPP     =  /lib/cpp -traditional-cpp
+CF      = mpif90 -f90=ifort
+# SGI MPT doesn't recognize the -f90 flag.
+ifeq ($(MPI_IMPLEMENTATION),SGI_MPT)
+CF      = mpif90 
+endif
+
+#CFFLAGS = -O0 -assume byterecl  #F90 quick compile
+#CFFLAGS = -O1 -check bounds -assume byterecl #F90 DEBUG (note delta eddington slant path does not work for this option)
+
+#CFFLAGS = -O2 -ip -ftz -fp-model precise -assume byterecl -w  #F90 fast-run
+#CCFLAGS = -O2 -ip -ftz -fp-model precise -w # C compiler flags
+CFFLAGS = -O0 -g -traceback -check bounds,format,output_conversion,pointers,uninit,stack -fp-model precise -assume byterecl -w  #F90 debbug
+CCFLAGS = -O0 -g -traceback -fp-model precise -w # C compiler flags
+
+
+CC      = icc
+INC_NETCDF = /path/to/netcdf/include
+ LD_NETCDF = /path/to/netcdf/lib
+#LINK_MPI = -lmpi  #make blank for non-mpi option 
+
+# This is for location of define_CPP.h , and universal for any machine. 
+INCLUDE_DIR = -I./
+#
+#
+############################################################################
+# Lines from here on down should not need to be changed.  They are the
+# actual rules which make uses to build executable.
+#
+all:		$(EXEC) find_thread_number
+	cp GMP.x $(QRUN) 
+	cp FIND_THREAD_NUMBER.x $(QRUN)/HOW_MANY_CPU.x
+
+$(EXEC):	$(OBJSGCEM)
+	$(CF) -o $(@) $(OBJSGCEM) -L$(LD_NETCDF) -lnetcdff -lnetcdf $(NETCDF4_DEP_LIB) $(LINK_MPI)
+
+.SUFFIXES :	.o  .f90 .F
+
+.F.f90 :
+	${CPP} -P ${INCLUDE_DIR} $*.F >$*.i
+	sed '/^ *$$/d' $*.i > $*.f90 ; rm $*.i
+
+.F.o :
+	${CPP} -P ${INCLUDE_DIR} $*.F >$*.i
+	sed '/^ *$$/d' $*.i  >$*.f90 ; rm $*.i
+	${CF} ${CFFLAGS} ${DBUG} -I$(INC_NETCDF) -c $*.f90
+
+.f90.o :
+	${CF} ${CFFLAGS} ${DBUG} -I$(INC_NETCDF) -c $*.f90
+
+.c.o : 
+	${CC} ${CCFLAGS} -c $*.c
+
+.PHONY:  find_thread_number
+find_thread_number: FIND_THREAD_NUMBER.o
+	$(CF) -o FIND_THREAD_NUMBER.x $^
+
+clean:
+	-rm -f *.f90 *.o *.x *.mod PI* $(QRUN)/*.x $(QRUN)/HOW_MANY_CPU.x
+

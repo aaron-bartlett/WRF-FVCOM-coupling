@@ -1,0 +1,16 @@
+#############################
+# BEGIN MERRA2WRF SEGMENT
+#############################
+THIS=MERRA2WRF
+
+cd $RUNDIR || exit 1
+
+if [ -z ${SBATCH_JOB_ID+x} ]; then
+   echo 'Using pre-staged data'
+   MERRA_DATA=(`ls $DATADIR/MERRA/MERRA*`)
+   for file in "${MERRA_DATA[@]}"; do
+      ln -sf $file
+   done
+   exit 0
+fi
+

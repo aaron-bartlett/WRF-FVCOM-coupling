@@ -1,0 +1,17 @@
+#############################
+# BEGIN NDVI2WRF SEGMENT
+#############################
+THIS=NDVIBARENESS4WRF
+
+cd $RUNDIR || exit 1
+
+# 
+cp $NUWRFDIR/utils/ndviBareness4Wrf/scripts/proc_gimms_modis_ndvi.py .
+cp $NUWRFDIR/utils/ndviBareness4Wrf/scripts/link_gimms_wps_files.py .
+
+sed -i 's@EXEDIR@'"$EXEDIR"'@' gimms_modis.cfg
+sed -i 's@RUNDIR@'"$RUNDIR"'@' gimms_modis.cfg
+sed -i 's@RUNDIR@'"$RUNDIR"'@' link_gimms.cfg
+
+./proc_gimms_modis_ndvi.py
+./link_gimms_wps_files.py

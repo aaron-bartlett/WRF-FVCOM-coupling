@@ -1,0 +1,682 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Software Systems Support Office, Code 610.3
+!------------------------------------------------------------------------------
+!
+! FILE:  README.geos2wrf
+!
+! AUTHOR:
+! Eric Kemp, NASA SSSO/SSAI
+!
+! DESCRIPTION:
+! README document for GEOS2WRF 2.0
+!
+!------------------------------------------------------------------------------
+
+1.  INTRODUCTION
+
+GEOS2WRF 2.0 is a completely rewritten software package used to process gridded
+data from the Goddard Earth Observing System Version 5 (GEOS-5) global model 
+for the Weather Research and Forecasting (WRF) model.  GEOS-5 files are 
+available in HDF4, netCDF3, and netCDF4 (with HDF5 compression) depending
+on the particular GEOS version.  The processed output format is referred to as
+"WPS Intermediate Format", a big-endian binary format used by the WRF 
+Preprocessing System (WPS).  
+
+The WPS is responsible for collecting basic meteorological fields for use
+as initial and lateral boundary conditions in the WRF model.  Basic
+requirements are (on isobaric or model levels):
+* pressure
+* geopotential heights
+* horizontal winds
+* temperature, and
+* moisture (preferably relative humidity w.r.t. liquid).
+
+Recommended fields useful when interpolating or extrapolating near the WRF
+model terrain field include:
+* surface pressure
+* sea level pressure
+* land-sea mask
+* sea-ice fraction
+* 2-m temperature
+* 2-m relative humidity
+* 10-m horizontal winds
+* skin temperature, and
+* terrain height.
+
+Previous versions of GEOS2WRF employed a monolithic single-program approach to
+processing GEOS files.  This has not worked well for several reasons:
+
+(1) GEOS is very flexible in distributing output variables to different files,
+and there is no guarantee specific variables will always be grouped in a 
+particular file (e.g., MERRA output file contents differ from GMAO daily runs);
+(2) GEOS is very flexible in naming the output variables, and they often vary 
+between experiments (e.g., one user may label surface pressure as 'ps', 
+another as 'PS');
+(3) Some variables (e.g., pressure on model levels) aren't always available
+in the output, and must instead be derived from other variables;
+(4) Most GEOS variables on isobaric levels that happen to be underground (e.g.,
+850 mb winds in the Rockies) are flagged as missing, while WPS expects all
+such data to be extrapolated; and
+(5) Some variables expected by WPS are only available as 1-hour averages 
+instead of instantaneous fields, and may require substitution of valid times
+(e.g., relabel 1-hour-averaged 2-meter temperatures valid at 00:30Z to be 
+valid at 00:00Z).
+
+As a result, the GEOS2WRF software has been reorganized into multiple programs,
+with one program acting as a front-end converter, and additional utilities
+available to derive missing variables or to extrapolate underground.  Sample
+bash and python scripts are also included to automate the process.  These
+programs are described below.  (NOTE:  A monolithic "merra2wrf" program is
+also available and is tailored towards the MERRA files on the NASA GES DISC
+web site.  See README.merra2wrf for more information.  This program will 
+likely be retired if the GES DISC files are changed.)
+
+The WPS files can be concatenated together using the standard Unix 'cat'
+command.  This allows for easy creation of temporary input data files for
+each utility, as well as making the final WPS files that contain only the
+variables needed by WPS.  These final files are then read in by the WPS
+program METGRID, which will interpolate the fields horizontally to the 
+WRF grid (see the WRF User's Guide for more information).
+
+The GEOS2WRF (and MERRA2WRF) software is released under the terms of the NASA 
+Open Source License.
+
+The remainder of this README file is organized as follows.  Section 2 
+summarizes how to build the GEOS2WRF software, including listing the
+third-party libraries it needs to link to.  Section 3 describes the 
+current programs and what they do.  Section 4 discusses how the use should
+apply these programs to process their GEOS data.  Section 5 describes the
+namelist files for each program.  Section 6 describes a collection of sample
+scripts (in bash and Python) that can be used to automate processing of MERRA
+and GMAO daily GEOS 5.7.2 runs.  Section 7 summarizes the caveats to using the
+software, and Section 8 provides links for further information on GEOS and
+WRF.
+
+2.  COMPILING SOFTWARE
+
+The GEOS2WRF package requires the standard Unix 'make' program (or the Linux
+'gmake' equivalent), plus a Fortran compiler (Intel's ifort is recommended).
+In addition, the following third-party libraries are required, which must be
+built and installed using the same compiler as GEOS2WRF itself:
+* netCDF4 (4.1.3 is recommended)
+* HDF5 (1.8.7 is recommended)
+* HDF4 (4.2.6 is recommended)
+* jpeg (6b is recommended)
+* zlib (1.2.5 is recommended)
+* szip (2.1 is recommended)
+
+The Makefile must be modified to point to the correct locations for netCDF4, 
+HDF4, etc.  Compiler flags may also be modified in the Makefile.  To build all
+the programs, type:
+
+'make' or 'make all'
+
+Individual programs can be compiled as well (e.g., 'make createHGT').  To
+delete the executables and binary files, type 'make clean'.
+
+3.  PROGRAMS
+
+geos2wps -- A front end converter that can read HDF4, netCDF3, and/or netCDF4
+files with GEOS data.  A namelist.geos2wps file is read in as input, and must
+be customized to list the location, name, and format of the file; the names
+of the coordinate arrays in the file; number of time slices, the indices of
+the slices, valid times and forecast hours; and the number of variables to 
+process, along with their names, ranks, input and output names, units, and 
+descriptions.  This program takes the place of the UNGRIB program in WPS (which
+only processes GRIB and GRIB2 files, unavailable from GEOS).  The output from 
+geos2wps are written in WPS intermediate format, with the filename convention 
+'$VARNAME_$LEVELTYPE:$YYYY-$MM-$DD_$HH', where $VARNAME is the variable name,
+$LEVELTYPE is a string describing the type of level the data are on, $YYYY is 
+the 4-digit year, $MM is the 2-digit month, $DD is the 2-digit day, and $HH is
+the 2-digit hour.  Some example output file names:
+
+TT_MODEL_LEVEL:2009-08-25_00            # Temperature on model levels
+PSFC_GROUND_LEVEL:2009-08-25_00         # Surface pressure
+PMSL_MEAN_SEA_LEVEL:2009-08-25_00       # Mean sea level pressure
+VV_10M_ABOVE_GROUND_LEVEL:2009-08-25_00 # 10-meter V winds
+
+The $VARNAMEs (TT, PSFC, PMSL, and VV above) are listed in namelist.geos2wps, 
+and can be customized by the user; however, they must match the values in the 
+'METGRID.TBL' look-up file used by the WPS METGRID program for those variables
+to be processed by WPS.  (Intermediate variables used to derive other 
+variables for WPS do not have this naming restriction.)
+
+These WPS files can be copied and merged together using the Unix 'cat' command 
+to create new input data files for the back-end utilities.  It is recommended
+that only the variables needed for a particular utility be concatenated to
+save time and disk space.
+
+The remaining utilities should be used on an as-needed basis depending on
+the contents of the GEOS files:
+
+createSOILHGT -- A utility that reads in a WPS file with surface 
+geopotential, and calculates the surface terrain field.  The output WPS file
+will be named SOILHGT_GROUND_LEVEL:$YYYY-$MM-$DD_$HH.  A 
+namelist.createSOILHGT file is also used as input.
+
+createHGT -- A utility that reads in a WPS file with model layer pressure 
+thicknesses, model layer temperatures, model layer specific humidity, and the 
+model terrain field, and derives the geopotential heights on the GEOS model 
+levels.  The output WPS files will be named HGT_MODEL_LEVEL:$YYYY-$MM-$DD_$HH.
+A namelist.createHGT file is also used as input.  ***This program is not 
+needed when processing isobaric levels.***
+
+createLANDSEA -- A utility that reads in a WPS file with "lake fraction" and 
+"ocean fraction" and derives a land-sea mask.  The output WPS files will be 
+named LANDSEA_GROUND_LEVEL:$YYYY-$MM-$DD_$HH.  A namelist.createLANDSEA file 
+is also used as input.
+
+createPRESSURE -- A utility that reads in a WPS file with model layer pressure
+thicknesses, and calculates the (mid-layer) pressures.  The output WPS files 
+will be named PRESSURE_MODEL_LEVEL:$YYYY-$MM-$DD_$HH.  A 
+namelist.createPRESSURE file is also used as input.  ***This program is not 
+needed when processing isobaric levels.***
+
+createRH -- A utility that reads in a WPS file with either model or isobaric 
+level temperatures, specific humidity, and pressure, plus optional surface 
+pressure, 2-meter temperature, and 2-meter specific humidity, and derives 
+relative humidity on those levels.  The output WPS files will have prefixes of
+RH_2M_ABOVE_GROUND_LEVEL, RH_MODEL_LEVEL, and/or RH_ISOBARIC_LEVEL, and will 
+end with the familiar $YYYY-$MM-$DD_$HH string.  A namelist.createRH file is 
+also used as input.  ***This program is recommended because some versions of 
+the WRF software do not correctly interpolate specific humidity, and the WRF 
+definition of RH is strictly w.r.t. liquid (GEOS uses a weighted average of 
+liquid and ice that is a function of temperature).***
+
+extrapIsobaric -- A utility that reads in a WPS file with geopotential height,
+temperature, relative humidity, U and V winds all on isobaric levels, and 
+extrapolates to those levels that are underground.  The RH, U, and V nearest 
+the ground is simply copied downward, while a specified lapse rate is used for
+temperature and the hypsometric equation is used for geopotential height.  The
+output WPS files will be called ISOBARIC:$YYYY-$MM-$DD_$HH and will contain 
+all the isobaric data (original data above ground, extrapolated data below 
+ground.)  A namelist.extrapIsobaric file is also used as input.  ***This 
+program is not necessary when processing GEOS model level data, since the GEOS
+coordinate is terrain following.  Users are advised to use the model level 
+data whenever possible.***
+
+splitWPS -- A utility that reads in a WPS file and "splits" the data into new
+WPS files, which each file containing a single 2D slab of data.  The output
+WPS files will be called $VARNAME_$LEVEL:$YYYY-$MM-$DD_$HH, where $LEVEL is 
+the "level code" for the slab.  The "level code" follows WPS convention:  
+pressure levels are simply the pressure in Pa; model levels are the indices of
+the slice ("1" indicates model top in GEOS); ground level, 2-meter AGL, and 
+10-meter AGL are represented as "200100"; and mean sea level is represented as
+"201300".  A namelist.splitWPS is also used as input.  ***This program is not 
+required for preparing data for WPS, but instead allows breaking up a WPS file
+into individual components for examination.***
+
+4.  HOW TO USE THE PROGRAMS
+
+First, the user must review the files and identify what variables, time
+levels, etc. are available.  When working with netCDF data, users can employ 
+the 'ncdump' program that comes with netCDF to get a listing of variables in 
+the file.  Similarly, HDF4 files can be inspected using the 'ncdump-hdf4' 
+program that comes with HDF4.  On the Discover supercomputer, these programs 
+are located in:
+
+/discover/nobackup/projects/gmao/share/dao_ops/Baselibs/v3.1.5_build1/Linux/bin/ncdump
+/discover/nobackup/projects/gmao/share/dao_ops/Baselibs/v3.1.5_build1/Linux/bin/ncdump-hdf4
+
+Second, the user must identify the GEOS variables can be used as-is by WPS.  
+Users should also identify particular time slices and date/time stamps for 
+those variables.
+
+Third, the user must identify the GEOS variables that can be used to
+derive other variables for WPS.  From the utilities given above, the 
+following derivations can be made:
+
+* Surface geopotential can be used to derive terrain height (via 
+  createSOILHGT);
+* Lake fraction and ocean fraction can be used together to derive a land-sea
+  table (via createLANDSEA);
+* Model layer pressure thicknesses can be used to derive model layer pressures
+  (via createPRESSURE);
+* Model layer pressure thicknesses can also be used (with model layer 
+  temperatures, model layer specific humidity, and the model terrain 
+  field) to derive model layer geopotential 
+  heights (via createHGT);
+* Relative humidity on model levels, isobaric levels, and near ground level
+  can be derived from model/isobaric/2-meter temperatures, 
+  model/isobaric/2-meter specific humidity, and model/isobaric/surface pressure
+  (via createRH);
+* Isobaric temperature, relative humidity, U and V winds can be extrapolated
+  underground (via extrapISOBARIC).
+
+Fourth, the user must run 'geos2wps' on each GEOS file, extracting the 
+variables they need.  A namelist.geos2wps file must be customized for each 
+GEOS file.  The user simply types './geos2wps' (if in the current directory) 
+to execute.
+
+Fifth, the user must employ the necessary utilities to derive the remaining
+variables for WPS.  The appropriate namelist file (e.g., namelist.createHGT) 
+must be customized, and the user will need to 'cat' the relevant WPS files 
+together.  When ready, the user simply types './$UTILITY' to run the program.
+
+Details on the namelist files, and sample scripts to automate the overall
+workflow are given in the next two sections.
+
+5.  NAMELIST FILES
+
+The namelist input files for the different programs are described below.  
+Users are encouraged to review the contents of their GEOS files to determine
+what variables are available and what they are named so the namelist files
+can be customized.
+
+namelist.geos2wps:
+
+&files
+  ! geosFileFormat specifies what binary format the GEOS data is in.
+  ! = 1, HDF4
+  ! = 2, netCDF (either netCDF3 or netCDF4)
+  ! = 4, HDFEOS2
+  geosFileFormat=2, 
+
+  ! geosFileName specifies the name of the GEOS file to read in.
+  geosFileName='e572p2_fp.inst3_3d_asm_Nv.20120409_00z+20120414_0000z.nc4',
+
+  ! outputDirectory specifies the directory name to write the WPS file in.
+  outputDirectory='./',
+/
+
+&coordinates
+
+ ! longitudeName is the name of the 1-D array specifying longitude in the
+ ! input GEOS file.
+ longitudeName='lon',
+
+ ! latitudeName is the name of the 1-D array specifying latitude in the
+ ! input GEOS file.
+ latitudeName='lat',
+
+ ! hasVerticalDimension is a Fortran logical variable that specifies whether
+ ! data with a vertical dimension are to be processed from the GEOS file.
+ hasVerticalDimension=.true.,
+
+ ! verticalName is the name of the 1-D array specifying the vertical 
+ ! coordinate in the input GEOS file.  Ignored if hasVerticalDimension=.false.
+ verticalName='lev',
+/
+
+&forecast
+
+ ! numberOfTimes specifies the number of time slices that are to be processed
+ ! from the input GEOS file.
+ numberOfTimes=1,
+
+ ! validTimes is an array specifying the valid time (in $YYYY-$MM-$DD_$HH 
+ ! format) associated with each time slice to be processed.  One array
+ ! entry should exist for each time slice.
+ validTimes(1)='2012-04-14_00',
+
+ ! timeIndices is an array specifying the specific time slice indices to
+ ! be processed.  One array entry should exist for each time slice.
+ timeIndices(1) = 1,
+
+ ! forecastHours is an array specifying the nominal forecast hour length for
+ ! each time slice to be processed.  One array entry should exist for each
+ ! time slice.
+ forecastHours(1)=120,
+/
+
+&variables
+
+ ! numberOfvariables specifies the total number of variables to be processed
+ ! in the GEOS input file.
+ numberOfVariables=1,
+
+ ! variableRanks is an array specifying the rank (number of dimensions) for
+ ! each variable to be processed from the GEOS input file.  Data of rank 3
+ ! are assumed to be organized as (lat,lon,time), while rank 4 data are 
+ ! assumed to be organized as (lat,lon,vert,time).  One array entry should
+ ! be assigned for each variable to be processed.
+ variableRanks(1) = 4,
+
+ ! variableLevelTypes is an array specifying what type of level(s) the
+ ! processed variable is on.  One array entry should be assigned for each
+ ! variable.
+ ! = 1,  ground level
+ ! = 2,  2-meters AGL
+ ! = 3,  10-meters AGL
+ ! = 4,  mean sea level
+ ! = 11, model level
+ ! = 12, isobaric level
+ variableLevelTypes(1) = 11,
+
+ ! variableNamesIn is an array specifying the name of each variable in the
+ ! GEOS input file to process.  One array entry should be specified for each
+ ! variable.
+ variableNamesIn(1)='PL',
+
+ ! variableNamesOut is an array specifying the name of each processed variable
+ ! as written to the WPS file.  One array entry should be specified for each
+ ! variable.  Note that if a processed variable is intended to be directly
+ ! used by WPS (instead of as an intermediate variable for deriving something
+ ! else), the variableNamesOut entry should match that in the METGRID.TBL
+ ! file used by the WPS METGRID program.
+ variableNamesOut(1)='PRESSURE',
+
+ ! variableUnits is an array specifying the units of each processed variable
+ ! as written to the WPS file.  One array entry should be specified for each
+ ! variable.  (This is included because some GEOS variables are known to be
+ ! assigned the wrong units.)
+ variableUnits(1)='Pa',
+
+ ! variableDescriptions is an array containing short descriptions of each
+ ! processed variable as written to the WPS file.  One array entry should
+ ! be specified for each variable.
+ variableDescriptions(1)='Layer pressure',
+/
+
+namelist.createSOILHGT:
+
+&input
+ 
+ ! directory lists the directory for the input and output WPS files.
+ directory='./',
+
+ ! prefix is the filename prefix of the input WPS file
+ prefix='GEOS',
+
+ ! year,month,day,hour specify the valid time of the WPS file, and are used
+ ! to assemble the WPS file name.
+ year=2009,
+ month=08,
+ day=25,
+ hour=00,
+
+ ! surfaceGeopotentialName specifies the name of the surface geopotential field
+ ! in the WPS file.  This will be read in, converted to surface terrain, and
+ ! output in a new WPS file.
+ surfaceGeopotentialName='PHIS',
+/
+
+namelist.createHGT:
+
+&input
+
+ ! directory lists the directory for the input and output WPS files.
+ directory='./',
+
+ ! prefix is the filename prefix of the input WPS file
+ prefix='GEOS',
+
+ ! year,month,day,hour specify the valid time of the WPS file, and are used
+ ! to assemble the WPS file name.
+ year=2009,
+ month=08,
+ day=25,
+ hour=00,
+
+ ! layerPressureThicknessName is the name of the pressure thicknesses between
+ ! GEOS model levels in the input WPS file.
+ layerPressureThicknessName='DELP',
+
+ ! layerTemperatureName is the name of the model layer temperatures in the
+ ! input WPS file.
+ layerTemperatureName='TT',
+
+ ! layerSpecificHumidityName is the name of the model layer specific humidity
+ ! field in the input WPS file.
+ layerSpecificHumidityName='SPECHUMD',
+
+ ! soilHeightName is the name of the surface terrain field in the input WPS
+ ! file.
+ soilHeightName='SOILHGT',
+
+ ! modelTopPressure is the air pressure at the very top of the GEOS grid
+ ! (in Pa).  For GEOS-5, this is typically 1 Pa (0.01 hPa)
+ modelTopPressure=1.,
+/
+
+namelist.createLANDSEA:
+
+&input
+
+ ! directory lists the directory for the input and output WPS files.
+ directory='./',
+
+ ! prefix is the filename prefix of the input WPS file
+ prefix='GEOS',
+
+ ! year,month,day,hour specify the valid time of the WPS file, and are used
+ ! to assemble the WPS file name.
+ year=2009,
+ month=8,
+ day=25,
+ hour=00,
+
+ ! lakeFractionName is the name of the GEOS variable specifying fraction of
+ ! grid point covered by lakes in the WPS input file.
+ lakeFractionName='FRLAKE'
+
+ ! oceanFractionName is the name of the GEOS variable specifying fraction of
+ ! grid point covered by ocean in the WPS input file.
+ oceanFractionName='FROCEAN',
+/
+
+namelist.createPRESSURE:
+
+&input
+ ! directory lists the directory for the input and output WPS files.
+ directory='./',
+
+ ! prefix is the filename prefix of the input WPS file
+ prefix='GEOS',
+
+ ! year,month,day,hour specify the valid time of the WPS file, and are used
+ ! to assemble the WPS file name.
+ year=2009,
+ month=08,
+ day=25,
+ hour=00,
+ 
+ ! layerPressureThicknessName is the name of the pressure thicknesses between
+ ! GEOS model levels in the WPS input file.
+ layerPressureThicknessName="DELP",
+
+ ! modelTopPressure is the air pressure at the very top of the GEOS grid
+ ! (in Pa).  For GEOS-5, this is typically 1 Pa (0.01 hPa)
+ modelTopPressure=1.,
+/
+
+namelist.createRH:
+
+&input
+
+ ! directory lists the directory for the input and output WPS files.
+ directory='./',
+
+ ! prefix is the filename prefix of the input WPS file
+ prefix='GEOS',
+
+ ! year,month,day,hour specify the valid time of the WPS file, and are used
+ ! to assemble the WPS file name.
+ year=2009,
+ month=08,
+ day=25,
+ hour=00,
+
+ ! processSurfacePressure is a Fortran logical variable indicating whether
+ ! or not to read in surface pressure from the WPS input file.
+ processSurfacePressure=.true.,
+
+ ! onIsobaricLevels is a Fortran logical variable indicating whether upper
+ ! air levels are isobaric instead of model level.
+ onIsobaricLevels=.false.
+
+ ! surfacePressureName is the name of the surface pressure field in the
+ ! WPS input file.  Ignored if processSurfacePressure=.false.
+ surfacePressureName='PSFC',
+
+ ! Pressure name is the name of the upper-level pressure fields in the WPS
+ ! input file.  Ignored if onIsobaricLevels=.true.
+ pressureName='PRESSURE',
+
+ ! temperatureName is the name of the temperature fields in the WPS input
+ ! file.  NOTE:  if 2-meter temperatures are included, then the surface 
+ ! pressure must also be supplied and processSurfacePressure must be set
+ ! to .true.
+ temperatureName='TT',
+
+ ! specificHumidityName is the name of the specific humidity fields in the WPS
+ ! input file.  NOTE:  if 2-meter specific humidities are included, then the 
+ ! surface pressure must also be supplied and processSurfacePressure must be
+ ! set to .true.
+ specificHumidityName='SPECHUMD',
+/
+
+namelist.extrapIsobaric:
+
+&input
+ ! directory lists the directory for the input and output WPS files.
+ directory='./',
+
+ ! prefix is the filename prefix of the input WPS file
+ prefix='GEOS',
+
+ ! year,month,day,hour specify the valid time of the WPS file, and are used
+ ! to assemble the WPS file name.
+ year=2009,
+ month=08,
+ day=25,
+ hour=00,
+
+ ! geopotentialHeightName is the name of the geopotential heights on isobaric
+ ! levels in the WPS input file.
+  geopotentialHeightName='HGT',
+
+ ! temperatureName is the name of the temperatures on isobaric
+ ! levels in the WPS input file.
+  temperatureName='TT',
+
+ ! relativeHumidityName is the name of the relative humidities on isobaric
+ ! levels in the WPS input file.
+  relativeHumidityName='RH',
+
+ ! uName is the name of the U winds on isobaric
+ ! levels in the WPS input file.
+  uName='UU',
+
+ ! vName is the name of the V winds on isobaric
+ ! levels in the WPS input file
+  vName='VV',
+/
+
+namelist.splitWPS:
+
+ &input
+
+ ! directory lists the directory for the input and output WPS files.
+ directory='./',
+
+ ! prefix is the filename prefix of the input WPS file
+ prefix='GEOS',
+
+ ! year,month,day,hour specify the valid time of the WPS file, and are used
+ ! to assemble the WPS file name.
+ year=2009,
+ month=08,
+ day=25,
+ hour=00,
+
+ /
+
+6.  SCRIPTS
+
+A number of sample scripts are available to automate the GEOS2WRF software.
+They are located in the scripts/[G5.7.2,merra,util] directories, where util
+contains common scripts, merra contains scripts that are applicable when
+processing MERRA data, and G5.7.2 contains scripts for processing the GMAO
+"G5.7.2" daily runs.  The scripts are further broken down as "high-level 
+drivers", "low-level drivers" for specific programs, "config" scripts, and 
+"miscellaneous" scripts.
+
+The config scripts define paths to the GEOS2WRF executables and low-level
+driver scripts.  A config script is read in by each driver (high- or 
+low-level) script.  Example config files:
+* scripts/merra/geos2wrf.MERRA.MODEL_LEVEL.cfg    # For MERRA model level data 
+* scripts/merra/geos2wrf.MERRA.ISOBARIC_LEVEL.cfg # For MERRA isobaric data
+* scripts/G5.7.2/geos2wrf.cfg # For GMAO G5.7.2 daily runs
+
+The low-level drivers automate the GEOS2WRF executables, including automatic
+generation of namelist files and creation of temporary WPS input files (via the
+cat command).  Common scripts are:
+* scripts/util/runCreateHGT.sh
+* scripts/util/runCreateLANDSEA.sh
+* scripts/util/runCreatePRESSURE.sh
+* scripts/util/runCreateRH.isobaric.sh # Runs createRH for isobaric data
+* scripts/util/runCreateRH.model.sh    # Runs createRH for model level data
+* scripts/util/runCreateSOILHGT.sh
+* scripts/util/runExtrapIsobaric.sh
+
+The low-level drivers for the geos2wps executable are customized for 
+particular GEOS file types (called "collections").  Variants of these scripts
+exist to account for differences in collections between GEOS runs (e.g.,
+MERRA collections versus GMAO G5.7.2 daily runs).  These scripts include:
+
+scripts/G5.7.2/runGeos2Wps_const_2d_asm_Nx.sh
+scripts/G5.7.2/runGeos2Wps_inst6_3d_ana_Nv.sh
+scripts/G5.7.2/runGeos2Wps_tavg1_2d_flx_Nx.sh
+scripts/G5.7.2/runGeos2Wps_tavg1_2d_slv_Nx.sh
+scripts/merra/runGeos2Wps_const_2d_asm_Nx.sh
+scripts/merra/runGeos2Wps_inst6_3d_ana_Np.isobaric.sh  
+scripts/merra/runGeos2Wps_inst6_3d_ana_Np.PMSL.sh # Only pulls mean SLP
+scripts/merra/runGeos2Wps_inst6_3d_ana_Nv.sh
+scripts/merra/runGeos2Wps_tavg1_2d_ocn_Nx.sh
+scripts/merra/runGeos2Wps_tavg1_2d_slv_Nx.sh
+
+In all cases the scripts are executed by:
+
+   $SCRIPT $YYYY$MM$DD$HH $YYYY$MM$DD$HH $HH $CONFIG
+
+where $SCRIPT is the script name, the two $YYYY$MM$DD$HH strings are the first
+and last valid times to process, the final $HH is the increment in hours 
+between processing times, and $CONFIG is the config script name.
+
+The high-level drivers run the entire GEOS2WRF package from end to end,
+and use the low-level drivers.  Again, the high-level drivers must be
+customized for the particular GEOS dataset being used.  Examples include:
+
+scripts/G5.7.2/runGeos2Wrf.sh
+scripts/merra/runGeos2Wrf.MERRA.ISOBARIC_LEVEL.sh
+scripts/merra/runGeos2Wrf.MERRA.MODEL_LEVEL.sh
+
+The high-level drivers are executed the same as the low-level drivers.
+
+The miscellaneous scripts include:
+
+scripts/G5.7.2/downloadGeos.sh   # Downloads GMAO G5.7.2 daily run
+scripts/util/calcForecastHour.py # Calculates forecast hour
+scripts/util/updateDateTime.py   # Increments date/time
+
+The two Python scripts are intended for use by the driver scripts.
+
+7.  CAVEATS
+
+The GEOS2WRF software is only intended for processing atmospheric data, not 
+chemistry, aerosols, or soil conditions.  The limitation with chemistry and 
+aerosols is due to the WPS software, which does not handle these types of 
+variables.  The limitation for the soil conditions is due to:  (1) the GEOS 
+Catchment LSM, which is incompatible with the LSMs in WRF; and (2) the general
+problem of interpolating coarse resolution soil conditions to fine-resolution 
+grids.  The official recommendation from both GMAO and the NU-WRF group is to 
+generate new soil conditions by running LIS (or some other LSM) in spin-up 
+mode on the WRF grid.
+
+Because GEOS collections are so volatile, it is quite possible that a user 
+will attempt to process data that is not adequately handled by the existing
+software (e.g., a variable currently assumed to be available must instead be 
+derived).  In that case, a new utility can be written without disturbing the 
+other programs.  (In previous GEOS2WRF versions, the monolithic program 
+would require modification, and in the process often would lose backward 
+compatibility with the earlier dataset it was tested with.)
+
+8.  FURTHER READING
+
+For information on GEOS-5, see (http://gmao.gsfc.nasa.gov).  For information on
+WRF and WPS, see (http://www.mmm.ucar.edu/wrf/users/).
+
+Eric Kemp
+NASA SSSO/SSAI
+4 June 2012

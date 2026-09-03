@@ -1,0 +1,16 @@
+By default, this test uses SST data which is not required by WRF model. 
+
+SST data: 0.5 deg GRIB1 data, available for 2005-08-27_00 to 2005-09-01_00. 
+Vtable.SST specifies which fields are used.
+
+namelist_sst.wps used by ungrib_sst (default)
+namelist_reg.wps used by geogrid and metgrid
+
+When running metgrid, we can choose to: 
+(1) add SST for the initial time only (default):
+  fg_name = 'FILE'
+  constants_name = './SST:2005-08-28_00' 
+(2) add SST fields at each time (change namelist_reg.wps):
+  fg_name = 'FILE', 'SST' 
+
+Case (2) is better for "long" runs.

@@ -1,0 +1,865 @@
+\section{RevisionHistory}
+\label{sec:revhist}
+
+\begin{itemize}
+\item Version 9 Patch 3 (v9p3-wrf391-lis72; ``Charney Patch 3''). 
+  \begin{itemize}
+    \item Added support for WRF-NoahMP-3.6 coupling
+    \begin{itemize}
+         \item Test cases
+         \begin{itemize}
+              \item noah36\_modis\_gdas\_lis\_spinup
+               \item noahmp\_modis\_gdas\_lis\_spinup
+               \item noahmp\_modis\_merra2\_lis\_spinup
+           \end{itemize}
+        \end{itemize}
+  \end{itemize}
+  
+    \begin{itemize}
+    \item WRF Physics
+    \begin{itemize}
+	\item DOE CRM
+         \begin{itemize}
+               \item utilizes WRF as a CRM/LES using doubly periodic lateral boundaries
+           \end{itemize}
+         \item NTU (National Taiwan University) microphysics
+         \begin{itemize}
+               \item A multi-moment four-ice (pristine ice, aggregate, graupel, and hail) bulk microphysical scheme
+           \end{itemize}
+         \item WRF electrification scheme
+        \end{itemize}
+   \item Upgraded Intel compiler version to 18.x, consistent with LISF.
+   \item NEVS: Updated documentation and organization to make it easier to use
+  \end{itemize}
+
+\end{itemize}
+
+\begin{itemize}
+\item Version 9 Patch 2 (v9p2-wrf391-lis72; ``Charney Patch 2''). This is a bug fix patch.
+  \begin{itemize}
+    \item Fixed a problem observed in LIS precipitation being consistently less than that coming from WRF 
+    and which was due to a unit conversion issue. This bug may impact some results, specifically soil moisture 
+    and overall soils wet/dryness, for very long simulations.
+    \item This release also contains several build system enhancements that had already been merged 
+    into the develop branch.
+  \end{itemize}
+\end{itemize}
+
+
+\begin{itemize}
+\item Version 9 Patch 1 (v9p1-wrf391-lis72; ``Charney Patch 1'')
+\begin{itemize}
+\item Corrections to WRF 3.9.1 merge (on the recommendation of NCAR core team).
+   \begin{itemize}
+    \item Move some initializations to physics init to avoid race conditions.
+    \item Remove file remnants from WRF 3.7.1.
+    \item Renamed NU-WRF diagnostics modules to conform with WRF conventions.
+   \end{itemize}
+\item Replaced bash-based build mechanism with a python-based one (see Section \ref{subsec:BuildSystem}).
+   \begin{itemize}
+      \item Standardized interface to differentiate between required and optional arguments.
+      \item Standardized build steps (clean, configure, build, install).
+   \end{itemize}
+\item  Updated regression testing suites.
+   \begin{itemize}
+     \item Corrections to various tests.
+      \item Added standard ARW tests.
+      \item Added WRF-Lake tests.
+      \item Added tests that perform a LIS spinup.
+      \item Added support for Pleiades testing.
+   \end{itemize}
+\item Upgraded Intel compiler version to 17.0.4.196.
+\item Upgraded GNU compiler version to 6.3.
+\item Updated NU-WRF User Guide.
+\item Updated tutorial documentation and testcases.
+\item Note on MET component: New compilers are incompatible with MET 6.x, so we have made a temporary revert to v5.1.
+\end{itemize}
+
+\end{itemize}
+
+
+\begin{itemize}
+\item Version 9 (v9-wrf391-lis72; ``Charney'')
+\begin{itemize}
+\item Upgraded to WRF 3.9.1.
+   \begin{itemize}
+   \item Added 2017 Goddard radiation scheme.
+   (uses one LUT: BROADBAND\_CLOUD\_GODDARD.nc)
+   \item New longwave and shortwave radiation options are ra\_lw\_physics=57 and
+    ra\_sw\_physics=57 respectively.
+   \item Updated Registry.EM\_COMMON and Makefile accordingly.
+   \end{itemize}
+
+\item Upgraded to WRF-chem 3.9.1.
+\item Upgraded to WPS 3.9.1.
+   \begin{itemize}
+   \item Update GEOGRID.TBL.ARW table.
+   \end{itemize}
+
+\item Upgraded to MET 6.0.
+\item Upgraded to UPP 3.1.1.
+\item Applied RIP4 2017 updates.
+\item Upgraded Intel compiler version to 17.0.1.132.
+\item Updated NU-WRF User Guide.
+\item  Updated regression testing suites.
+   \begin{itemize}
+      \item Removed 2011 Goddard radiation scheme tests.
+      \item Removed Noah 2.7.1 and Noah 3.2 tests.
+      \item Added 2017 Goddard radiation scheme tests.
+      \item Updated GFEDv3 tests to use GFEDv4 option.
+      \item Added new option to setup run scripts.
+      \item SOILPARM table in lis.config is now read from noah3X\_parms directory.
+   \end{itemize}
+\end{itemize}
+
+
+\end{itemize}
+
+
+\begin{itemize}
+
+\item Version 8 Patch 5 (v8p5-wrf371-lis72r; ``Bjerknes Patch 5'')
+\begin{itemize}
+\item  Ported under GNU.
+  \begin{itemize}
+  \item Ported utils and fixed issues with parallel compilation.
+  \item There are some tweaks in RIP4, LDT, LVT, WPS and WRFV3.
+  \end{itemize}
+\item  Added scripts to facilitate installation of third-party libraries
+  and to help with code porting (see scripts/other/baselibs.*) .
+\item  Significant refactoring of regression testing scripts that include
+  \begin{itemize}
+ \item Fixing commands that trigger nonzero return code.
+ \item Adding a new file, check\_nuwrf\_repo.py, to monitor, via cron, the
+   new git repo.
+ \item Adding a new script,diffnc4.py, to compare netcdf4 files produced by WRF.
+  \end{itemize}
+\item  Consolidated discover/pleiades cfg scripts into one (nu-wrf.cfg).
+\item  Moved build\_ldt and build\_lvt into respective directories and simplified
+  top level build.sh accordingly.
+\item  Add install option when running build.sh.
+  \begin{itemize}
+ \item If environment variable NUWRF\_INSTALL\_DIR is defined then all
+   executables will be installed in that directory.
+  \end{itemize}
+\item  Upgraded LVT/LDT/LIS to version 7.2r.
+  \begin{itemize}
+ \item Add user.cfg to temporarily disable RUC.
+   When RUC option is set to True, various subroutine stubs in RUC
+   conflict with duplicate ones in WRF. As a result, the RUC option has been
+   temporarily disabled.
+ \item LVT failed to compiled due to an assumption in file
+   readGIMMSMODIS\_NDVIObs.F90
+   where GDAL use was always expected. File was modified for NU-WRF
+   and the assumption was removed.
+  \end{itemize}
+\item  Added functionality to prep\_chem\_sources to deal with GFEDv4 sources.
+  \begin{itemize}
+ \item The utils code required additional code to process GFEDv4 data, specifically a
+ module to read HDF5 files and a tokenizer for string conversion.
+  \end{itemize}
+\item  Added scripts that make up the NU-WRF Ensemble Verification System
+\item  LIS workaround to deal with input files that contain no land points.
+\item  Updated user guide and tutorial.
+
+  \end{itemize}
+
+\item Version 8 Patch 4 (v8p4-wrf371-lis71rp8; ``Bjerknes Patch 4'')
+  \begin{itemize}
+  \item Added new NU-WRF regression testing scripts and configurations in
+  \texttt{scripts/regression} directory.
+  \item Updated CASA2WRF pre-processor allowing a moving average window
+  option for smoothing daily $CO_2$ flux data.
+  \item  Upgraded LDT to version 7.1rp3.  Also updated LDT 7.1 User Guide
+    in \texttt{docs/} directory to version released in November 2016.    
+  \item Upgraded LIS to version 7.1rp8, plus additional patch in MERRA2
+    metforcing to support lapse-rate correction option.
+  \item Added NU-WRF tutorial material in \texttt{docs/} directory.
+  \item Added new \texttt{ideal\_scm\_lis\_xy} build target.  Compiles WRF 
+    IDEAL preprocessor to produce inputs for running coupled WRF-LIS in 
+    idealized Single Column Mode.
+  \item Added build support for community WRF \texttt{ideal\_b\_wave}, 
+    \texttt{ideal\_convrad}, \texttt{ideal\_heldsuarez}, \texttt{ideal\_les},
+    \texttt{ideal\_quarter\_ss}, \texttt{ideal\_scm\_xy}, and
+    \texttt{ideal\_tropical\_cyclone} data cases.  (Other idealized cases
+    will not compile at this time.)
+  \item Added LIS4SCM preprocessor to make LDT and LIS output files 
+    horizontally homogeneous for use in NU-WRF WRF-LIS Single Column Mode.
+  \item Added scripts for created Single Column Mode forcing from METGRID
+    output (borrowed from Josh Hacker, NCAR).
+  \item Updated 4ICE microphysics hand-vectorized by Jarno Mielikainen 
+    (University of Wisconsin), plus a bug fix for calculating hail intercept
+    parameter.
+  \item Updated 2014 radiation scheme hand-vectorized by Jarno Mielikainen
+    (University of Wisconsin).
+  \item Refactored NU-WRF utils to consolidate code and simplify build 
+    mechanism.
+  \item Added new \texttt{./build.sh utils} target to compile all 
+    \texttt{utils/} programs.
+  \item Moved User Guide LaTeX files to \texttt{docs/} directory.
+  \item Remove \texttt{-ip} Intel compiler flag at suggestion of NCAR.
+  \end{itemize}
+      
+\item Version 8 Patch 3 (v8p3-wrf371-lis71rp7; ``Bjerknes Patch 3'')
+  \begin{itemize}
+  \item Added support for ECMWF T511 Nature Run files:
+    \begin{itemize}
+    \item UNGRIB now supports N256 Reduced Gaussian Grid GRIB files.
+    \item Added Vtable files for N256 data.
+    \item Added \texttt{ecmwf\_coeffs\_L91} file listing hybrid 
+      sigma-pressure coefficients.
+    \item Added script for CALC\_ECMWF\_P preprocessor.         
+    \end{itemize}
+  \item LDT bug fix for compiler warning in \texttt{ldt/metforcing/cmorph.F90}
+    about external function not given explicit type.
+  \item LIS bug fixes:
+    \begin{itemize}
+    \item Fixes for warning in\\
+      \texttt{WRFV3/lis/surfacemodels/land/clm2/csm\_share/clm2\_shr\_sys\_mod.F90}
+      about unused argument (related to use of preprocessor flags).
+    \item Fix for warning in 
+      \texttt{WRFV3/lis/surfacemodels/land/mosaic/umd\_sibalb.F90} about 
+      function not given an explicit type.
+    \end{itemize}     
+  \end{itemize}
+  
+\item Version 8 Patch 2 (v8p2-wrf371-lis71rp7; ``Bjerknes Patch 2'')
+  \begin{itemize}
+  \item \textbf{Critical patch.}  Added LIS irrigation support to WRF-LIS
+    coupling.  This was overlooked in earlier versions of Bjerknes.
+    \item Modified LIS to change default output directory permissions to 
+      \texttt{a+rwx.}  This can be further restricted at run-time by the 
+      \texttt{umask} shell command.
+  \end{itemize}
+
+\item Version 8 Patch 1 (v8p1-wrf371-lis71rp7; ``Bjerknes Patch 1'')
+  \begin{itemize}
+    \item \textbf{Critical patch.}  Changed REAL to always copy TSK and TMN
+      from the grid data structure tsk\_gc and tmn\_gc members before merging
+      LIS data.  This corrects a fatal error when processing METGRID and LIS
+      data without a separate sea surface temperature field.
+    \item \textbf{Critical patch.} Added TLAG variable to WRF restart file
+      (via \texttt{Registry.EM\_COMMON}).  This patch was released by NCAR on 
+      8 Sep 2016 to fix a problem with dynamic deep soil temperature in WRF 
+      3.7, 3.7.1, 3.8, and 3.8.1.
+    \item Updated external libraries:
+      \begin{itemize}
+      \item \textbf{New libraries.}  Added GDAL 2.1.1 and FORTRANGIS 2.5.  
+        These are used by the new NDVIBARENESS4WRF utility.
+      \item Upgraded to ESMF 6.3.0rp1, FREETYPE 2.6.5, G2CLIB 1.6.0, 
+        GRIB\_API 1.17.0, GSL 2.2.1, HDF4 4.2.12, HDF5 1.8.17, NETCDF 4.4.1,
+        NETCDF-Fortran 4.4.4, and PIXMAN 0.34.0.
+      \item NUWRFLIB library package on Discover and Pleiades upgraded to 
+        version 8r2.
+      \end{itemize}
+    \item UPP patches:
+      \begin{itemize}
+        \item  Now reads REFL\_10CM variable from WRF netCDF output when
+          processing radar reflectivity from 3ICE or 4ICE microphysics scheme,
+          instead of searching for non-existent DBZ variable.
+        \item Removed redundant deallocation statements for lightning product,
+          which were causing UPP to crash.
+      \end{itemize}
+    \item Added NDVIBARENESS4WRF utility, which can process GIMMS or SPoRT
+      MODIS NDVI products and create a ``bareness'' field for dynamic dust
+      emissions.
+    \item Added \texttt{fetch\_sport\_sst\_northwestHemi.py} script to 
+      download real-time SPoRT SST GRIB2 files.  Script and configuration file
+      are in the new \texttt{scripts/fetch\_data/} directory.
+    \item Updated UNGRIB to set all negative SST values to -1.E30 (the default
+      missing flag used by METGRID).  This allows processing the SPoRT SST
+      product without changing the default missing flag.
+    \item LISCONFIG patches:
+      \begin{itemize}
+      \item Map projection now output by Fortran program LISWRFDOMAIN for 
+        insertion into ldt.config file.
+      \item \texttt{lisWrfDomain.py} now checks to see if any domain settings
+        returned by the Fortran program are unused when updating 
+        \texttt{ldt.config} and \texttt{lis.config}.  This is assumed to 
+        indicate an error with the input file templates (i.e., a configuration
+        setting is missing in the template), which can easily happen if the 
+        template is for a different map projection when what WRF will use.
+      \end{itemize}
+    \item Added initialization of dx and dy variables in METGRID when
+      processing cylindrical equidistant (lat-lon) or Gaussian data.  This
+      fixes an interpolation problem.
+    \item Changed WPS INT2NC utility to output data in netCDF4.
+    \item Minor bug fixes to sample batch configuration files.
+  \end{itemize}
+
+\item Version 8 (v8-wrf371-lis71rp7; Official ``Bjerknes'' Release)
+  \begin{itemize}
+  \item Merged WRF 3.7.1, WPS 3.7.1, PREP\_CHEM\_SOURCES 1.5, RIP 4.6.7,
+    UPP 3, and MET 5.1, plus community patches released through May 2016.
+  \item Merged LIS 7.1rp7 and LDT 7.1rp2, including fixes for Mercator map
+    projection.
+  \item Upgraded Intel compilers to 15.0.3.187.  Default MPI implementation
+    on both Discover and Pleiades is SGI MPT.  Intel MPI 5.1.2.150 is also 
+    suppported on Discover (for legacy Sandy Bridge nodes).  GFORTRAN 4.9.0 
+    and OpenMPI 1.7.3 are temporarily supported for debugging (specifically 
+    with VALGRIND). Retired Intel MPI 4 support on Pleiades.
+  \item Removed \texttt{-xSSE4.2} hardware specific Intel compiler flag.  
+    Tests show no consistent performance improvement.
+  \item Modified build system to require MPI for WRF, WPS, and UPP (no
+    serial builds permitted).
+  \item External libraries are now packaged in separate NUWRFLIB collection.
+    This NU-WRF release links against NUWRFLIB 8r1 on Discover and Pleiades.
+    This includes new dependencies (CAIRO, FREETYPE, GHOSTSCRIPT, and PIXMAN)
+    and updates to older dependencies.
+  \item Added sample namelist, \texttt{lis.config}, and \texttt{ldt.config} 
+    files for multiple test cases.  The LIS cases include use of SRTM 30 sec 
+    topography and ``slope-aspect'' correction which improves the spin-up of 
+    soil moisture.
+  \item Updated SST2WRF processing:  Changed output mask to separately indicate
+    ``low confidence'' and ``high confidence'' SST points.  ``Low confidence''
+    SST data are now included in output (originally were flagged as bad, but
+    this has a high false alarm rate in the C3VP test case).
+  \item Updated METGRID processing:  SST is now interpolated with parabolic,
+    bi-linear, weighted 4-pt average, or weighted 16-pt average (tried in order
+    until one works).  When processing TAVGSFC (from AVG\_TSFC preprocessor),
+    METGRID tries parabolic before bi-linear interpolation.  This helps reduce
+    data voids and discontinuities in (blended) SST field.
+  \item Updated REAL processing:
+    \begin{itemize}
+    \item Preserves LIS greenness and albedo data but processes time-varying 
+      LAI data from GEOGRID and METGRID.
+    \item Changed SST processing to check for obviously bad ocean SSTs when
+      30s MODIS+Lakes land data are used. Also, disabled use of TAVGSFC as
+      a replacement for bad ocean SST (it seems better to just use skin 
+      temperature in this case).
+    \end{itemize}
+  \item Added option to skip compiling of WRF CLM4 code.  CLM4 is not used by
+    GSFC, and this saves about 10 minutes of build time.
+  \item WRFV3 files \texttt{module\_first\_rk\_step\_part1.F} and 
+    \texttt{module\_comm\_dm\_4.f90} are now on the ``do not optimize'' list 
+    to cut down on build times (saves about 10 minutes).
+  \item Multiple bug fixes to prevent memory corruption with arrays allocated
+    with size 1 instead of with WRF ``memory'' dimensions.
+  \item Updated \texttt{GEOGRID.TBL} files to make 
+    \texttt{GEOGRID.TBL.ARW\_CHEM\_NUWRF} a strict superset of 
+    \texttt{GEOGRID.TBL.ARW\_CHEM}, with the latter now a strict superset
+    of \texttt{GEOGRID.TBL.ARW}.
+  \item Updated dynamic dust emissions. The temperature of the second soil 
+    layer is now used instead of skin temperature to detect frozen soil and 
+    shut off emissions (this fixes a diurnal cycle bias).  Also, the threshold
+    for snow depth is raised to 0.01 m (was zero).
+  \item Increased geopotential height threshold to discriminate between oceans
+    and lakes in sea salt emission calculation.
+  \item Connected the GOCART sulfate chemistry with the RADM2 gas phase
+    chemistry to account for the heterogeneous conversion of SO$_2$ to sulfate.
+    Previously such conversion was not sufficiently represented in RADM2.
+  \item Redistribution of BC and OC emissions into BC1, BC2, OC1, OC2 aerosol 
+    species.  This way the NU-WRF aerosol algorithm will be in line with the 
+    global GOCART version.
+  \item Added handling of both cumulative diabatic heating (K) and ``snapshot''
+    diabatic heating rates (K/s) from 3ICE and 4ICE microphysics schemes.
+    Cumulative heating is now written to restart file.
+  \item 4ICE microphysics updates:
+    \begin{itemize}
+    \item Change to ``melting'' diabatic heating rate to account for wet hail
+      accretion.
+    \item Adjusted intercept scaling factors are now used to calculate 
+      reflectivity.
+    \end{itemize}
+  \item 3ICE microphysics update: Bug fix for warm rain code.
+  \item Upgraded GSDSU to version 3.5.1.  Changes include:
+    \begin{itemize}
+    \item Add support for Thompson microphysics scheme.
+    \item Visible-IR simulator is more stable (less run-time crashes).
+    \item New statistical model for CRM diagnosis.
+    \item Updated GSDSU User Guide.
+    \end{itemize}
+  \item CASA2WRF updated to add bug fixes for the following:
+    \begin{itemize}
+    \item CO$_2$ flux output files now has CO$_2$ flux for time $t$ and flux
+      tendency between time $t$ and time $t+1$.
+    \item Ocean CO$_2$ and fossil fuel data is on the corner of the grid 
+      instead of the middle point of the grid.  All other components are at the
+      midpoint of the grid.
+    \end{itemize}
+  \item Added symbolic link to \texttt{GODDARDRAD\_SSLUT} in 
+    \texttt{WRFV3/run/} directory.
+  \item Added \texttt{fetch\_rss\_sst.sh} script to download RSS SST data 
+    (more fault tolerant than \texttt{Run\_SST.csh}), 
+  \item Added batch scripts to run WPS utility program AVG\_TSFC.
+  \item Updated Discover SLURM batch scripts to remove reference to 
+    \texttt{sp1} constraint (no longer exists).
+  \item Multiple bug fixes to initialize variables.
+  \end{itemize}
+
+\item Version 7-3.5.1-p7 (Official ``Arthur'' Patch Release 7)
+  \begin{itemize}
+    \item Upgrades to LIS 7.1rp5, LDT 7.1rp1, and LVT 7.1rp1.  Key changes 
+      include:
+      \begin{itemize}
+        \item Updates to MERRA2 and MERRA-Land met forcing readers to work 
+          with certain LIS time step lengths. Also updates start and end dates
+          for some MERRA2 streams.
+        \item Corrections to GDAS T170 domain and terrain data.
+        \item Updates to NLDAS-2 met forcing reader (improves rainfall and 
+          convective rainfall around island/coastal areas when downscaled to 
+          higher resolutions.)
+        \item Fix to pcp met forcing field when also reading snow.
+        \item Updated user guides.
+      \end{itemize}
+    \item Added taucldc and taucldi to Goddard and CAM radiation package 
+      listings in \texttt{Registry.EM\_COMMON}.  These arrays are expected by 
+      the radiation schemes to be allocated with the WRF ``memory'' bounds, 
+      but WRF was allocating them with shape (1,1,1) instead.  This caused 
+      memory corruptions.
+    \item NUWRF 3ICE and 4ICE microphysics now output reflectivity as 
+      REFL\_10CM.
+    \item Removed DBZ array from grid data structure to save space.  Updated 
+      sample RIP template \texttt{sfcDBZUV.in} to use REFL\_10CM instead.
+    \item COMDBZ now calculated in microphysics driver for every microphysics 
+      scheme where REFL\_10CM is available.
+    \item Updated \texttt{Run\_MERRA2.csh} to use new path for MERRA2 data on 
+      Discover.
+    \item Updated \texttt{proc\_merra2\_ges\_disc.sh} to use new filename for 
+      MERRA2 terrain file on GES DISC web page.
+    \item Retired old build configuration files for SLES 11 SP1 nodes on 
+      Discover (these no longer exist).  Also removed obsolete 
+      \texttt{DISCOVER\_INSTRUCTIONS.TXT}.
+  \end{itemize}
+      
+\item Version 7-3.5.1-p6 (Official ``Arthur'' Patch Release 6)
+  \begin{itemize}
+    \item Enabled WRF-LIS coupling for Noah 2.7.1, Noah 3.2, and Noah 3.6.
+    \item WRF now passes pure LWDOWN (downward longwave radiation) to LIS
+      without first multiplying by surface emissivity.
+    \item Changed LIS Noah 2.7.1 to multiply LWDOWN by surface emissivity 
+      (already done in newer Noah versions).
+    \item LIS exported surface emissivity now copied back to WRF array for
+      input to radiation.
+    \item Added capability for CASA2WRF to temporally interpolate the CO$_2$
+      flux depending on the NU-WRF state.  CASA2WRF can now:
+      \begin{itemize}
+        \item Read component CO$_2$ fluxes and interpolate to WRF
+          grid.
+        \item Read WRF output.
+        \item Interpolate the CO$_2$ flux components based on shortwave
+          radiation and surface temperature from WRF state, compute the
+          net production of CO$_2$, and compute the total flux and tendency.
+        \item Create input flux files from WRF-Chem runs with CASA CO$_2$.
+      \end{itemize}
+  \end{itemize}
+
+\item Version 7-3.5.1-p5 (Official ``Arthur'' Patch Release 5)
+  \begin{itemize}
+    \item Updated 4ICE microphysics scheme, and added aerosol coupling. 
+    \item Revised wrfout variable list to reduce file size and write times. 
+      Also added total latent heat rate calculation, and now passes dx to
+      4ICE scheme.
+    \item Added MPI-safe convective-stratiform index diagnostic.
+    \item Fixed asynchronous I/O (``quilting'') for coupled WRF-LIS.
+    \item Changed REAL to use less memory when reading from LDT/LIS netCDF 
+      file.
+    \item LIS updates:
+      \begin{itemize}
+      \item Combined lisconfig\_offline, lisconfig\_coupled1, and 
+        lisconfig\_coupled2 routines into lisconfig\_generic.
+      \item Added VIIRS and SPoRT GVF testcases.
+      \item Added support to diagnose greenness in units of percentage.
+      \item Updated \texttt{ldt.config} files for the wrfout testcase.
+      \item Added nest loop to metForcGen\_interp\_finalize routine.
+      \end{itemize}
+    \item GOCART2WRF updated to support MERRA-2 GOCART and offline GOCART data.
+    \item Added \texttt{proc\_merra2\_gocart\_ges\_disc.sh} script to download 
+      MERRA-2 GOCART data from NASA GES DISC web page and process with 
+      GOCART2WRF.
+    \item Added \texttt{proc\_merra2\_ges\_disc.sh} script to download MERRA-2 
+      meteorological data and process with MERRA2WRF.
+    \item Disabled call to WRF-Chem optical driver when using 2011 or 2014
+      Goddard radiation.
+    \item Bug fixes to GOCART volumetric mean refractive index calculation: 
+      (1) Removed erroneous copying of dust to ``other inorganics'', which 
+      created spurious extra source of aerosols; and (2) removed MSA from
+      refractive index calculation.
+    \item Updated 2014 Goddard Radiation scheme:
+      \begin{itemize}
+        \item Rescaled molecular absorption up 50\% in shortwave scheme to 
+          correct severe underestimation of clear-sky atmospheric absorption.
+          Value adjusted towards RRTMG scheme.
+        \item Increased CO$_2$ concentration.
+        \item New lookup tables for 4ICE microphysics.
+        \item Code changes to support OpenMP.          
+      \end{itemize}
+    \item Lateral boundary condition bug fix (cherrypicked from WRF 3.7).
+    \item Increase in maximum I/O time levels.
+    \item Added kinetic energy spectra scripts (from NASA DSCALE project).
+    \item Upgraded GSDSU to version 3.5:
+      \begin{itemize}
+        \item New global IR emissivity database from University of 
+          Wisconsin~\citep{ref:SeemannEtAl2008}.
+        \item Modified size boundaries for precipitating and non-precipitating
+          particles (200-$\mu$m diameter threshold) for computing microwave/
+          visible/IR optical properties.
+        \item UV-VIS-IR non-spherical ice scattering database for VISIR 
+          simulator from Texas A\&M University team~\citep{ref:YangEtAl2013}.
+        \item Bug fixes for memory allocation, writing to netCDF output file,
+          and handing MPI aborts.
+        \item Updated GSDSU User Guide.
+      \end{itemize}
+    \item Modified LDT to output netCDF4 file for REAL if selected at compile
+      time. Earlier code was hardwired to use classic netCDF3, which made LDT
+      unusable for very large domains (e.g., $5000\times5000$).
+    \item Bug fix to G3 cumulus scheme to prevent division by zero in 
+      Himalayas.
+    \item Changed PREP\_CHEM\_SOURCES to support new 72-level GOCART 
+      background data files for actual year and month being processed.  The 
+      user should edit \texttt{prep\_chem\_sources.inp} and set 
+      gocart\_bg\_data\_type=``new''; create a \texttt{gocart\_bg\_new/}
+      subdirectory on the same level as the \texttt{gocart\_bg/} folder 
+      containing the community 55-level files; and store new\\
+      \texttt{geos5\_met\_1MAVG\_YYYYMM.nc} and 
+      \texttt{gmi\_merra\_oxidants\_YYYYMM\_1.25x1.nc} files in
+      \texttt{gocart\_bg\_new}, where YYYY is the 4-digit year and MM is the
+      2-digit month. If PREP\_CHEM\_SOURCES cannot find both files, it will
+      fall back on \texttt{gmi\_2006MM.nc} files in \texttt{gocart\_bg\_new/}, 
+      which are also 72-levels but only exist for 2006.
+    \item Added limited support in UPP for Goddard microphysics schemes. 
+      Graupel and hail mixing ratios are now read in. If the NU-WRF 3ICE or
+      4ICE scheme was used (instead of the community WRF version), then the
+      DBZ field will also be read in. Radiance generation is disabled (use
+      GSDSU for that). Since hail is not in the NCEP GRIB table, hail and
+      graupel mixing ratios are combined. This may lead to problems with the
+      GSD visibility product, but the proper extinction coefficients for hail
+      are unknown.
+  \end{itemize}
+
+\item Version 7-3.5.1-p4 (Official ``Arthur'' Patch Release 4)
+  \begin{itemize}
+  \item Upgraded LIS to 7.1r. This includes:
+    \begin{itemize}
+      \item Noah 3.6, NoahMP 3.6, and CABLE 1.4b LSMs (only Noah 3.6 tested 
+        with NU-WRF).
+      \item Flood and drip irrigation.
+      \item VIIRS Daily GVF data
+      \item TRMM 3B42 V7 real time precipitation
+      \item Gaussian T1534 GFS met forcing data
+      \item MERRA-2 met forcing data (data only available to select
+users).
+      \item Downscaling precipitation (PRISM) (NLDAS-2 only)
+      \item Should compile now with gfortran.
+    \end{itemize}
+  \item Upgraded LDT to 7.1r. Updates include:
+    \begin{itemize}
+    \item Fixes to several metforcing readers that process the forcing 
+terrain-height or elevation fields when processing model parameters.
+    \item Corrected conserved (budget-bilinear) interp routines. Users may 
+notice slight differences in results.
+    \item MetTimeDScale and Metforcproc runmodes.
+    \item Crop, CLM2, Flake, Mosaic, Noah, SiB2, and VIC parameters.
+    \item TRMM 3B42 V7 real time precipitation.
+    \item Aquarius L2, GCOMW AMSR2 L3, and SMOS L2 soil moisture observations.
+    \item Simulated GRACE products.
+    \end{itemize}
+  \item Upgraded LVT to 7.1r. Updates include:
+    \begin{itemize}
+    \item Fixed bug affecting output of summary and final metric files.
+    \item GCOMW, ASCAT, SMOS, and SMOS L1 Tb observations.
+    \item MODIS LST and Great Lakes Hydro data.
+    \item Time lagged computations.
+    \end{itemize}
+  \item Upgraded compiler version to Intel 13.1.3.192.
+  \end{itemize}
+
+\item Version 7-3.5.1-p3 (Official ``Arthur'' Bug Fix Release 3)
+  \begin{itemize}
+    \item Updated \texttt{pleiades.cfg} to use new generic SGI MPT module on
+      Pleiades. Older versions of SGI MPT are scheduled for removal on 6 July
+      2015, and users are advised to switch to the generic module to prevent
+      future breakage when SGI MPT is upgraded and older versions are removed.
+    \item Fixed netCDF4 chunking and deflation (compression) in GOCART2WRF
+      when writing new chemistry fields to wrfinput and wrfbdy. Also removed
+      unused variables from source code, and reorganized Makefiles.
+    \item Added new temporalInterpolation GEOS2WRF tool, plus\\ 
+      \texttt{run\_temporalInterpolation\_merra2\_3hr.discover.sh} script to
+      automate and interpolate 6-hourly MERRA-2 reanalyses to 3-hourly.
+    \item Upgraded LIS to 7.0rp3.
+    \item Added options to suppress dynamic dust emission and to spread dust
+      across multiple near-surface levels.
+    \item Updated sample batch scripts to check if SGI MPT, Intel MPI, or
+      MVAPICH2 is used and invoke the corresponding appropriate run command 
+      when starting a MPI program (\texttt{mpirun}, \texttt{mpiexec}, 
+     \texttt{mpiexec\_mpt}, or \texttt{mpiexec.hydra}).
+    \item Modified ARWPOST to read wrfout files from WRF-Chem.
+    \item Modified PREP\_CHEM\_SOURCES to support NASA QFED fire emissions.
+    \item Modified \texttt{Run\_MERRA2.csh} to allow user to override base 
+      path of MERRA-2 data via environment variable.
+    \item Added build system option to compile WRF with Allinea MAP profiling
+      libraries (only works on Discover).
+  \end{itemize}
+
+\item Version 7-3.5.1-p2 (Official ``Arthur'' Bug Fix Release 2)
+  \begin{itemize}
+  \item Fixed WRF-Chem GOCART cloud fraction code to run when not using Grell
+    cumulus scheme.
+  \item Updates to LIS MERRA-Land reader code -- better handling of missing 
+    input.
+  \item Updated \texttt{Run\_MERRA2.csh} script to reflect current stream 
+    status and to use consistent indentation.
+  \item Added MERRA-2 support in LIS. 
+  \item Added \texttt{run\_geos2wrf\_merra2\_assim.discover.sh} script to run 
+    GEOS2WRF to process 3-hourly MERRA-2 assimilation data (GEOS-5 output as 
+    the model is adjusting towards the MERRA-2 6-hr analyses via IAU). The 
+    collection for this data is a bit different than the 6-hr analyses, and it
+    was easier to use GEOS2WRF rather than edit MERRA2WRF. Script only works 
+    on Discover, and assumes the user has access to the MERRA-2 GMAO directory 
+    on Discover.
+  \item Added bug fix to GEOS2WPS to handle 3-hourly MERRA-2 assimilation data.
+  \item Bug fix for MERRA-Land in LIS (fixes downward shortwave radiation 
+    index).
+  \item Allow WRF to run with Noah LSM selection if REAL processed LIS data. 
+    Allows user to switch from WRF-LIS coupling to 
+    WRF-Noah-initialized-from-LIS without rerunning LIS to produce GRIB files.
+  \item Updated LIS/LDT/LVT \texttt{Makefiles} to reduce number of include 
+    directories to search through (cuts down on build time).
+  \item Fixed loops in WRF-Chem convective transport code to skip nv=1 (which 
+    is not a valid chemical species), and to loop through all chemical species
+    instead of just gas (back ported from WRF-Chem 3.6.1).
+  \item Added value for variable DELZ\_THRESOLD in WRF-Chem plume model. 
+    Plume model with stop when plume top changes less than 100 meters over 
+    ten minutes.
+  \item Bug fix to PREP\_CHEM\_SOURCES, resolving conflicting symbols imported 
+    from two different modules. 
+  \end{itemize}
+
+\item Version 7-3.5.1-p1 (Official ``Arthur'' Bug Fix Release)
+  \begin{itemize}
+  \item Modified build configuration files for Discover to check operating 
+    system version on computer used for compilation. New default configuration 
+    requires SLES 11.3 (same as the new Haswell nodes) and Intel MPI 5.
+    A separate configuration file \texttt{discover\_intel13\_sgimpt\_sp3.cfg} 
+    is also added to allow use of SGI MPT. Older Intel MPI 4 and MVAPICH2 
+    configurations are moved to \texttt{discover\_intel13\_impi4\_sp1.cfg} and 
+    \texttt{discover\_intel13\_mvapich2\_sp1.cfg}, respectively, and require 
+    the older SLES 11.1 operating system.
+  \item Fixed build configuration file \texttt{pleiades\_intel13\_impi.cfg} to 
+    compile on Pleiades with Intel MPI (default configuration uses SGI MPT).
+  \item Merged in LIS 7.0rp2. Bug fixes: Do not reset Zh and Zm for processes
+    with zero tiles; several VIC LSM related changes, and updates for CMAP.
+  \item Merged in LDT 7.0rp2. Bug fixes to mapping between LIS fine
+    Lambert Conformal grid and coarser Lat-Lon parameter grid extents. Also
+    fixes domain extent checks for NLDAS-1 and NLDAS-2 forcing.
+  \item Bug fixes to Goddard 2011 and 2014 radiation schemes. Transmission 
+    functions in the CO2, O3, and three water vapor bands with strong 
+    absorption are now computed using table look-up.  Significantly improves 
+    accuracy for pressures less than 10 mb.
+  \item Modified WRF and LIS configure templates to add 
+    \texttt{-xCORE-AVX2} compiler flag options. However, early tests show 
+    slower run times compared to \texttt{-xSSE4.2}, so the build configuration
+    files do not currently use them.
+  \item Merged in Weile Wang's (NASA ARC) modifications to the WRF spectral 
+    nudging code. FFT runs significantly faster with Weile's changes.
+  \item Modified WRF code to fix \texttt{-DBENCH} instrumentation for most 
+    parts of the WRF solver.
+  \item Added Python scripts to calculate summary metrics from WRF RSL files 
+    for benchmarking.
+  \item Modified MERRA2WRF to add preliminary support for MERRA-2 data files
+    released to select users by the GMAO. ``Official'' support will not occur
+    until after MERRA-2 is released to the general public.
+  \item Build system fixes for handling CASA preprocessors.
+  \item Updated sample Discover batch scripts for Haswell nodes.
+  \end{itemize}
+
+\item Version 7-3.5.1 ``Arthur'' (Official Release)
+  \begin{itemize}
+  \item Merged WRF 3.5.1, WPS 3.5.1, PREP\_CHEM\_SOURCES 1.3.2, RIP 4.6.5,
+        UPP 2.1, and MET 4.1.
+  \item Merged LIS 7.0rp1, LDT 7rp1, and LVT 7r, and updated LISCONFIG.
+  \item Merged GSDSU 3.3.3.
+  \item Modified build system to use netCDF4 with HDF5 compression for
+        \emph{all} programs that rely on netCDF. Also removed \texttt{lisreal}
+        build option, turning all LIS related compile-time code changes into
+        run-time changes.
+  \item Added 2014 Goddard radiation package, new Goddard 4ICE microphysics,
+    and new Goddard 3ICE microphysics. Community WRF versions of Goddard
+    microphysics and radiation are now separate options.
+  \item Added new soil erodibility options to WRF-Chem: MDB, DYN\_CLIMO, and
+    DYN.
+  \item Skin temperature bug fix for restarts when using time-varying sea ice.
+  \item Fixed processing of GFEDv3.1 biomass burning emissions.
+  \item Improved interpolation of GOCART background fields.
+  \item Added support for MERRAero data in addition to the GEOS-5 GOCART
+    data to use in WRF-Chem using GOCART2WRF utility. 
+  \item Updated \texttt{Vtable.LIS} for optional UNGRIB processing of LIS 
+    GRIB2 files.
+  \item Revised WRF diagnostic mean and standard deviation calculations to
+   use Welford algorithm (less sensitive to roundoff errors, avoids NaNs when
+   fields vary little with time).
+  \item Added on-line diagnostics: precipitable water, liquid water path,
+    ice water path, cloud liquid water path, cloud ice water path, rain water
+    path, frozen precipitation water path, time-averaged integrated
+    water vapor transport vector, and freezing level.
+  \item Added spatial subsetting option for GEOS2WPS program in GEOS2WRF.
+  \item Added support for CASA climatological CO$_2$ tracers in WRF-Chem,
+    including preprocessors.
+  \item Removed SZIP library build dependencies.
+  \item Updated sample batch scripts for Pleiades and Discover.
+  \item Temporarily dropped support for gfortran compiler.
+  \item Upgraded to SGI MPT 2.11r13 on Pleiades with Intel compilers.
+  \item Added MVAPICH2 support on Discover with Intel compilers.
+
+  \end{itemize}
+
+\item Version 6-3.4.1-p2 (Official Bug Patch Release)
+  \begin{itemize}
+  \item Merged in LIS 6.1rp7 updates, including fixes to latitude of NARR
+    forcing, and bug fixes to WRFout reader.
+  \item Bug fixes to PREP\_CHEM\_SOURCES (memory allocation and namelist
+    initialization).
+  \item Improved error checking for NaNs.
+  \item Source code updates to allow compilation on OS X with gfortran
+    and OpenMPI.
+  \item Bug fix to \texttt{MET/pcp\_combine} ensuring closure of files.
+  \item Fixed WRF bug for changing restart dump interval when simulation is
+    itself restarted.
+  \item Build system improvements for LIS, UPP, and GSDSU.
+  \item Reorganized sample batch scripts into Discover/SLURM and Pleiades/PBS
+    versions.
+  \end{itemize}
+
+\item Version 6-3.4.1-p1 (Official Bug Patch Release)
+  \begin{itemize}
+    \item LIS bug fix (for directory creation) to allow use with SGI MPT.
+    \item Updated optimization flags, targeting Westmere or newer Intel
+      hardware.
+    \item Upgraded to Intel MPI 4.0.3.008 on Discover, and to SGI MPT 2.08r7
+      on Pleiades.
+    \item Build system tweaks for WRF and LIS to reduce compile times.
+    \item Build system fix for cleaning GSDSU.
+  \end{itemize}
+
+\item Version 6-3.4.1 (Official Release)
+  \begin{itemize}
+  \item Merged in WRF 3.4.1, WPS 3.4.1, UPP 2.0, and multiple MET 4.0 bug
+    patches.
+  \item Merged in LIS 6.1rp6.
+  \item Merged in GSDSU 3.0.
+  \item Overhauled WRF-LIS coupling. Added \texttt{lisreal} build option
+    to compile WRF and REAL with special logic supporting LIS. Added
+    \&lis block to \texttt{namelist.input} to allow REAL to process LIS
+    netCDF output file and update \texttt{wrfinput} accordingly.
+  \item Added support for compiling LIS as standalone executable. Added
+    wrfout plugin to use WRF netCDF files as forcing for LIS. Added deep
+    soil lapse rate option to adjust deep soil temperature in high terrain.
+    Added dynamic deep soil temperature option to change as function of
+    time-lagged skin temperature.
+  \item Updated Goddard microphysics to add variables rainncv\_sepa and
+    rainnc\_sepa, and added multiple bug fixes.
+  \item Bug fixes to UPP for lightning threat product.
+  \item Several bug fixes to build system to compile GSDSU, LIS, and WRF on
+    Pleiades. Also better handles netCDF and ESMF paths for LVT.
+  \item Added script support for plotting composite reflectivity, surface
+    reflectivity, and skin temperature with RIP4.
+  \item Upgraded to Intel 13 compilers on Discover and Pleiades.
+  \end{itemize}
+
+\item Version 5-3.4 (Internal Beta Release)
+  \begin{itemize}
+  \item Merged WRF 3.4, WPS 3.4, RIP 4.6.3, UPP 1.1, MET 4.0 (with patches
+    through 29 June 2012), and PREP\_CHEM\_SOURCES 1.2\_10apr2012.
+  \item Merged in GEOS2WRF 2.0.
+  \item Bug fix to CONVERT\_EMISS to be compatible with PREP\_CHEM\_SOURCES.
+  \item Bug fixes to GOCART2WRF 2.0.
+  \item Added user defined tuning factors for GOCART dust emissions. Bug fixes
+    for aerosols and AFWA GOCART dust emissions.
+  \item LIS bug fix for porosity: values from Noah and CLM2 LSMs now passed
+    back to WRF and used in GOCART dust emissions.
+  \item Overhauled LISCONFIG program to process GEOGRID output
+    instead of METGRID output.
+  \item Upgraded compilers to Intel 12.1 on Discover and Pleiades.
+  \end{itemize}
+
+\item Version 4-3.3.1 (Official Release)
+  \begin{itemize}
+  \item Merged in WRF 3.3.1, WPS 3.3.1, ARWpost 3.1, RIP 4.6.2, MET 3.1,
+    UPP 1.0, and PREP\_CHEM\_SOURCES v2\_04aug2011 updates. Removed WPP.
+  \item Added GSDSU V3BETA.
+  \item Added WPS map projection support to PREP\_CHEM\_SOURCES, and added
+    PLOT\_CHEM utility to display output. Modified CONVERT\_EMISS to support
+    new 72-level GOCART background files with improved vertical positioning.
+    Upgraded GOCART2WRF to version 2.0 (supporting GEOS-5 netCDF4 files), and
+    removed support for old GEOS-4 netCDF3 files. Added porosity calculation
+    as function of USGS land use for GOCART dust emissions.
+  \item Updated GEOS2WRF to read specific humidity from GEOS-5 HDF4 file and
+    convert to relative humidity. Added bug fixes for LANDSEA and 2-meter
+    relative humidity. Added scripting to ease use.
+  \item Added MERRA2WRF 2.0 to process HDF4 and netCDF MERRA files from
+    the NASA Goddard Earth Sciences Data Information Services Center
+    (GES DISC).
+  \item Fixed bug in RIP4 preventing processing of wrfout files from WRF-Chem.
+  \item Modified build system to optionally compile WRF-Chem with KPP.
+  \item Added sample batch scripts and input files for running GEOGRID, UNGRIB,
+    METGRID, REAL, WRF, and RIP on Discover.
+  \end{itemize}
+
+\item Version 3-3.2.1 (Official Release)
+  \begin{itemize}
+    \item Merged in WRF 3.2.1 and WPS 3.2.1.  Added PREP\_CHEM\_SOURCES.
+    \item Merged in LIS 6.1rp1. Added LISCONFIG tool to customized lis.config
+      file based on WRF domain and map projection settings. Added LVT.
+    \item Fixed GOCART2WRF bug triggered when WRF and GOCART pressures were
+      identical, and added support for inner-nest domains. Added
+      fromGEOS5\_to\_GEOS4 utility to convert on-line GEOS-5 GOCART data to
+      off-line GEOS-4 GOCART format for GOCART2WRF.
+    \item Updated Goddard radiation and aerosol coupling component with bug
+      fixes to prevent negative effective radii and division-by-zero, and
+      handle spurious negative mixing ratios.
+    \item Added Goddard Microphysics-GOCART aerosol coupling.
+    \item WRF-Chem updates: Added capability of estimating SOA from biogenic
+      terpene emissions, including three new variables: e\_terp, e\_api,
+      e\_lim. Linked MEGAN2 biogenic emissions scheme, GOCART dry deposition
+      scheme, and various optical property schemes to GOCART aerosols. Linked
+      RADM2 chemistry to GOCARTRADM2 option. Added namelist options for
+      radiation-aerosol and microphysics-aerosol coupling (Goddard and
+      GOCART). Added bio\_emiss\_soa namelist option to toggle emission
+      conversion to SOA. Removed a number of chemistry variables from wrfout
+      file.
+    \item GSDSU updates: Added GOCART input options to WRF input, GCE-SBM 3D
+      option, SBM moment output, GrADS control file output, and Morrison
+      two-moment support, plus bug fixes.
+    \item Build system updates: Set incremental building as the default option
+      (instead of a performing a complete rebuild). Updated Discover
+      configuration to use Intel MPI 4.0.1.007-beta, and added support for
+      Pleiades. Added automatic detection of default configuration file on
+      Discover and Pleiades. Add compilation of CONVERT\_EMISS when 'chem'
+      target is selected.
+  \end{itemize}
+
+\item Version 2-3.2.1 (Official Release)
+  \begin{itemize}
+  \item Merged in MET bug fixes through 15 Feb 2011.
+  \item Updated LIS to version 6.0rp6.
+  \item WRF-LIS coupling: LIS export data not longer overwrites WRF data at
+    water-points. Run-time checks for surface physics scheme setting in
+    wrfinput disabled. REAL now built in special mode to generate consistent
+    initial conditions for coupled WRF-LIS runs.
+  \item Goddard radiation and GOCART are coupled when running with WRF-Chem.
+  \item Severe weather diagnostics added to WPP for applicable physics schemes.
+    Diagnostics include: Maximum 10-meter wind speed, column mean vertical
+    velocity, max column integrated graupel, maximum lightning threat,
+    derived radar reflectivity, precipitation accumulation for a given time
+    window, and convective precipitation accumulation.
+  \item Changed MERRA2WRF to output relative humidity rather than specific
+    humidity due to bug in REAL. Added improved error checking when calling
+    the HDF4 library. Also, batch script for running on Discover changed to
+    gracefully handle back PBS charge codes.
+  \item Changed GOCART2WRF to calculate correct tendencies at the final time
+    level, and adds error checking when calling the netCDF library.
+  \item Wrote unified build system to compile all components of NU-WRF,
+    targeting NASA's NCCS Discover system.
+  \end{itemize}
+
+\item Version 1-3.1.1 (Official Release)
+  \begin{itemize}
+  \item Includes WRF 3.1.1, WPS 3.1.1, ARWpost 2.1, RIP 4.5, MET 2.0, WPP.
+  \item Includes LIS 6.0rp1, SDSU, SST2WRF 1.0, GEOS2WRF 1.0, MERRA2WRF 1.0
+  \item Includes simple build script for WRF on Discover.
+  \item Contains new NASA microphysics and radiation.
+  \item LIS integrated as WRF component.
+  \item Added severe weather diagnostics from NASA MSFC SPoRT.
+  \end{itemize}
+  
+\end{itemize}

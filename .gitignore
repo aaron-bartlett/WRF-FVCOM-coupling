@@ -1,0 +1,38 @@
+# 1 - Log files
+*.out
+*.err
+log.*
+rsl*
+debug*
+*.log
+
+# 2 - Libraries directory
+libs/
+
+# 3 - Archive directory
+ARCHIVE/
+
+# 4 - Data files (any directory)
+*.grib
+*.nc
+wrfinput*
+wrfbdy*
+wrfout*
+wrfrst*
+PFILE*
+ERA5-PRES*
+ERA5-SURF*
+
+# Data file exceptions
+!BROADBAND_CLOUD_GODDARD.nc
+!**/BROADBAND_CLOUD_GODDARD.nc
+!grids.nc
+!**/grids.nc
+!masks.nc
+!**/masks.nc
+
+# 5 - Object, archive, and module files
+*.o
+*.a
+*.mod
+

@@ -1,0 +1,79 @@
+Using NU-WRF Ensemble Validation System (NEVS) with Jupyter Notebook
+---------------------------------------------------------------------
+
+These NEVS scripts are meant to simplify the process of comparing the results of an ensemble of NU-WRF forecasts with the actual observations from the same period. It relies on NOAA/UCAR Model Evaluation Tools (MET) to do a statistical comparison of the forecast and observation datasets. The output of NEVS will include several types of plots, including RMSE, Bias, Pearson Correlation, and 3 types of forecast Skill Scores.
+
+Preparation
+-----------
+The NEVS system assumes you have your ensemble of NU-WRF output data sets in subdirectories of the <nevsRoot> directory. Please copy the "scripts" directory from this "utils/nevs" directory into your <nevsRoot> directory. The "scripts" directory should contain these eight files: 
+NU-WRF_validation.ipynb          jrun_wrf_interp.csh             
+jplotMET_Precip-RMSE-Bias.py     jplotMET_T2-Q2_RMSE-Bias.py
+jplotMET_Precip-SkillScores.py   jplotMET_T2-Q2_SkillScores.py
+PointStatConfig                  GridStatConfig
+
+Before running NEVS, the user should download the appropriate period of gridded STAGE IV precipitation observations and/or PREPBUFR point-observations. Instructions for this can be found in the NEVS script itself, or see "Downloading Observations" at the bottom of this file. When you're done, your NEVS directory structure should look similar to this:
+
+<nevsRoot>
+ +-- scripts
+ |    +-- <all 8 above files>
+ +-- obs
+ |    +-- gdas_point_obs
+ |         +-- <prebbufr.gdas*.nc files>
+ |    +-- st4pcp
+ |         +-- <ST4.* files>
+ +-- <NU-WRF output set 1>
+ |    +-- <wrfout* time series>
+ +-- <NU-WRF output set 2>
+ |    +-- <wrfout* time series>
+ +-- <NU-WRF output set 3>  etc.
+  
+
+Starting NEVS
+-------------
+To start NEVS on NCCS Discover, ensure your local terminal supports X11 graphics, and use the following commands:
+
+cd <nevsRoot>/scripts
+module purge; module load other/SSSO_Ana-PyD/SApd_4.2.0_py3.5
+jupyter notebook
+
+Then locate and click on the link for NU-WRF_validation-py3.ipynb
+
+
+Running NEVS
+------------
+NEVS Jupyter Notebook interface will guide the user through multiple sub-processes. At the beginning of each sub-process script, there will usually be some variables that can/should be customized. The customizable section will end with a line of hyphens (#--------).  To run the script for that section, ensure that section is selected and then hit <Shift><Enter> or the "play" button in the toolbar.
+
+There are 10 steps in the notebook. The first six steps will create comparison graphs for point observations, using Temperature, Specific Humidity, and U&V winds. The last four steps will compare precipitation using gridded STAGE IV observations.
+
+All of the relevant sections need to be run in a single session, though you can skip the last 4 steps if you don't care about the precip stats. And if you're ONLY doing precip, you can skip steps 2, 5, & 6.
+
+When you're done, find all the resulting plots in <nevsRoot>/MET_output/skill_plots (or whatever folder you specified in steps 6 & 10).  There will be up to 33 individual plots in *.png files, and another 4 *.pdf files that will contain groups of the same plots in a somewhat more convenient package.
+
+----------------------------
+| Downloading Observations |
+----------------------------
+
+1) Getting Point Observations (PREPBUFR data in netcdf format)
+    a.	Go to http://rda.ucar.edu/datasets/ds337.0/
+    b.	Make sure you're logged-in (create an account, if necessary)
+    c.	Click on "Data Access" tab from lower row of tabs
+    d.	Click "Web File Listing" on row "Union of Available products", column "Web Server Holdings"
+    e.   Click "Faceted Browse"
+    f.	Change Temporal Selection to appropriate time period (i.e., 2014-04-27 to 2104-05-03)
+    g.	Use map tool: click "Draw Box" radio button beneath map and enter N: 57, W: -132, E: -58, S: 10
+    h.   Click "Continue"
+    i.   Download list given in table on subsequent page, preferably using wget with provided Unix Script to download from Discover (must have rda.ucar.edu username/password set in script). Files will be named like:
+        prepbufr.20140427.nr.tar.gz
+    j.   Untar the files into your desired subdirectory (i.e., <nevsRoot>/obs/prepbufr.gdas.N10-57_W58-132).
+        The resulting filenames will resemble this:
+        prepbufr.gdas.152117.2014042700.nc
+        prepbufr.gdas.152117.2014042706.nc
+        prepbufr.gdas.152117.2014042712.nc
+        prepbufr.gdas.152117.2014042718.nc   ...etc.
+
+2) Download Gridded STAGE IV Precip Observations from NCAR/UCAR EOL
+    a.	Go to http://data.eol.ucar.edu/cgi-bin/codiac/fgr_form/id=21.093
+    b.	Order data for appropriate time period (begin a full day before forecast validation time)
+    c.	Select *.tar.gz output
+    d.	Enter email address; they will send download info (ftp or link to download)
+    e.	Save downloaded data to desired Discover subdirectory (i.e., <nevsRoot>/obs/st4precip)

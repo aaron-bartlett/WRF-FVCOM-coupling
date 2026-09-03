@@ -1,0 +1,9 @@
+WRF-ARW Testcase
+
+This is a test case that uses:
+  (a) CONUS NE quadrant domain (98W-68W, 34N-53N) with 2 nests (9-3 km)
+      Lambert projection
+  (b) Simulation time period from 12Z 19 Jan 2007 to 12Z 23 Jan 2007
+      WRF test run is only 3 hrs
+  (c) MODIS geographical data, NCEP FNL (Final) Operational Global Analysis data
+  (d) Goddard MP (3ice) and Goddard 2014 radiation (option 56)

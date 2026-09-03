@@ -1,0 +1,86 @@
+ &time_control
+ run_days = 0,
+run_hours = 48,
+run_minutes = 0,
+run_seconds = 0,
+start_year = 2016,
+start_month = 10,
+start_day = 06,
+start_hour = 00,
+end_year = 2016,
+end_month = 10,
+end_day = 08,
+end_hour = 00,
+interval_seconds = 21600
+input_from_file = .true.,
+history_interval = 180,
+frames_per_outfile = 1000,
+restart = .false.,
+restart_interval = 1440,
+auxinput4_inname = "wrflowinp_d<domain>",
+auxinput4_interval = 360,
+io_form_auxinput4 = 2
+ /
+
+ &domains
+time_step = 150,
+max_dom = 1,
+e_we = 91,
+e_sn = 100,
+s_vert = 1,
+e_vert = 35,
+num_metgrid_levels = 32
+dx = 27000,
+dy = 27000,
+ /
+
+ &physics
+mp_physics = 3, 3, 3,
+ra_lw_physics = 1, 1, 1,
+ra_sw_physics = 1, 1, 1,
+radt = 30, 30, 30,
+sf_sfclay_physics = 1, 1, 1,
+sf_surface_physics = 2, 2, 2,
+num_soil_layers = 4,
+bl_pbl_physics = 1, 1, 1,
+bldt = 0, 0, 0,
+cu_physics = 1, 1, 0,
+cudt = 5, 5, 5,
+isfflx = 1,
+ifsnow = 1,
+icloud = 1,
+surface_input_source = 3,
+num_land_cat = 21,
+sf_urban_physics = 0, 0, 0,
+sf_ocean_physics = 0,
+sst_update = 1,
+/
+
+ &dynamics
+ w_damping                           = 0,
+ diff_opt                            = 1,
+ km_opt                              = 4,
+ diff_6th_opt                        = 2,      2,      2,
+ diff_6th_factor                     = 0.12,   0.12,   0.12,
+ base_temp                           = 290.
+ damp_opt                            = 3,
+ zdamp                               = 5000.,  5000.,  5000.,
+ dampcoef                            = 0.2,    0.2,    0.2
+ non_hydrostatic                     = .true., .true., .true.,
+ moist_adv_opt                       = 1,      1,      1,
+ scalar_adv_opt                      = 1,      1,      1,
+ /
+
+&bdy_control
+spec_bdy_width = 5,
+spec_zone = 1,
+relax_zone = 4,
+specified = .true., .false., .false.,
+nested = .false., .true., .true.,
+/
+
+
+ &namelist_quilt
+ nio_tasks_per_group = 0,
+ nio_groups = 1,
+ /

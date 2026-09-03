@@ -1,0 +1,12 @@
+WRF-ARW Testcase with CFSR MET forcing (*)
+
+This is a test case that uses:
+  (a) CONUS SE quadrant domain (98W-75W, 25N-42N) with 1 nests (12 km)
+      Lambert projection
+  (b) Simulation time period from 06Z 30 Apr 2019 to 12Z 30 Apr 2019
+  (c) MODIS geographical data, CFSR data
+  (d) Goddard MP (4ice) and Goddard 2017 radiation (option 57)
+
+(*) Saha, S., et al. 2011, updated daily. NCEP Climate Forecast System Version 2 (CFSv2) 6-hourly Products. Research Data Archive at the National Center for Atmospheric Research, Computational and Information Systems Laboratory. https://doi.org/10.5065/D61C1TXF.
+
+

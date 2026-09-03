@@ -1,0 +1,14 @@
+&input
+  directory='./',
+  prefix='GEOS_TMP',
+  year=2009, 
+  month=08,
+  day=25,
+  hour=00,
+  geopotentialHeightName='HGT',
+  temperatureName='TT',
+  relativeHumidityName='RH',
+  uName='UU',
+  vName='VV',
+/
+

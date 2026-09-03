@@ -1,0 +1,15 @@
+&input
+  instrument = 'mw_ir',
+  year = 2015,
+  dayOfYear = 193,
+  version = 'v05.0',
+  inputDirectory = 'data/',
+/
+&output
+  outputDirectory = 'data/mw_ir',
+  prefixWPS = 'SSTRSS'
+/
+&fakeoutput
+  numFakeHours = 4,
+  fakeHours = 0, 6, 12, 18,
+/

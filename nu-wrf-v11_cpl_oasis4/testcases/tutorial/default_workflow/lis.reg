@@ -1,0 +1,73 @@
+#!/bin/bash
+# Do not change the following settings
+#SBATCH -J lis
+#SBATCH -t 1:00:00
+#SBATCH -o lis.slurm.out
+#SBATCH --ntasks=192
+# You may edit the following:
+#SBATCH -A s0942
+##SBATCH --qos=high
+##SBATCH --mail-user=user@nasa.gov
+
+export MPIRUN='mpirun -np 192'
+#---------------------- lis script -----------------------------
+
+source common.reg || exit 1 
+
+cd $RUNDIR || exit 1
+
+if [ ! -e lis.config.coldstart ] ; then
+    echo "ERROR, lis.config.coldstart not found!"
+    exit 1
+fi
+rm -f lis.config
+ln -s lis.config.coldstart lis.config
+
+rm -f $RUNDIR/LS_PARAMETERS
+rm -f $RUNDIR/MET_FORCING
+rm -f $RUNDIR/noah3X_parms
+rm -f $RUNDIR/noah36_parms
+
+ln -sf $LISDIR/LS_PARAMETERS $RUNDIR || exit 1
+if [ ! -e $RUNDIR/LS_PARAMETERS ] ; then
+    echo "ERROR, $RUNDIR/LS_PARAMETERS does not exist!"
+    exit 1
+fi
+ln -sf $LISDIR/MET_FORCING $RUNDIR || exit 1
+if [ ! -e $RUNDIR/MET_FORCING ] ; then
+    echo "ERROR, $RUNDIR/MET_FORCING does not exist!"
+    exit 1
+fi
+ln -sf $LISDIR/LS_PARAMETERS/noah3X_parms noah3X_parms || exit 1
+if [ ! -e $RUNDIR/noah3X_parms ] ; then
+    echo "ERROR, $RUNDIR/noah3X_parms does not exist!"
+    exit 1
+fi
+ln -sf $LISDIR/LS_PARAMETERS/noah36_parms noah36_parms || exit 1
+if [ ! -e $RUNDIR/noah36_parms ] ; then
+    echo "ERROR, $RUNDIR/noah36_parms does not exist!"
+    exit 1
+fi
+
+# Link LIS executable
+ln -fs $NUWRFDIR/LISF/lis/LIS $RUNDIR/LIS || exit 1
+if [ ! -e $RUNDIR/LIS ] ; then
+    echo "ERROR, $RUNDIR/LIS does not exist!"
+    exit 1
+fi
+
+# Run LIS
+$MPIRUN ./LIS  || exit 1
+
+# Need LIS files for ldt_postlis and WRF-LIS run
+cp OUTPUT/SURFACEMODEL/2015/20150715/LIS_* .
+
+# Clean up
+if [ -e $RUNDIR/lis_logs ] ; then
+    rm -rf $RUNDIR/lis_logs || exit 1
+fi
+mkdir $RUNDIR/lis_logs || exit 1
+lis_files=`ls lislog.*`
+for file in ${lis_files} ; do
+    mv $file $RUNDIR/lis_logs/$file || exit 1
+done

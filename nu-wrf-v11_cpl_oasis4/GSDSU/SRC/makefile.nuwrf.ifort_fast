@@ -1,0 +1,116 @@
+SHELL=/bin/sh
+EXEC =		GSDSU.x
+#
+# - dependency rule -
+# 1) module_floating_point.o must comes first. 
+# 2) module_simulator.o (and other 3D array looping module) depends on
+#    module_mpi.o.  So they should comes after module_mpi.
+# 3) main_SDSU.o must be at the end.  
+#
+
+OBJSGCEM=       module_floating_point.o module_const.o Type_Kinds.o module_mpi.o module_icescat_yang_visir.o module_icescat_visir.o rdcmd.o scatdb.o module_scatdb.o module_tmatrix.o module_thompson_mp.o module_gmp_4ice.o module_psd.o module_convolution.o module_bf_emiss.o NESDIS_LandEM_Module.o module_telsem.o module_radar_power.o module_gocart_interact.o module_simulator.o module_gas_profile.o module_GV.o module_surface.o module_sarta.o module_opt_micro.o simulator_micro.o module_radar.o module_lidar.o module_opt_visir.o simulator_visir.o simulator_broad.o module_opt_broad.o module_scan.o main_SDSU.o
+
+
+############################################################################
+#                        Makefile User Modification
+#                      Satellite Data Simulation Unit       
+#
+# CPP is C-preprocessor
+# CF is fortran compiler
+# CFFLAGS is fortran compiler flag
+# INC_NETCDF is netcdf include file directly
+#QRUN     = ./../QRUN_NCCS
+#QRUN      = /path/to/qrun/directory
+QRUN      = ./../QRUN_AMMA3KM
+
+# Desk-top MAC  
+#CPP     = /Users/matsui/Local/g95-install/bin/i386-apple-darwin8.8.1-g95 -E
+#CF      = gfortran 
+#CFFLAGS = -O0 #-Wall -O3 -ftree-vectorize  -fcheck=all
+#CF      = mpif90  
+#CFFLAGS = 
+#INC_NETCDF = /usr/local/include
+#LD_NETCDF = /usr/local/lib
+#LINK_MPI =   #make blank for non-mpi option
+
+
+# NCCS DISCOVER (modules: comp/intel-12.1.0.233 mpi/impi-4.0.3.008 )
+CPP     =  /lib/cpp -C -traditional-cpp
+CF      = mpif90 -f90=ifort
+# SGI MPT doesn't recognize the -f90 flag.
+ifeq ($(MPI_IMPLEMENTATION),SGI_MPT)
+CF      = mpif90 
+endif
+#CFFLAGS = -O0 -assume byterecl
+#CFFLAGS = -O1 -check bounds -assume byterecl #DEBUG (note delta eddington slant path does not work for this option)
+#CFFLAGS = -O3 -ip -assume byterecl  #aggressive optimization
+CFFLAGS = -xSSE4.2 -O3 -ip -ftz -fp-model precise -assume byterecl -w  #aggressive optimization
+CCFLAGS = -xSSE4.2 -O3 -ip -ftz -fp-model precise -w # C compiler flags
+##jjacob
+#CFFLAGS = -O0 -check bounds,format,output_conversion,pointers,uninit,stack -ftz -fp-model precise -assume byterecl -traceback -g -fpe0
+#CFFLAGS = -O3 -ip -assume byterecl
+#CFFLAGS = -O0 -ftz -fp-model precise -assume byterecl -traceback -g -fpe0
+#CCFLAGS = -O3 -ip -assume byterecl# C compiler flags -g -fpe0
+
+#EMK DEBUG
+#CFFLAGS = -O0 -check all -ftz -fp-model precise -assume byterecl 
+#CCFLAGS = -O0  -ftz -fp-model precise # C compiler flags
+#EMK END DEBUG
+
+CC      = icc
+INC_NETCDF = /path/to/netcdf/include
+ LD_NETCDF = /path/to/netcdf/lib
+#LINK_MPI = -lmpi  #make blank for non-mpi option 
+
+# NAS PLEIADES (modules: comp-intel/2011.2  mpi-sgi/mpt.2.04-fsa  )
+#CPP     = /lib/cpp -C
+#CF      = ifort 
+#CFFLAGS = -O0 assume byterecl
+#CFFLAGS = -O1 -check bounds -g -traceback -assume byterecl
+#CFFLAGS = -O1 -check bounds -g -traceback -fpe0 -assume byterecl # DEBUGGING  (note delta eddington slant path does not work for this option)
+#CFFLAGS = -O3 -ip -assume byterecl  #aggressive optimization
+#CC      = icc  #C-compiler for SCATDB
+#INC_NETCDF = /nasa/netcdf/3.6.0/intel/include
+#LD_NETCDF = /nasa/netcdf/3.6.0/intel/lib
+#LINK_MPI = -lmpi  #make blank for non-mpi option
+
+# This is for location of define_CPP.h , and universal for any machine. 
+INCLUDE_DIR = -I./
+
+#
+#
+############################################################################
+# Lines from here on down should not need to be changed.  They are the
+# actual rules which make uses to build executable.
+#
+all:		$(EXEC) find_thread_number
+	cp GSDSU.x $(QRUN) 
+	cp FIND_THREAD_NUMBER.x $(QRUN)/HOW_MANY_CPU_GSDSU
+
+$(EXEC):	$(OBJSGCEM)
+	$(CF) -o $(@) $(OBJSGCEM) -L$(LD_NETCDF) -lnetcdff -lnetcdf $(NETCDF4_DEP_LIB) $(LINK_MPI)
+
+.SUFFIXES :	.o  .f90 .F
+
+.F.f90 :
+	${CPP} -P ${INCLUDE_DIR} $*.F >$*.i
+	sed '/^ *$$/d' $*.i > $*.f90 ; rm $*.i
+
+.F.o :
+	${CPP} -P ${INCLUDE_DIR} $*.F >$*.i
+	sed '/^ *$$/d' $*.i  >$*.f90 ; rm $*.i
+	${CF} ${CFFLAGS} ${DBUG} -I$(INC_NETCDF) -c $*.f90
+
+.f90.o :
+	${CF} ${CFFLAGS} ${DBUG} -I$(INC_NETCDF) -c $*.f90
+
+.c.o : 
+	${CC} ${CCFLAGS} -c $*.c
+
+.PHONY:  find_thread_number
+find_thread_number: FIND_THREAD_NUMBER.o
+	$(CF) -o FIND_THREAD_NUMBER.x $^
+
+clean:
+	-rm -f *.f90 *.o *.x *.mod PI* $(QRUN)/*.x $(QRUN)/HOW_MANY_CPU_GSDSU
+

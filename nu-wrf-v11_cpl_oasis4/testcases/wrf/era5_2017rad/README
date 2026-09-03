@@ -1,0 +1,10 @@
+WRF-ARW Testcase with ERA5 MET forcing (*)
+
+This is a test case that uses:
+  (a) CONUS SE quadrant domain (98W-75W, 25N-42N) with 1 nest (12 km)
+      Lambert projection
+  (b) Simulation time period from 00Z 01 Jan 2016 to 12Z 01 Jan 2016
+  (c) MODIS geographical data, ERA5 data
+  (d) Goddard MP (4ice) and Goddard 2017 radiation (option 57)
+
+(*) European Centre for Medium-Range Weather Forecasts. 2017, updated monthly. ERA5 Reanalysis. Research Data Archive at the National Center for Atmospheric Research, Computational and Information Systems Laboratory. https://doi.org/10.5065/D6X34W69. Accessed 01 Aug 2019

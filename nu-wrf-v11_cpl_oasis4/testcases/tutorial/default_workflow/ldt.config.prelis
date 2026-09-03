@@ -1,0 +1,231 @@
+#------------------------------------------------------------------------------
+# Overall driver options
+#------------------------------------------------------------------------------
+
+LDT running mode:                  "LSM parameter processing"
+Processed LSM parameter filename:  ./lis_input.d01.nc ./lis_input.d02.nc ./lis_input.d03.nc
+LIS number of nests:    1
+Number of surface model types:        1
+Surface model types:                  LSM        
+Land surface model:                   Noah-MP.3.6    
+Lake model:                           none
+Routing model:                        none
+Water fraction cutoff value:          0.5 0.5 0.5
+Include water points:                 .false.      
+
+# MERRA2 not supported by LDT.
+Number of met forcing sources:        0
+Met forcing sources:                  none
+Blending method for forcings:         overlay
+Met spatial transform methods:        budget-bilinear
+Topographic correction method (met forcing): none
+Temporal interpolation method (met forcing): linear
+Temporal downscaling method: "Simple weighting"
+Processed metforcing output interval: 6hr
+Metforcing processing interval:       1day
+Forcing variables list file:          none
+
+LDT diagnostic file:              ldtlog_prelis
+Mask-parameter fill diagnostic file: OUTPUT/MPFilltest.log
+LDT output directory:           OUTPUT
+Undefined value:                    -9999.0
+Number of ensembles per tile:         1
+
+# Must set processor numbers to 1 until LDT parallelization added
+Number of processors along x:         1
+Number of processors along y:         1
+
+#------------------------------------------------------------------------------
+# Domain specification
+#------------------------------------------------------------------------------
+
+Add buffer to parameter grid domain:   1          # New option (implicit); 0-no buffer, 1-add buffer
+Buffer count in x-direction:           50         # Add pixel buffer to target parameter domain
+Buffer count in y-direction:           25         #  5 - is set internally as the default value
+
+Map projection of the LIS domain:     lambert
+Run domain lower left lat:    33.89408   37.90714   41.93164
+Run domain lower left lon:   -97.88470  -88.88519  -83.63098
+Run domain true lat1:    60.00000   60.00000   60.00000
+Run domain true lat2:    30.00000   30.00000   30.00000
+Run domain standard lon:   -83.00000  -83.00000  -83.00000
+Run domain resolution:     9.00000    3.00000    1.00000
+Run domain x-dimension size:    300   429   456
+Run domain y-dimension size:    240   411   456
+
+#------------------------------------------------------------------------------
+# Parameters
+#------------------------------------------------------------------------------
+
+Landcover data source:     MODIS_Native MODIS_Native MODIS_Native
+Landcover classification:  IGBPNCEP IGBPNCEP IGBPNCEP
+Landcover file:            ./LS_PARAMETERS/noah_2dparms/igbp.bin ./LS_PARAMETERS/noah_2dparms/igbp.bin  ./LS_PARAMETERS/noah_2dparms/igbp.bin 
+Landcover spatial transform:     mode mode mode
+Landcover fill option:           neighbor
+Landcover fill value:            10
+Landcover fill radius:           5
+Landcover map projection:       latlon
+Landcover lower left lat:      -59.995
+Landcover lower left lon:     -179.995
+Landcover upper right lat:      89.995
+Landcover upper right lon:     179.995
+Landcover resolution (dx):       0.01
+Landcover resolution (dy):       0.01
+
+Create or readin landmask:    create create create
+Landmask data source: MODIS_Native MODIS_Native MODIS_Native
+Landmask spatial transform:     mode
+
+#------------------------------------------------------------------------------
+# Crop-Irrigation Parameters
+#------------------------------------------------------------------------------
+
+Incorporate crop information: .false. .false. .false.
+Irrigation type data source: none none none
+Irrigation fraction data source: none none none
+
+#------------------------------------------------------------------------------
+# Soil Parameters
+#------------------------------------------------------------------------------
+
+Soil fraction data source:       none none none
+Soils spatial transform:         none none none
+Soils fill option:               none
+Soils map projection:            latlon
+
+Soil texture data source: STATSGOFAO_Native STATSGOFAO_Native STATSGOFAO_Native
+Soil texture map:       ./LS_PARAMETERS/noah_2dparms/topsoil30snew ./LS_PARAMETERS/noah_2dparms/topsoil30snew ./LS_PARAMETERS/noah_2dparms/topsoil30snew
+Soil texture spatial transform:   mode mode mode
+Soil texture fill option:         neighbor
+Soil texture fill value:          4
+Soil texture fill radius:         5
+Soil texture map projection:     latlon
+Soil texture lower left lat:    -59.9950
+Soil texture lower left lon:   -179.9950
+Soil texture upper right lat:    89.9950
+Soil texture upper right lon:   179.9950
+Soil texture resolution (dx):     0.01
+Soil texture resolution (dy):     0.01
+
+#------------------------------------------------------------------------------
+# Topography Parameters
+#------------------------------------------------------------------------------
+
+Elevation data source:        SRTM_Native SRTM_Native SRTM_Native
+Elevation number of bands:        1 1 1
+Elevation map:       ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw
+Elevation fill option:            none # Preserves elevation for water bodies
+Elevation fill value:             100
+Elevation fill radius:            5
+
+Slope data source:        SRTM_Native SRTM_Native SRTM_Native
+Slope number of bands:        1 1 1
+Slope map:       ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw
+Slope fill option:            none # Preserves slope for water bodies
+Slope fill value:             0.1
+Slope fill radius:            5.
+
+Aspect data source:        SRTM_Native SRTM_Native SRTM_Native
+Aspect number of bands:        1 1 1
+Aspect map:       ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw ./LS_PARAMETERS/topo_parms/SRTM/SRTM30/raw
+Aspect fill option:            none # Preserves slope for water bodies
+Aspect fill value:             2.0
+Aspect fill radius:            5.
+
+Topography spatial transform:     average average average
+Topography map projection:       latlon
+Topography lower left lat:      -59.995
+Topography lower left lon:     -179.995
+Topography upper right lat:      89.995
+Topography upper right lon:     179.995
+Topography resolution (dx):       0.01
+Topography resolution (dy):       0.01
+
+#------------------------------------------------------------------------------
+# LSM-Specific Parameters
+#------------------------------------------------------------------------------
+
+Albedo data source: NCEP_Native NCEP_Native NCEP_Native
+Albedo map:                 ./LS_PARAMETERS/noah_2dparms/albedo ./LS_PARAMETERS/noah_2dparms/albedo ./LS_PARAMETERS/noah_2dparms/albedo
+Albedo climatology interval:    monthly monthly monthly  
+Albedo spatial transform:       budget-bilinear budget-bilinear budget-bilinear
+Albedo fill option:             neighbor       
+Albedo fill value:              0.1
+Albedo fill radius:             5
+Albedo map projection:          latlon
+Albedo lower left lat:         -59.99500
+Albedo lower left lon:        -179.99500
+Albedo upper right lat:         89.99500
+Albedo upper right lon:        179.99500
+Albedo resolution (dx):          0.0100
+Albedo resolution (dy):          0.0100
+
+Max snow albedo data source: NCEP_Native NCEP_Native NCEP_Native
+Max snow albedo map:        ./LS_PARAMETERS/noah_2dparms/maxsnoalb.asc ./LS_PARAMETERS/noah_2dparms/maxsnoalb.asc  ./LS_PARAMETERS/noah_2dparms/maxsnoalb.asc 
+Max snow albedo spatial transform:     budget-bilinear budget-bilinear budget-bilinear
+Max snow albedo fill option:           neighbor        
+Max snow albedo fill value:           0.3
+Max snow albedo fill radius:          5
+Max snow albedo map projection:        latlon
+Max snow albedo lower left lat:      -59.99500
+Max snow albedo lower left lon:     -179.99500
+Max snow albedo upper right lat:      89.99500
+Max snow albedo upper right lon:     179.99500
+Max snow albedo resolution (dx):       0.0100
+Max snow albedo resolution (dy):       0.0100
+
+# Vegetation greenness
+Greenness data source: NCEP_Native NCEP_Native NCEP_Native
+Greenness fraction map:        ./LS_PARAMETERS/noah_2dparms/gfrac ./LS_PARAMETERS/noah_2dparms/gfrac ./LS_PARAMETERS/noah_2dparms/gfrac
+Greenness climatology interval:    monthly monthly monthly
+Calculate min-max greenness fraction: .false.
+Greenness maximum map:         ./LS_PARAMETERS/noah_2dparms/gfrac_max.asc ./LS_PARAMETERS/noah_2dparms/gfrac_max.asc ./LS_PARAMETERS/noah_2dparms/gfrac_max.asc
+Greenness minimum map:         ./LS_PARAMETERS/noah_2dparms/gfrac_min.asc ./LS_PARAMETERS/noah_2dparms/gfrac_min.asc ./LS_PARAMETERS/noah_2dparms/gfrac_min.asc
+Greenness spatial transform:       budget-bilinear budget-bilinear budget-bilinear
+Greenness fill option:             neighbor
+Greenness fill radius:             5
+Greenness fill value:              0.20
+Greenness maximum fill value:     1.0
+Greenness minimum fill value:     0.0
+Greenness map projection:         latlon
+Greenness lower left lat:       -59.9950
+Greenness lower left lon:      -179.9950
+Greenness upper right lat:       89.9950
+Greenness upper right lon:      179.9950
+Greenness resolution (dx):        0.010
+Greenness resolution (dy):        0.010
+
+Slope type data source: NCEP_Native NCEP_Native NCEP_Native
+Slope type map:          ./LS_PARAMETERS/noah_2dparms/islope ./LS_PARAMETERS/noah_2dparms/islope ./LS_PARAMETERS/noah_2dparms/islope
+Slope type spatial transform:   neighbor neighbor neighbor
+Slope type fill option:         neighbor        
+Slope type fill value:          2
+Slope type fill radius:         5
+Slope type map projection:     latlon
+Slope type lower left lat:    -59.99500
+Slope type lower left lon:    -179.99500
+Slope type upper right lat:    89.99500
+Slope type upper right lon:   179.99500
+Slope type resolution (dx):     0.0100
+Slope type resolution (dy):     0.0100
+
+Bottom temperature data source: ISLSCP1 ISLSCP1 ISLSCP1
+Bottom temperature map:          ./LS_PARAMETERS/noah_2dparms/SOILTEMP.60 ./LS_PARAMETERS/noah_2dparms/SOILTEMP.60 ./LS_PARAMETERS/noah_2dparms/SOILTEMP.60
+Bottom temperature spatial transform:    budget-bilinear budget-bilinear budget-bilinear
+Bottom temperature fill option:      average      
+Bottom temperature fill value:       287.0       
+Bottom temperature fill radius:       15.        
+Bottom temperature topographic downscaling:  lapse-rate lapse-rate lapse-rate 
+Bottom temperature map projection:      latlon
+Bottom temperature lower left lat:     -59.9950
+Bottom temperature lower left lon:    -179.9950
+Bottom temperature upper right lat:     89.9950
+Bottom temperature upper right lon:    179.9950
+Bottom temperature resolution (dx):      0.010
+Bottom temperature resolution (dy):      0.010
+
+#------------------------------------------------------------------------------
+# Forcing Parameters
+#------------------------------------------------------------------------------
+
+Noah-MP PBL Height Value:               900.

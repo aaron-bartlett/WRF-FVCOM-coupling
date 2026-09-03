@@ -1,0 +1,11 @@
+NOAH-3.6 MERRA-Land Forcing Testcase
+
+This is a test case that uses:
+  (a) CONUS NE quadrant domain (98W-68W, 34N-53N) with 3 nests
+      Lambert projection
+  (b) Simulation time period from 12Z 19 Jan 2007 to 12Z 20 Jan 2007
+  (c) MODIS geographical data
+  (d) Noah-3.6 LSM with MERRA-Land forcing and budget-bilinear Interpolation
+      with 4-day LIS spinup
+  (e) Goddard MP (3ice) and Goddard 2014 radiation
+

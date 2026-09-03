@@ -1,0 +1,25 @@
+= Land Information System Framework (LISF)
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+
+== Overview
+
+Please visit our website: https://lis.gsfc.nasa.gov.
+
+
+== License
+
+The Land Information System Framework (LISF) is released under the terms and conditions of the Apache License, Version 2.0.  See https://www.apache.org/licenses/LICENSE-2.0.
+
+Please see the LICENSES sub-directories, under ldt, lis, and lvt, for the licenses of the third-party components within LISF. 
+
+//== Contributions
+//
+//Add instructions for contributing to LISF.

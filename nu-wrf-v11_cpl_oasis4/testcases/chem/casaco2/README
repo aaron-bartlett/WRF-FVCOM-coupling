@@ -1,0 +1,11 @@
+Use of CASA CO2 data
+
+This is a test case that uses:
+  (a) Entire CONUS (120W-75W, 20N-55N) with 2 nests (27-9 km)
+      Lambert projection
+  (b) Simulation time period from 00Z 20 Mar 2010 to 00Z 01 Apr 2010
+  (c) USGS geographical data, NCEP FNL data
+  (d) Run REAL 
+  (e) Use casa2wrf to combine CO2 fluxes from various sources and modify
+      REAL output to generate WRF-Chem input
+  (f) Note WRF-Chem is NOT executed.

@@ -1,0 +1,9 @@
+
+This repository contains a utility for preparing LIS and LDT files for use
+by NU-WRF in Single Column Model mode.
+
+The LIS restart and combined LIS/LDT static file normally used by REAL are
+modified to make the contents horizontally homogeneous.  The input files must
+have 2x2 grids, and the data from the southwest grid box are copied to the 
+other points.
+

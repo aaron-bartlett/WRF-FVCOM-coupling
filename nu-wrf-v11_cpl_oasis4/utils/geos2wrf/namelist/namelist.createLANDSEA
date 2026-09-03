@@ -1,0 +1,11 @@
+
+&input
+ directory='./',
+ prefix='GEOS',
+ year=2009,
+ month=8,
+ day=25,
+ hour=00,
+ lakeFractionName='FRLAKE'
+ oceanFractionName='FROCEAN',
+/

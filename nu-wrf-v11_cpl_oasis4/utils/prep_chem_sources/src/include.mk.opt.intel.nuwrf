@@ -1,0 +1,32 @@
+MAKE=/usr/bin/make
+
+# NCAR Graphics.
+
+NCARG_DIR=$(BASE)
+LIBNCARG=$(BASE)/libncarg-$(UTILS_VERSION)-$(OPT).a
+
+# Machine-dependent options.
+
+# EMK NU-WRF Switch to Intel compilers
+CUNDERSCORE =_UNDERSCORE
+CMACH = PC_LINUX1
+F_COMP = ifort
+C_COMP = icc
+LOADER = ifort
+C_LOADER = icc
+LIBS =
+MOD_EXT = mod
+
+F_OPTS = -fpp -D$(CHEM) -DWPS -D_GEOGRID -convert big_endian \
+         -O2 -ip -ftz -fp-model strict -free -w
+C_OPTS = -D$(CHEM) -O2 -ip -ftz -fp-model strict -w
+LOADER_OPTS = -fpp -D$(CHEM) -O2 -ip -ftz -fp-model strict -w
+
+# If compiling for a single-CPU platform only (without MPI):
+
+PAR_LIBS=
+PAR_DEFS=
+
+# For IBM,HP,SGI,ALPHA use these:
+ARCHIVE=ar rs
+

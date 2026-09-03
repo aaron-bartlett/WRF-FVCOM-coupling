@@ -1,0 +1,54 @@
+#############################
+# BEGIN LIS SEGMENT
+#############################
+THIS=LIS
+
+cd $RUNDIR || exit 1
+
+if [ ! -e lis.config ] ; then
+    echo "ERROR, lis.config not found!"
+    exit 1
+fi
+
+rm -f $RUNDIR/LS_PARAMETERS
+rm -f $RUNDIR/MET_FORCING
+rm -f $RUNDIR/noahmp36_parms
+
+ln -sf $LISDIR/LS_PARAMETERS || exit 1
+if [ ! -e $RUNDIR/LS_PARAMETERS ] ; then
+    echo "ERROR, $RUNDIR/LS_PARAMETERS does not exist!"
+    exit 1
+fi
+ln -sf $LISDIR/MET_FORCING || exit 1
+if [ ! -e $RUNDIR/MET_FORCING ] ; then
+    echo "ERROR, $RUNDIR/MET_FORCING does not exist!"
+    exit 1
+fi
+ln -sf $LISDIR/LS_PARAMETERS/noahmp36_parms || exit 1
+if [ ! -e $RUNDIR/noahmp36_parms ] ; then
+    echo "ERROR, $RUNDIR/noahmp36_parms does not exist!"
+    exit 1
+fi
+
+# Link LIS executable
+ln -fs $EXEDIR/LISF/lis/LIS $RUNDIR/LIS || exit 1
+if [ ! -e $RUNDIR/LIS ] ; then
+    echo "ERROR, $RUNDIR/LIS does not exist!"
+    exit 1
+fi
+
+# Run LIS
+$MPIRUN ./LIS  || exit 1
+
+cp OUTPUT/SURFACEMODEL/1985/19850601/LIS_HIST* .
+cp OUTPUT/SURFACEMODEL/1985/19850602/LIS_HIST* .
+
+# Clean up
+if [ -e $RUNDIR/lis_logs ] ; then
+    rm -rf $RUNDIR/lis_logs || exit 1
+fi
+mkdir $RUNDIR/lis_logs || exit 1
+lis_files=`ls lislog.*`
+for file in ${lis_files} ; do
+    mv $file $RUNDIR/lis_logs/$file || exit 1
+done

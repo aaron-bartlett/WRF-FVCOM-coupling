@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+"""
+This is the main driver for the NU-WRF regression tests. Try:
+
+   $  reg --help
+
+"""
+from __future__ import print_function
+from platform import python_version
+import time
+import sys
+import argparse
+import os.path
+import logging
+
+import reg_tools as tools
+import shared.utils as utils
+
+logger = logging.getLogger("main")
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", help="configuration file name (no extension)")
+    parser.add_argument(
+        "-c", "--clean", action="store_true", help="clean scratch space"
+    )
+    parser.add_argument(
+        "-s", "--show", action="store_true", help="display configuration options"
+    )
+    parser.add_argument("-d", "--debug", action="store_true", help="debug runs")
+    return parser.parse_args()
+
+
+def main():
+    start_time = time.time()
+
+    if sys.version_info[0] == 2 and sys.version_info[1] < 7:
+        print("Python version " + python_version() + " is not supported.")
+        sys.exit()
+
+    args = parse_args()
+
+    filename = str(args.filename) + ".cfg"
+    if not os.path.isfile(filename):
+        print(" +++ Error: " + filename + " : file does not exist +++")
+        print(" Note: specify configuration file name without extension")
+        sys.exit()
+
+    utils.logger_setup(str(args.filename))
+
+    config = utils.get_config(filename)
+    utils.header(config)
+
+    # COMPCONFIG defaults can be overridden in the user-defined config file.
+    if not config.has_section("COMPCONFIG"):
+        comp_config = utils.get_config("comp.cfg")
+    else:
+        comp_config = config
+
+    # Exercise options
+    if args.clean:
+        utils.clean_scratch(config)
+        sys.exit()
+
+    if args.show:
+        utils.show_config(filename)
+        sys.exit()
+
+    if args.debug:
+        os.environ["DEBUG_REG"] = "1"
+
+    time_stamp = utils.set_time_stamp()
+
+    # Initialize testing environment
+    test_list = tools.reg_initialize(config, comp_config, time_stamp)
+
+    # Run tests
+    tools.reg_run(config, comp_config, test_list, time_stamp)
+
+    # Done
+    end_time = time.time() - start_time
+    tools.reg_finalize(config, comp_config, end_time)
+
+    logger.info("Time taken = %f" % end_time)
+    logger.info(sys.argv[0] + " is done.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,122 @@
+ &RP_INPUT
+
+!---------------- grid_type of the grid output
+   grid_type= 'lambert',	!
+!---------------- if the output data is for use in CATT-BRAMS model, provide at least one analysis file
+!---------------- of this model
+    rams_anal_prefix = './ANL/barca',
+!---------------- date of emission  
+    ihour=00, 
+    iday=05, 
+    imon=07, 
+    iyear=2011,
+    gfedv3_suffix='BC,C2H4O,C2H4,C2H5OH,C2H6S,C2H6,C3H6O,C3H6,C3H8,C4,C5H8,CH2O,CH3OH,CH4,CO2,CO,C,DM,H2,Higher_Alkanes,Higher_Alkenes,N2O,NH3,NMHC,NOx,OC,PM2p5,SO2,TC,Terpenes,Toluene_lump,TPM',
+
+!---------------- select the sources datasets to be used   
+   use_gocart=1, 
+   gocart_data_dir='/discover/nobackup/projects/nu-wrf/cases/Global_emissions_v3/Emission_data/GOCART/emissions',
+
+   use_gfedv4=0,
+   gfedv4_data_dir='/discover/nobackup/projects/nu-wrf/cases/gfedv4',
+
+   gfedv4_suffix='DM,C,CO2,CO,CH4,NMHC,H2,NOx,N2O,PM2.5,TPM,TPC,OC,BC,SO2,C2H6,CH3OH,C2H5OH,C3H8,C2H2,C2H4,C3H6,C5H8,C10H16,C7H8,C6H6,C8H10,Toluene_lump,Higher_Alkenes,Higher_Alkanes,CH2O,C2H4O,C3H6O,NH3,C2H6S,HCN,HCOOH,CH3COOH,MEK,CH3COCHO,HOCH2CHO'
+
+    gfedv4_source=6
+
+  ! NUWRF Addition
+   use_qfed=1,
+!   qfed_data_dir='/discover/nobackup/projects/gmao/share/dao_ops/fvInput_nc3/PIESA/sfc/QFED/v2.4r8/0.25/',
+   qfed_data_dir='/discover/nobackup/projects/gmao/share/dao_ops/fvInput_nc3/PIESA/sfc/QFED/v2.4r8/0.1/',
+   qfed_suffix='acet,ald2,alk4,bc,c2h6,c3h6,c3h8,ch2o,ch4,co,co2,mek,nh3,no,oc,pm25,so2',
+
+!---------------- veg type data set (dir + prefix)
+   veg_type_data_dir      ='/tg0/projects/wrf-chem/wrfchemv31/surface_data/GL_IGBP_MODIS_INPE/MODIS',	       
+
+!---------------- olson data set (dir + prefix)  
+  olson_data_dir      ='./datain/EMISSION_DATA/OLSON2/OLSON',  
+!---------------- carbon density data set (dir + prefix)
+
+   carbon_density_data_dir='/tg0/projects/wrf-chem/wrfchemv31/surface_data/GL_OGE_INPE/OGE',
+   fuel_data_dir      ='',		     
+
+!---------------- gocart background
+   use_gocart_bg=1, 
+   gocart_bg_data_dir='/discover/nobackup/projects/nu-wrf/cases/Global_emissions_v3/Emission_data/GOCART',
+   gocart_bg_data_type='new'
+
+   use_volcanoes =0,
+   volcano_index =1143, !REDOUBT
+
+   use_these_values='NONE',
+! define a text file for using external values for INJ_HEIGHT, DURATION,
+! MASS ASH (units are meters - seconds - kilograms) and the format for 
+   begin_eruption='201303280000',  !begin time UTC of eruption YYYYMMDDhhmm   
+
+!---------------- degassing volcanoes emissions
+   use_degass_volcanoes =0,
+   degass_volc_data_dir ='./datain/EMISSION_DATA/VOLC_SO2', 
+!---------------- user specific  emissions directory
+!---------------- Update for South America megacities
+   user_data_dir='NONE',
+!--------------------------------------------------------------------------------------------------
+   pond=1,   ! mad/mfa  0 -> molar mass weighted 
+             !          1 -> Reactivity weighted   
+
+!---------------- for grid type 'll' or 'gg' only
+   grid_resolucao_lon=1.0,   ! degrees
+   grid_resolucao_lat=1.0,   ! degrees
+
+   nlat=320,        ! if gg (only global grid)
+   lon_beg = -180., ! (-180.:+180.) long-begin of the output file
+   lat_beg =  -90.,  ! ( -90.:+90. ) lat -begin of the output file
+   delta_lon= 360., ! total long extension of the domain (360 for global)
+   delta_lat= 180., ! total lat  extension of the domain (180 for global)
+
+
+!---------------- For regional grids (polar or lambert)
+
+   NGRIDS   = 2,            ! Number of grids to run
+
+   NNXP     = 300,  211,       ! Number of x gridpoints
+   NNYP     = 300,  211,       ! Number of y gridpoints
+   NXTNEST  = 0, 1,            ! Grid number which is the next coarser grid
+   DELTAX   = 9000,
+   DELTAY   = 9000,            ! X and Y grid spacing
+
+   ! Nest ratios between this grid and the next coarser grid.
+   NSTRATX  = 1, 3,            ! x-direction
+   NSTRATY  = 1, 3,           ! y-direction
+
+   NINEST = 1, 150,         ! Grid point on the next coarser
+   NJNEST = 1,  70,         !  nest where the lower southwest
+ 
+!   NKNEST = 1,  1,         !  nest where the lower southwest
+                             !  corner of this nest will start.
+                             !  If NINEST or NJNEST = 0, use CENTLAT/LON
+   
+   POLELAT  =  90.,          ! If polar, latitude/longitude of pole point
+   POLELON  =   0.,         ! If lambert, lat/lon of grid origin (x=y=0.)
+
+   STDLAT1  =  37.,          ! If polar, unused
+   STDLAT2  =  40.,          ! If lambert, standard latitudes of projection
+   STDLON   = -115.,
+
+   CENTLAT  =  37.0,   37.0,
+   CENTLON  = -115.0, -115.0
+
+!---------------- project  grid  to lat/lon: 'YES' or 'NOT' (only set up for GrADS visualization)
+   proj_to_ll='NO', 
+   
+!---------------- model output domain for each grid (only set up for GrADS visualization)
+   lati =  -90.,  -90.,   -90., 
+   latf =  +90.,  +90.,   +90.,  
+   loni = -180., -180.,  -180., 
+   lonf =  180.,  180.,   180., 
+!---------------- output file prefix (may include directory other than the current)
+   chem_out_prefix = 'nuwrf', 
+   chem_out_format = 'vfm', ! don't change' this
+
+!---------------- convert to WRF/CHEM (yes,no)
+  special_output_to_wrf = 'yes',
+
+/

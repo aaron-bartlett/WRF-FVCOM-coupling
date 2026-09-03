@@ -1,0 +1,35 @@
+#############################
+# BEGIN METGRID SEGMENT
+#############################
+THIS=METGRID
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.wps is present.
+if [ ! -e namelist.wps ]; then
+    echo "$THIS ERROR: namelist.wps not found!"
+    exit 1
+fi
+
+# Put metgrid TBL look-up file into metgrid subdirectory
+mkdir -p metgrid || exit 1
+
+ln -fs $NUWRFDIR/WPS/metgrid/METGRID.TBL.ARW metgrid/METGRID.TBL || exit 1
+if [ ! -e metgrid/METGRID.TBL ] ; then 
+    echo "$THIS ERROR: metgrid/METGRID.TBL does not exist!"
+    exit 1
+fi
+
+# Run metgrid.exe
+ln -fs $EXEDIR/WPS/metgrid.exe metgrid.exe || exit 1
+if [ ! -e "metgrid.exe" ] ; then
+    echo "$THIS ERROR: metgrid.exe does not exist!"
+    exit 1
+fi
+$MPIRUN ./metgrid.exe || exit 1
+
+# Tidy up logs
+mkdir -p metgrid_logs || exit 1
+mv -f metgrid.log* metgrid_logs 2>/dev/null
+
+exit 0

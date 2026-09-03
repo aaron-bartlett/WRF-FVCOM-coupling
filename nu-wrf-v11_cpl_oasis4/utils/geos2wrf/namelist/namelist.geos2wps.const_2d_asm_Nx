@@ -1,0 +1,44 @@
+
+&files
+  geosFileFormat=1,
+  geosFileName='MERRA300.prod.assim.const_2d_asm_Nx.00000000.hdf'
+  outputDirectory='./',
+/
+ 
+&coordinates
+ longitudeName='XDim',
+ latitudeName='YDim',
+/
+
+&forecast
+ numberOfTimes=1,
+ validTimes(1)='2009-08-25_00',
+ timeIndices(1) = 1,
+ forecastHours(1)=0,
+/
+
+&variables
+ numberOfVariables=3,
+
+ variableRanks(1) = 3,
+ variableLevelTypes(1) = 1,
+ variableNamesIn(1)='PHIS',
+ variableNamesOut(1)='PHIS',
+ variableUnits(1)='m**2 s**-2',
+ variableDescriptions(1)='Surface geopotential',
+
+ variableRanks(2) = 3,
+ variableLevelTypes(2) = 1,
+ variableNamesIn(2)='FRLAKE',
+ variableNamesOut(2)='FRLAKE',
+ variableUnits(2)='proprtn',
+ variableDescriptions(2)='Lake fraction',
+
+ variableRanks(3) = 3,
+ variableLevelTypes(3) = 1,
+ variableNamesIn(3)='FROCEAN',
+ variableNamesOut(3)='FROCEAN',
+ variableUnits(3)='proprtn',
+ variableDescriptions(3)='Ocean fraction',
+
+/

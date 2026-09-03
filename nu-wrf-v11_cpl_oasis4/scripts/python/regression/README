@@ -1,0 +1,223 @@
+---------------
+1. Introduction
+---------------
+
+The NU-WRF regression scripts are a set of python scripts and configuration 
+files designed to run tests on the NU-WRF code base.
+The scripts' functionality is all driven by the settings specified in a single
+configuration file.
+
+The configuration file is a text file with a particular structure readable by 
+the python scripts and easily understood by humans too! The files are organized 
+into sections, and each section contains name-value pairs for configuration data. 
+
+There is one configuration file required by the scripts - specified as a command
+line argument. The file can have any name but must have the '.cfg' extension. 
+A sample configuration file (sample.cfg) is included that can be used for 
+"routine" testing. The entries in the cfg file are described in the next section.
+
+Note:
+
+There are two additional files that are used specifically for NU-WRF testing:
+master.cfg and comp.cfg. These files should not be modified or used for anything
+other than as reference to build your own customized configuration.
+
+----------------------------
+2. Description of sample.cfg
+----------------------------
+
+The regression testing configuration can contain at most three types of sections:
+
+[USERCONFIG]
+[COMPCONFIG]
+[<test-case>]
+
+The section [USERCONFIG] contains various settings that are commonly changed 
+by a user. The available name-value pairs are:
+
+# Repository type we are testing (svn or git)
+repo_type=svn
+
+# Repository url we are testing
+repo_url=/path/to/repo
+
+# Branch name. This is only important if repository type is 'git'.
+repo_branch=my_branch
+
+# Filesystem where we are doing all the work. 
+# If it does not exist, it will be created.
+temp_dir=/discover/nobackup/ccruz/regression_testing/output
+
+# Where we keep the regression scripts. 
+# Default scripts are kept in <repo_url>/scripts/python/regression
+scripts_dir=/path/to/repo/scripts/python/regression
+
+# Compilation type (release, debug (-O0 -g), traps). Currently only "release"
+# is available. This setting becomes more useful under CMake.
+build_type=release
+
+# Where to mail tests report
+mail_to=<my_email_address>
+
+# The following options are not commonly changed:
+
+# Use SLURM batch system on DISCOVER (NASA only)
+# If set to 'no', script (and commands therein) will run interactively.
+use_batch=yes
+
+# sponsor ID required by SLURM
+sponsor_id=s0942
+
+# If we are using "modules" to load compilers then set to "yes"
+# NOTE: If modules=yes then specify/use modulelist in COMPCONFIG section
+# If set to 'no', scripts will use compilers available in the system.
+use_modules=yes
+
+# In case we update to CMake.... for now makeOld refers to GNU make.
+make_system=makeOld
+
+# Test report message (One sentence, no quotes)
+message=Regression testing of NU-WRF code base
+
+# To generate an html-formatted email message. If blank, message will be 
+# unformatted text (generally not recommended).
+use_html=yes
+
+# Clean the regression testing temporary space - everything under temp_dir
+clean_scratch=yes
+
+# Where we store data for the test cases. Default <project_dir>/regression_testing/data
+# and on DISCOVER <project_dir> = /discover/nobackup/projects/nu-wrf
+# Do not change unless you have the data needed to run a particular test case.
+data_dir=/discover/nobackup/projects/nu-wrf/regression_testing/data/Bjerknes
+
+# Location of WRF output baseline files. There will be subdirectories for each compiler
+# vendor and for each test case.
+baseline_dir=/discover/nobackup/projects/nu-wrf/regression_testing/baselines
+
+# To use a NU-WRF existing build, define prebuild_dir below. A prebuild contains
+# a pre-compiled NU-WRF code base with all the needed executables. For example:
+# prebuild_dir= /discover/nobackup/ccruz/nu-wrf/prebuilds
+# It is assumed that under prebuilds there will be subdirectories for each 
+# compiler vendor: e.g. /discover/nobackup/ccruz/nu-wrf/prebuilds/intel
+# If nothing specified then new builds will be created.
+prebuild_dir=
+
+
+The COMPCONFIG  section specifies the computational environment including,
+if specified, a list of module names.
+
+[COMPCONFIG]
+# What compiler vendors we support. Current choices are: intel (and in the 
+# future 'gnu')
+compilers=intel
+
+# Specify version for each compiler: One-to-one with 'compilers' list above.
+# This information is *only* used in the final report.
+compiler_versions=15.0.3.187
+
+# Specify names of module lists here. Note that the names in this list
+# must correspond to the ones referenced below.
+modulelist=intel_intelmpi
+
+# What each modulelist entry contains. Given names correspond to actual 
+# module names on DISCOVER (or system being used) and must be separated by commans
+intel_intelmpi=comp/intel-15.0.3.187,lib/mkl-15.0.3.187,mpi/sgi-mpt-2.12,other/comp/gcc-5.3-sp3
+
+
+
+A NU-WRF [<test-case>] assumes the following naming convention:
+
+    <workflow>_<experiment>
+
+where <workflow> is either of  wrf, wrflis, chem, kpp and:
+
+   wrf: default WRF-ARW runs (without LIS)
+   wrf-lis: like wrf but with LIS-coupling
+   chem: like wrf with chemistry
+   kpp: like wrf with chemistry - but chemistry solver uses KPP
+
+There are several experiments possible under each workflow. The current
+count is 32 (6 wrf, 8 wrflis, 16 chem, 2 kpp). See for example, master.cfg.
+   
+In the config file the name in brackets specifies the name of the NU-WRF
+experiment (or test case). Note that the experiment name is prefixed by the
+workflow name. For example:
+
+[wrflis_noah36_umd_merra2]
+compilers=intel-sgimpt
+components=geogrid,merra2wrf,avg_tsfc,sst2wrf,metgrid,ldt_prelis,lis,ldt_postlis,real,wrf
+npes=1,1,1,1,1,1,84,1,28,308
+expected_output=wrfout_d01_2007-01-19_12:00:00,wrfout_d01_2007-01-19_15:00:00,wrfout_d02_2007-01-19_12:00:00,wrfout_d02_2007-01-19_15:00:00,wrfout_d03_2007-01-19_12:00:00,wrfout_d03_2007-01-19_15:00:00
+
+Here, 'compilers' specifies what compiler configurations - as specified in COMPCONFIG
+to use for testing this particular test case. Note that the option specifies
+both a compiler and  an MPI version. Another option is gnu-mvapich2.
+
+The 'components' option specifies the NU-WRF components that will be executed 
+for the wrf_3iceg_2014rad test case. The entries must be in the order that 
+they will be executed. So, for example if the order is specified as
+ungrib,geogrid,metgrid,wrf,real then the test will definitely produce a run-time
+failure. Similary if a 'required' entry is missing, the test will fail.
+
+'npes' specifies the number of cpus used by each component when it runs.
+E.g., in the wrflis_noah36_umd_merra2 test geogrid will run on 1 cpu, lis will run
+on 84 and wrf will run on 308.
+
+The expected_output is a list of file names that are expected to be produced
+upon successful completion of the run. At the end of the run the reg script 
+will attempt to compare the run output with the baseline files stored in the specified
+baseline_dir. If expected_output is missing, the comparison will be skipped.
+
+By default, tests will compile and run but there is an additional optin called
+"verification" (not shown) that can be used to specify that the model should only be
+compiled. So, set "verification=compile_only" to simply verify that the code base 
+compiles and builds all the required executables for a particular test.
+
+The sample file contains 4 test cases. For more test cases (32 in total) please
+see the master.cfg file.
+
+-----------------
+3. Python scripts
+-----------------
+
+The python scripts are the following:
+
+reg           : Main regression scripts driver.
+RegPool.py    : A class with functionality to parallelize tasks.
+regression.py : A driver script to execute the NU-WRF component tasks.
+RegRuns.py    : A class that defines regression test run instances.
+RegTest.py    : A class that defines regression test instances.
+reg_tools.py  : Various tools used by the main drivers.
+reg_utils.py  : VArious utilities used by all the scripts.
+
+To run the scripts, specify the configuration file name as an argument to reg:
+
+$ reg <cfg_file> &
+
+Note that the extension should not be specified.
+
+Upon execution the user will see some messages echoed to STDOUT but
+all the output will be logged to a file named <cfg_file>.LOG.
+
+There will be other "log" files, one for each  <workflow> and one for each 
+<experiment>, that will be generated for each 'reg' run.
+
+Workflow builds, a maximum of four, will be generated in <temp_dir>/scratch
+Each build will have <workflow>.out and <workflow>.err files that will be
+useful to diagnose build errors.
+
+Run logs will be generated in each run directory under <temp_dir>/results.
+These will have the name <experiment>-regression.log and should also be very
+useful to diagnose test-case-specific run-time issues.
+
+At the end of a "reg" an email test report will be emailed to the recipient
+specified in the mail_to field in USERCONFIG.
+
+All 'reg' runs are tagged with a unique time stamp corresponding to the date/time
+the run was executed. This allows to submit multiple runs in one day with the only
+requirement that the submissions be executed one second apart. This is very unlikely
+to happen! Nevertheles, the time stamps are useful because it is possible that runs 
+submitted one day may not be done a day later and the time stamps allows us to separate
+the results.
+

@@ -1,0 +1,81 @@
+Jossy Jacob (SSAI) 
+=================================================================================================
+Instructions to prepare the data for casa2wrf pre-procesor
+Jossy Jacob May 29, 2015
+=================================================================================================
+There are 2 steps for preparing the data in netcdf format. 
+1. Run a matlab code to read and write the data in binary format.
+2. Run a fortran program to read the binary data to netcdf format ready for casa2wrf
+=================================================================================================
+Step 1:
+Input dir: Original_data/
+Binary Outputdir: Binary/
+Matlab scripts: Read_alldata_CASA2.m 
+How to run: 
+Login to dali from discover: ssh -YC dali
+
+Add this line to .cshrc file
+alias matlab '/discover/vis/matlab/matlab_r2014a/bin/matlab'
+matlab &  
+or
+/discover/vis/matlab/matlab_r2014a/bin/matlab 
+
+Run the matlab script: Read_alldata_CASA2.m
+>Read_alldata_CASA2
+
+Once the program ends, the plots will be made and binary files will be created in the Output dir.  
+
+Original_data/
+This directory has the data files in different formats, text files, binary files
+ 
+-rw-r--r-- 1 jjacob s0942    208512 2015-05-29 12:48 D_float.2010
+-rw-r--r-- 1 jjacob s0942 194921238 2015-05-29 12:48 fire_emiss_daily_2010.txt
+-rw-r--r-- 1 jjacob s0942   7533688 2015-05-29 12:48 FUE2010.txt
+-rw-r--r-- 1 jjacob s0942  31108320 2015-05-29 12:48 NPP2010.txt
+-rw-r--r-- 1 jjacob s0942  31108320 2015-05-29 12:48 resp2010.txt
+-rw-r--r-- 1 jjacob s0942   2502144 2015-05-29 12:48 Taka02.1x1.25.data
+
+Run the matlab code: Read_alldata_CASA2.m
+This program will convert the data files to binary, and plot the data files.
+
+Creates the following files: 
+
+-rw-r--r-- 1 jjacob s0942  12441716 2015-05-29 14:46 BFUEL_2010.dat
+-rw-r--r-- 1 jjacob s0942 378434940 2015-05-29 14:46 FIRE_2010.dat
+-rw-r--r-- 1 jjacob s0942    208540 2015-05-29 14:46 FossilFuel_2010.dat
+-rw-r--r-- 1 jjacob s0942  12441716 2015-05-29 14:46 NPP_2010.dat
+-rw-r--r-- 1 jjacob s0942   2502260 2015-05-29 14:46 OceanCO2_2010.dat
+-rw-r--r-- 1 jjacob s0942  12441716 2015-05-29 14:46 RESP_2010.dat
+
+
+Step 2
+=================================================================================================
+Input dir: Step1 Binary directory
+Outputdir: Netcdf_data/
+
+Compile the fortran code: make -f Makefile_convert
+./ConvertData2Netcdf.x 
+
+This program creates the Netcdf files for input to the casa2wrf pre-processor
+=================================================================================================
+
+Creates netcdf input files for the casa2wrf preprocessor. 
+
+-rw-r--r-- 1 jjacob s0942 12446608 2015-12-01 11:14 BFUE_2010_mon0.nc
+-rw-r--r-- 1 jjacob s0942   209708 2015-12-01 11:14 FFUE_2010_year.nc
+-rw-r--r-- 1 jjacob s0942 32146168 2015-12-01 11:14 FIRE_2010_daily_01.nc
+-rw-r--r-- 1 jjacob s0942 29035708 2015-12-01 11:14 FIRE_2010_daily_02.nc
+-rw-r--r-- 1 jjacob s0942 32146168 2015-12-01 11:14 FIRE_2010_daily_03.nc
+-rw-r--r-- 1 jjacob s0942 31109348 2015-12-01 11:14 FIRE_2010_daily_04.nc
+-rw-r--r-- 1 jjacob s0942 32146168 2015-12-01 11:14 FIRE_2010_daily_05.nc
+-rw-r--r-- 1 jjacob s0942 31109348 2015-12-01 11:14 FIRE_2010_daily_06.nc
+-rw-r--r-- 1 jjacob s0942 32146168 2015-12-01 11:14 FIRE_2010_daily_07.nc
+-rw-r--r-- 1 jjacob s0942 32146168 2015-12-01 11:14 FIRE_2010_daily_08.nc
+-rw-r--r-- 1 jjacob s0942 31109348 2015-12-01 11:14 FIRE_2010_daily_09.nc
+-rw-r--r-- 1 jjacob s0942 32146168 2015-12-01 11:14 FIRE_2010_daily_10.nc
+-rw-r--r-- 1 jjacob s0942 31109348 2015-12-01 11:14 FIRE_2010_daily_11.nc
+-rw-r--r-- 1 jjacob s0942 32146168 2015-12-01 11:14 FIRE_2010_daily_12.nc
+-rw-r--r-- 1 jjacob s0942 12446596 2015-12-01 11:14 NPP0_2010_mon0.nc
+-rw-r--r-- 1 jjacob s0942  2490872 2015-12-01 11:14 OCO2_2010_mon0.nc
+-rw-r--r-- 1 jjacob s0942 12446608 2015-12-01 11:14 RESP_2010_mon0.nc
+

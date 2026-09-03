@@ -1,0 +1,20 @@
+#################################
+# BEGIN PREP_CHEM_SOURCES SEGMENT
+#################################
+THIS=PREP_CHEM_SOURCES
+
+cd $RUNDIR || exit 1
+
+TOP=/discover/nobackup/projects/nu-wrf/regression_testing/data/Charney/chem
+for f in `ls $TOP/gfed4_gocart/gfedv4_data`; do
+   ln -sf $TOP/gfed4_gocart/gfedv4_data/$f .
+done
+
+PCSexe=prep_chem_sources.x
+ln -fs $EXEDIR/utils/bin/${PCSexe} || exit 1
+if [ ! -e ${PCSexe} ] ; then
+    echo "ERROR, ${PCSexe} not found!"
+    exit 1
+fi
+./${PCSexe} || exit 1
+

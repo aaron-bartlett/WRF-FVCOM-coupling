@@ -1,0 +1,100 @@
+#!/bin/bash
+#SBATCH -J wrf
+#SBATCH -o /discover/nobackup/ccruz/scratch/nu-wrf/dev_scm/results/intel-intelmpi.2019-12-13_13-31-47/wrflis_scm/wrf.out
+#SBATCH -e /discover/nobackup/ccruz/scratch/nu-wrf/dev_scm/results/intel-intelmpi.2019-12-13_13-31-47/wrflis_scm/wrf.err
+#SBATCH --account=s0942
+#SBATCH --ntasks=1
+#SBATCH --constraint=hasw
+#SBATCH --qos=allnccs
+#SBATCH --time=2:00:00
+# source common file for modules and paths 
+source ./common.reg || exit 1 
+export MPIRUN='mpirun -np 1' 
+#############################
+# BEGIN WRF SEGMENT
+#############################
+THIS=WRF
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.input is present.
+if [ ! -e namelist.input ] ; then
+    if [ ! -e namelist.input.wrf ] ; then
+	echo "$THIS ERROR: namelist.input not found!"
+	exit 1
+    else
+	ln -s namelist.input.wrf namelist.input || exit 1
+    fi
+fi
+
+# Copy the various wrf lookup files into the work directory.
+if [ -z "$NUWRFDIR" ] ; then
+    echo "$THIS ERROR: NUWRFDIR is not defined!" && exit 1
+fi
+cd $NUWRFDIR/WRF/run || exit 1
+files=`ls`
+for file in $files ; do
+    [[ $file == *.exe ]] && continue
+    [[ $file == namelist* ]] && continue
+    [[ $file == README* ]] && continue
+    [[ $file == input* ]] && continue
+
+    if [ ! -e $file ] ; then
+        echo "$THIS ERROR: $file does not exist!" && exit 1
+    fi
+
+    ln -fs $NUWRFDIR/WRF/run/$file $RUNDIR/$file || exit 1
+    if [ ! -e $RUNDIR/$file ] ; then
+	echo "$THIS ERROR: $RUNDIR/$file does not exist!" && exit 1
+    fi
+done
+
+# For running with 2014 Goddard radiation
+rm -f $RUNDIR/GODDARDRAD_SSLUT
+ln -fs $NUWRFDIR/WRF/GODDARDRAD_SSLUT $RUNDIR/GODDARDRAD_SSLUT || exit 1
+if [ ! -e $RUNDIR/GODDARDRAD_SSLUT ] ; then
+    echo "$THIS ERROR: $RUNDIR/GODDARDRAD_SSLUT does not exist!" && exit 1
+fi
+
+# For running WRF/LIS. 
+# FIXME: Add logic to skip this if uncoupled WRF will be run.
+rm -f $RUNDIR/LS_PARAMETERS
+rm -f $RUNDIR/MET_FORCING
+ln -fs $LISDIR/LS_PARAMETERS $RUNDIR/LS_PARAMETERS || exit 1
+if [ ! -e $RUNDIR/LS_PARAMETERS ] ; then
+    echo "$THIS ERROR: $RUNDIR/LS_PARAMETERS does not exist!" && exit 1
+fi
+ln -fs $LISDIR/MET_FORCING $RUNDIR/MET_FORCING || exit 1
+if [ ! -e $RUNDIR/MET_FORCING ] ; then
+    echo "$THIS ERROR: $RUNDIR/MET_FORCING does not exist!" && exit 1
+fi
+
+# Link the wrf.exe executable
+ln -fs $EXEDIR/WRF/main/wrf.exe $RUNDIR/wrf.exe || exit 1
+if [ ! -e $RUNDIR/wrf.exe ] ; then
+    echo "$THIS ERROR: $RUNDIR/wrf.exe does not exist!" && exit 1
+fi
+
+# Run wrf.exe
+cd $RUNDIR || exit 1
+
+$MPIRUN ./wrf.exe || exit 1
+
+# Move the RSL log files.
+if [ -e $RUNDIR/wrf_logs ] ; then
+    rm -rf $RUNDIR/wrf_logs || exit 1
+fi
+mkdir $RUNDIR/wrf_logs || exit 1
+rsl_files=`ls rsl.*`
+for file in $rsl_files ; do
+    mv -f $file $RUNDIR/wrf_logs/$file || exit 1 2>/dev/null
+done
+lislog_files=`ls lislog.*`
+for file in $lislog_files ; do
+    mv -f $file $RUNDIR/wrf_logs/$file || exit 1 2>/dev/null
+done
+
+# Clean up symbolic link
+if [ -L namelist.input ] ; then
+    rm -f namelist.input || exit 1
+fi

@@ -1,0 +1,246 @@
+!-------------------------------------------------------------------------------
+! #############################################################################
+! ##################### Axis ratio and Canting angle distribution #############
+! #############################################################################
+!
+! Comments:
+! This file specify axis ratio and canting angle for polarimetric radar simulator.
+! These parameters should be specified for general bulk microphysics, RAMS, HUCM SBM
+! classes.
+!
+!
+! num_axis_###  : number of axis ratio
+! ityp_axis_### : specific type of axis ratio parameterization as function of size (if undefined(-999), use manual value below)
+! axis_ratio_###: manual axis ratio
+! ityp_dist_### : canting angle distribution type (0-ramdom, 2-quasi gaussian, if 0 below canting angles are ignored)
+! mean_cant_### : mean canting angle
+! num_stdev_### : number of standard deviation
+! stdev_cant_###: standar deviation (degree of tumbling)
+!
+!
+! Axis ratio - size parameterization
+!
+!    tag_chuang_beard_1990      = 201  , & ! (equilibrium assumption. more oblate. ref zdr=2.42)
+!    tag_jameson_1983           = 203  , & ! (oscilating ave . less oblate.        ref zdr=0.76)
+!    tag_green_1975             = 204  , & ! (equilibrium assumption. parabolic.   ref zdr=2.33)
+!    tag_pruppacher_pitter_1971 = 205  , & ! (equilibrium assumption. more oblate. ref zdr=2.31)
+!    tag_jones_i_1959           = 206  , & ! (equilibrium assumption. more oblate. ref zdr=2.10)
+!    tag_jones_ii_1959          = 207  , & ! (equilibrium assumption. more oblate. ref zdr=1.84)
+!    tag_goddard_cherry_1984    = 208  , & ! (equilibrium assumption. more oblate. ref zdr=2.41)
+!    tag_brandes_2002           = 209      ! (oscilating ave. less oblate.         ref zdr=0.76)
+!    tag_ryzhkov_gh_2011        = 210      ! (dry graupel/hail axis ratio ) streching oblate
+!    tag_hail_knight_1986       = 211  , & ! hail model of empirical fit from knight 1986. 
+!
+! Snow and graupel canting angle distributions are derived from Garrett et al. 2016 GRL. 
+! Used PDF peak as mean values, and using the fitting to find the maximum correlation to find sigma. 
+! Axis ratios are also derived from weighted mean of Garrett et al. 2016 GRL.
+! 
+! Hail axis ratio is derived from Knight 1986.
+!
+!
+! History:
+!  06/2017  Toshi Matsui@NASA GSFC ; Init
+!
+! References:
+! Garrett, T. J., S. E. Yuter, C. Fallgatter, K. Shkurko, S. R. Rhodes, and J. L. Endries (2015), 
+!      Orientations and aspect ratios of falling snow. Geophys. Res. Lett., 42, 4617–4622. 
+!      doi: 10.1002/2015GL064040.
+!
+! Knight, N.C., 1986: Hailstone Shape Factor and Its Relation to Radar Interpretation of Hail. 
+!      J. Climate Appl. Meteor., 25, 1956–1958, https://doi.org/10.1175/1520-0450(1986)025<1956:HSFAIR>2.0.CO;2
+!
+!--------------------------------------------------------------------------------
+
+
+! #############################################################################
+! #####################      General bulk scheme           ####################
+! #############################################################################
+
+$gen_switch
+
+  num_axis_gen%cloud  = 1
+  ityp_axis_gen(1)%cloud = -999  !if undefined, use manual value below
+  axis_ratio_gen(1)%cloud = 1.0
+  ityp_dist_gen%cloud     = 2
+  mean_cant_gen%cloud  = 0.0
+  num_stdev_gen%cloud     = 1
+  stdev_cant_gen(1)%cloud = 1.0
+
+  num_axis_gen%rain  = 1
+  ityp_axis_gen(1)%rain = 209
+  axis_ratio_gen(1)%rain = 1.0
+  ityp_dist_gen%rain     = 2
+  mean_cant_gen%rain  = 0.0
+  num_stdev_gen%rain     = 1
+  stdev_cant_gen(1)%rain = 10.
+
+  num_axis_gen%ice  = 1
+  ityp_axis_gen(1)%ice = -999
+  axis_ratio_gen(1)%ice = 2.
+  ityp_dist_gen%ice     = 0  !ramdomly orient
+  mean_cant_gen%ice  = 0.0
+  num_stdev_gen%ice     = 1
+  stdev_cant_gen(1)%ice = 10.e0
+
+  num_axis_gen%snow  = 1
+  ityp_axis_gen(1)%snow = -999 !if undefined, use manual value below
+  axis_ratio_gen(1)%snow = 0.592
+  ityp_dist_gen%snow     = 2
+  mean_cant_gen%snow  = 27.0
+  num_stdev_gen%snow     = 1
+  stdev_cant_gen(1)%snow = 50.e0 
+
+  num_axis_gen%graupel  = 1
+  ityp_axis_gen(1)%graupel = -999.  !if undefined, use manual value below
+  axis_ratio_gen(1)%graupel =  0.814
+  ityp_dist_gen%graupel     = 2
+  mean_cant_gen%graupel  = 20.0     
+  num_stdev_gen%graupel     = 1
+  stdev_cant_gen(1)%graupel = 42.e0 
+
+  num_axis_gen%hail  =  1
+  ityp_axis_gen(1)%hail = 211  !if undefined, use manual value below
+  axis_ratio_gen(1)%hail =  0.75
+  ityp_dist_gen%hail     = 2
+  mean_cant_gen%hail  = 90.0
+  num_stdev_gen%hail     = 1
+  stdev_cant_gen(1)%hail = 10.0
+
+$end
+
+! #############################################################################
+! #####################    RAMS microphysics scheme        ####################
+! #############################################################################
+
+$rams_switch
+
+  num_axis_rams%cloud1  = 1
+  ityp_axis_rams(1)%cloud1 = -999  !if undefined, use manual value below
+  axis_ratio_rams(1)%cloud1 = 1.0
+  ityp_dist_rams%cloud1     = 2
+  mean_cant_rams%cloud1  = 0.0
+  num_stdev_rams%cloud1     = 1
+  stdev_cant_rams(1)%cloud1 = 10.0
+
+  num_axis_rams%cloud2  =1
+  ityp_axis_rams(1)%cloud2 = 209  !if undefined, use manual value below
+  axis_ratio_rams(1)%cloud2 = 1.0
+  ityp_dist_rams%cloud2     = 2
+  mean_cant_rams%cloud2  = 0.0
+  num_stdev_rams%cloud2     = 1
+  stdev_cant_rams(1)%cloud2 = 10.0
+
+  num_axis_rams%rain  = 1
+  ityp_axis_rams(1)%rain  = 209  !if undefined, use manual value below
+  axis_ratio_rams(1)%rain = 1.0
+  ityp_dist_rams%rain     = 2
+  mean_cant_rams%rain  = 0.0
+  num_stdev_rams%rain     = 1
+  stdev_cant_rams(1)%rain = 10.
+
+  num_axis_rams%ice1  = 1
+  ityp_axis_rams(1)%ice1 = -999  !if undefined, use manual value below
+  axis_ratio_rams(1)%ice1 = 2.
+  ityp_dist_rams%ice1     = 0   !ramdomly orient
+  mean_cant_rams%ice1  = 0.0
+  num_stdev_rams%ice1     = 1
+  stdev_cant_rams(1)%ice1 = 10.e0
+
+  num_axis_rams%ice2  = 1
+  ityp_axis_rams(1)%ice2 = -999  !if undefined, use manual value below
+  axis_ratio_rams(1)%ice2 = 0.35
+  ityp_dist_rams%ice2     = 2
+  mean_cant_rams%ice2  = 0.0
+  num_stdev_rams%ice2     = 1
+  stdev_cant_rams(1)%ice2 = 10.e0
+
+  num_axis_rams%snow  = 1
+  ityp_axis_rams(1)%snow = -999  !if undefined, use manual value below
+  axis_ratio_rams(1)%snow = 0.592
+  ityp_dist_rams%snow     = 2
+  mean_cant_rams%snow  = 10.0
+  num_stdev_rams%snow     = 1
+  stdev_cant_rams(1)%snow = 66.e0 
+
+  num_axis_rams%graupel  = 1
+  ityp_axis_rams(1)%graupel = -999.  !if undefined, use manual value below
+  axis_ratio_rams(1)%graupel = 0.814
+  ityp_dist_rams%graupel     = 2
+  mean_cant_rams%graupel  = 20.0
+  num_stdev_rams%graupel     = 1
+  stdev_cant_rams(1)%graupel = 42.e0
+
+  num_axis_rams%hail  = 1
+  ityp_axis_rams(1)%hail = 211  !if undefined, use manual value below
+  axis_ratio_rams(1)%hail =  0.75
+  ityp_dist_rams%hail     = 2
+  mean_cant_rams%hail  = 90.0
+  num_stdev_rams%hail     = 1
+  stdev_cant_rams(1)%hail = 10.
+
+$end
+
+! #############################################################################
+! ################      HCUM Spectra Bin Microphysics      ####################
+! #############################################################################
+
+$sbm_switch
+
+  num_axis_sbm%liq  = 1
+  ityp_axis_sbm(1)%liq = 209  !if undefined, use manual value below
+  axis_ratio_sbm(1)%liq = 1.
+  ityp_dist_sbm%liq     = 2
+  mean_cant_sbm%liq  = 0.0
+  num_stdev_sbm%liq     = 1
+  stdev_cant_sbm(1)%liq = 1.0
+
+  num_axis_sbm%ice_col  = 1
+  ityp_axis_sbm(1)%ice_col = -999  !if undefined, use manual value below
+  axis_ratio_sbm(1)%ice_col = 2.
+  ityp_dist_sbm%ice_col     = 0    !ramdomly orient
+  mean_cant_sbm%ice_col  = 0.0
+  num_stdev_sbm%ice_col     = 1
+  stdev_cant_sbm(1)%ice_col = 10.e0
+
+
+  num_axis_sbm%ice_pla  = 1
+  ityp_axis_sbm(1)%ice_pla = -999   !if undefined, use manual value below
+  axis_ratio_sbm(1)%ice_pla = 0.35 !consistent to HID (ice crystal)
+  ityp_dist_sbm%ice_pla     = 0 
+  mean_cant_sbm%ice_pla  = 0.0
+  num_stdev_sbm%ice_pla     = 1
+  stdev_cant_sbm(1)%ice_pla = 10.e0
+
+  num_axis_sbm%ice_den  = 1
+  ityp_axis_sbm(1)%ice_den = -999    !if undefined, use manual value below
+  axis_ratio_sbm(1)%ice_den = 0.125 ! consistent to HID (ice crystal)
+  ityp_dist_sbm%ice_den     = 2
+  mean_cant_sbm%ice_den  = 0.0
+  num_stdev_sbm%ice_den     = 1
+  stdev_cant_sbm(1)%ice_den = 10.e0
+
+  num_axis_sbm%snow  = 1
+  ityp_axis_sbm(1)%snow = -999.  !if undefined, use manual value below
+  axis_ratio_sbm(1)%snow = 0.592
+  ityp_dist_sbm%snow     = 2
+  mean_cant_sbm%snow     = 10.0
+  num_stdev_sbm%snow     = 1
+  stdev_cant_sbm(1)%snow = 66.e0
+
+  num_axis_sbm%graupel  = 1
+  ityp_axis_sbm(1)%graupel = -999  !if undefined, use manual value below
+  axis_ratio_sbm(1)%graupel = 0.814
+  ityp_dist_sbm%graupel     = 2
+  mean_cant_sbm%graupel  = 20.0
+  num_stdev_sbm%graupel     = 1
+  stdev_cant_sbm(1)%graupel =  42.0 
+
+  num_axis_sbm%hail  = 1
+  ityp_axis_sbm(1)%hail = 211 !if undefined, use manual value below
+  axis_ratio_sbm(1)%hail = 0.75
+  ityp_dist_sbm%hail     = 2
+  mean_cant_sbm%hail  = 90.0
+  num_stdev_sbm%hail     = 1
+  stdev_cant_sbm(1)%hail = 10.0 
+
+$end

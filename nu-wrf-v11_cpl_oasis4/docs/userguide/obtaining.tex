@@ -1,0 +1,137 @@
+\section{Obtaining Software}
+\label{sec:Obtaining}
+
+\subsection{Software Usage Agreement}
+
+The release of NU-WRF software is subject to NASA legal review, and requires
+users to sign a Software Usage Agreement. Toshi Matsui 
+(\href{mailto:toshihisa.matsui-1@nasa.gov}
+{\texttt{toshihisa.matsui-1@nasa.gov}}) and 
+Carlos Cruz (\href{mailto:carlos.a.cruz@nasa.gov}{\texttt{carlos.a.cruz@nasa.gov}}) 
+are the points of contact for discussing and processing requests for the NU-WRF
+software.
+
+There are three broad categories for software release:
+
+\begin{enumerate}
+\item \textbf{US Government -- Interagency Release.}
+A representative of a US government agency should initiate contact and provide
+the following information:
+\begin{enumerate}
+  \item The name and division of the government agency
+  \item The name of the Recipient of the NU-WRF source code
+  \item The Recipient's title/position
+  \item The Recipient's address
+  \item The Recipient's phone and FAX number
+  \item The Recipient's e-mail address
+\end{enumerate}
+
+\item \textbf{US Government -- Project Release under a Contract.}
+If a group working under contract or grant for a US government agency requires
+the NU-WRF source code for the performance of said contract or grant, then
+a representative should initiate contact and provide a \emph{copy of the grant
+or contract cover page}. Information should include the following:
+\begin{enumerate}
+  \item The name and division of the government agency
+  \item The name of the Recipient of the NU-WRF source code
+  \item The Recipient's title/position
+  \item The Recipient's address
+  \item The Recipient's phone and FAX number
+  \item The Recipient's e-mail address
+  \item The contract or grant number
+  \item The name of the Contracting Officer
+  \item The Contracting Officer's phone number
+  \item The Contracting Officer's e-mail address
+\end{enumerate}
+
+\item \textbf{All Others.}
+Those who do not fall under the above two categories but who wish to use
+NU-WRF software should initiate contact to discuss possibilities for 
+collaborating. Note, however, that NASA cannot accept all requests due to
+legal constraints.
+\end{enumerate}
+
+\subsection{Tar File}
+
+The Recipient will be provided a compressed tar file containing the entire
+NU-WRF source code distribution. (NU-WRF project members have access to tar 
+files pre-staged on the NASA Discover and Pleaides supercomputers.)
+Two variants are available: gzip compressed
+(\texttt{nu-wrf\_v11-wrf421-lisf.tgz}) and bzip2 compressed
+(\texttt{nu-wrf\_v11-wrf421-lisf.tar.bz2}). Bzip2 compression generates
+slightly smaller files but can take considerably longer to decompress.
+
+To untar, type either:
+\begin{quote} 
+  \texttt{tar -zxf nu-wrf\_v11-wrf421-lisf.tgz}
+\end{quote}
+
+or
+
+\begin{quote}
+  \texttt{bunzip2 nu-wrf\_v11-wrf421-lisf.tar.bz2}\\
+  \texttt{tar -xf nu-wrf\_v11-wrf421-lisf.tar}
+\end{quote}
+
+A \texttt{nuwrf\_v11-wrf421-lisf/} directory should be created.
+
+\subsection{NUWRF Repository}
+
+Current source development is managed in a Gitlab repository at
+(\url{https://git.mysmce.com/astg/nuwrf/}). To access the repository contact  Carlos Cruz\\
+(\href{mailto:carlos.a.cruz@nasa.gov}{\texttt{carlos.a.cruz@nasa.gov}}) to get an invite. Afterwards, getting full access will require the user to open a ticket by sending an email to support@nccs.nasa.gov with "SMCE Gitlab" in the subject, including the new user's name, email and which SMCE project they are attached to - in this case it will be NU-WRF. Once access is granted, the user can obtain the source code using the following command. 
+
+\begin{quote}
+\texttt{git clone -b develop https://git.mysmce.com/astg/nuwrf/nu-wrf-dev}
+\end{quote}
+
+Developers who wish to collaborate are encouraged to clone the Git repository and create their own 
+feature branches in their local repositories. Later, these features can be merged into the master branch and pushed to the central repository. This process requires that the code pass certain testing and validation criteria and finally be approved by the  NU-WRF core developers. For more information using Git with NU-WRF see \url{https://nuwrf.gsfc.nasa.gov/sites/default/files/docs/git-intro.pdf}.
+\hfill \break
+\mbox{}\\
+
+\subsection{Directory Structure}
+
+The source code directory structure is as follows:
+
+\begin{itemize}
+  \item The \texttt{GSDSU/}, \texttt{LISF/}, \texttt{utils/}, 
+    \texttt{WPS/}, and \texttt{WRF/} folders contain the source codes of the
+    components summarized in Section~\ref{subsec:Components}.
+    
+  \item \texttt{ARWpost/}, \texttt{RIP4/}, \texttt{UPP/} and \texttt{MET/} components are automatically built on discover. On non-discover systems users will be prompted to download the component(s) allowing them to be built. Copies of \texttt{RIP4/} and \texttt{UPP/}, which contain
+    NU-WRF specific enhancements, can be provided upon request.
+    
+  \item The \texttt{docs/} folder contains \LaTeX documentation to generate this document 
+  (in \texttt{docs/userguide/}) as well as tutorial documentation (in \texttt{docs/tutorial/}).
+    
+  \item The \texttt{scripts/} folder contains various scripts for various tasks including
+    building NU-WRF and running regression tests.
+    
+    \begin{itemize}
+    \item Sample input files for RIP4 are stored in the \texttt{rip/} subfolder.  
+    \item The \texttt{other/} subfolder contains scripts that facilitate the installation of the required NU-WRF external libraries (see Section \ref{subsec:Libraries}) and a script to setup the correct module environment on supported platforms. 
+    \item Finally, the  \texttt{python/} subfolder contains5 subfolders:
+      
+    \begin{itemize}
+    \item  A \texttt{utils/} subfolder with python scripts to download SST data from NASA SPoRT, SSTRSS data from http://data.remss.com/ and MERRA data from NASA.  There are also other python utilities that can be used in specific workflows. 
+    \item A \texttt{build/} subfolder with scripts and configuration files used to build NU-WRF 
+    including. 
+    \item  A \texttt{regression/} subfolder with scripts and configuration files used to regression test NU-WRF.
+    \item A \texttt{shared/} subfolder with scripts shared by other scripts. 
+    \item A \texttt{devel/} subfolder with a script to generate a release tarball.
+    \end{itemize}
+    
+   \end{itemize}
+  \item The \texttt{testcases/} folder contains sample namelist and other 
+    input files for NU-WRF for different configurations (simple WRF,
+    WRF with LIS, WRF-Chem, and WRF-KPP) used by the regression testing mechanism.
+    The \texttt{tutorial/} folder contains sample namelist and other input files used
+    for the NU-WRF tutorials (\url{https://nuwrf.gsfc.nasa.gov/nu-wrf-tutorials}).
+
+\end{itemize}
+
+The main directory also includes a small bash script that interfaces with the NU-WRF build 
+system (discussed in Section~\ref{subsec:BuildSystem}) and a README file. Additionally, there is a 
+\texttt{CHANGELOG.TXT} file under the \texttt{docs/} summarizing the evolution of the overall modeling
+system up version v9p3.

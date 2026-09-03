@@ -1,0 +1,188 @@
+ &RP_INPUT
+
+!##############################################################################!
+!  CPTEC emission model    CPTEC/INPE                          !
+!  version 1: 20/may/2008                                                      !
+!  developed/coded by Saulo Freitas and Karla Longo                            !
+!  contact: saulo.freitas@cptec.inpe.br  web: meio_ambiente.cptec.inpe.br      !
+!###############################################################################
+
+ 
+!---------------- grid_type of the grid output
+   grid_type= 'lambert',	!
+                        !'polar'   = polar stereo. grid output
+                        ! 'gg'     = gaussian grid output
+			!'lambert' = Lambert conformal grid output
+			! 'll'     = lat/lon grid output
+
+!---------------- if the output data is for use in CATT-BRAMS model, provide at least one analysis file
+!---------------- of this model
+    rams_anal_prefix = './ANL/barca',
+
+!---------------- date of emission  
+!   ihour=00, iday=29, imon=06, iyear=2007,
+    ihour=00, 
+    iday=01, 
+    imon=01, 
+    iyear=2008,
+    gfedv3_suffix='BC,C2H4O,C2H4,C2H5OH,C2H6S,C2H6,C3H6O,C3H6,C3H8,C4,C5H8,CH2O,CH3OH,CH4,CO2,CO,C,DM,H2,Higher_Alkanes,Higher_Alkenes,N2O,NH3,NMHC,NOx,OC,PM2p5,SO2,TC,Terpenes,Toluene_lump,TPM',
+
+!---------------- select the sources datasets to be used   
+   use_retro=0,  ! 1 = yes, 0 = not
+   retro_data_dir='/tg0/projects/wrf-chem/wrfchemv31/Emission_data/RETRO/anthro',
+   use_edgar=0, 
+   edgar_data_dir='/tg0/projects/wrf-chem/wrfchemv31/Emission_data/EDGAR/anthro',
+
+   use_gocart=1, 
+!   gocart_data_dir='/discover/nobackup/qtan/models/wrfchem/emissions/gocart/wrfchem_v31/Global_emissions_v3/Emission_data/GOCART/emissions',
+   gocart_data_dir='/discover/nobackup/projects/nu-wrf/cases/Global_emissions_v3/Emission_data/GOCART/emissions',
+
+   use_bioge=0, 
+   bioge_data_dir='/tg0/projects/wrf-chem/wrfchemv31/Emission_data/biogenic_emissions',
+
+   use_fwbawb=0,
+   fwbawb_data_dir='/tg0/projects/wrf-chem/wrfchemv31/Emission_data/Emissions_Yevich_Logan',
+
+   use_gfedv2=0,
+!   gfedv2_data_dir='/discover/nobackup/qtan/models/wrfchem/emissions/gocart/wrfchem_v31/Global_emissions_v3/Emission_data/GFEDv2-8days/download_0709',
+   gfedv2_data_dir='/discover/nobackup/projects/nu-wrf/members/qtan/emission/gfedv2_8d'
+
+   use_gfedv3=0,
+!   gfedv3_data_dir='/gpfsm/dnb33/aoloso/nu_wrf/trunk/utils/prep_chem_sources_chem_v2_14june2011/data',
+   gfedv3_data_dir='./',
+
+! GFEDv4
+   use_gfedv4=1,
+   gfedv4_data_dir='/discover/nobackup/projects/nu-wrf/cases/gfedv4',
+
+! GFED 4.1s data: Emissions estimates are provided for 42 species(*) for 1997-2014
+   gfedv4_suffix='DM,C,CO2,CO,CH4,NMHC,H2,NOx,N2O,PM2.5,TPM,TPC,OC,BC,SO2,C2H6,CH3OH,C2H5OH,C3H8,C2H2,C2H4,C3H6,C5H8,C10H16,C7H8,C6H6,C8H10,Toluene_lump,Higher_Alkenes,Higher_Alkanes,CH2O,C2H4O,C3H6O,NH3,C2H6S,HCN,HCOOH,CH3COOH,MEK,CH3COCHO,HOCH2CHO'
+
+! (*) Website says there are 42 species but there are only 41 entries in database:
+!     HCOOHC2H2 is listed in website but no data in GFED database.
+!        Probably a typo and it was meant to be HCOOH,C2H2?
+!     TPM is not listed in website but there is data in GFED database
+!     TPC is listed in website as "TPM" but it actually is OC+BC
+!     PT is listed in website but there is no EF for it in data files
+
+! GFED v4 sources : 'SAVA'=1,'BORF'=2,'TEMF'=3,'DEFO'=4,'PEAT'=5,'AGRI'=6,'TOTL'=7
+! The TOTL option is not a GFEDv4 source but rather the total of all the other sources.
+    gfedv4_source=6
+
+  ! NUWRF Addition
+   use_qfed=0,
+!   qfed_data_dir='/discover/nobackup/projects/gmao/share/dao_ops/fvInput_nc3/PIESA/sfc/QFED/v2.4r8/0.25/',
+   qfed_data_dir='/discover/nobackup/projects/gmao/share/dao_ops/fvInput_nc3/PIESA/sfc/QFED/v2.4r8/0.1/',
+   qfed_suffix='acet,ald2,alk4,bc,c2h6,c3h6,c3h8,ch2o,ch4,co,co2,mek,nh3,no,oc,pm25,so2',
+
+   use_bbem=0,
+   use_bbem_plumerise=0,
+!---------------- if  the merging of gfedv2 with 3bem is desired (=1, yes, 0 = no)  
+   merge_GFEDv2_bbem =0,
+!---------------- Fire product for BBBEM/BBBEM-plumerise emission models
+!  bbem_wfabba_data_dir   ='/tg0/projects/wrf-chem/wrfchemv31/Emission_data/fires_data/WF_ABBA_v60/filt/f',
+   bbem_wfabba_data_dir   ='/public/data/sat/ssec/goes11/wf_abba/f',
+   bbem_modis_data_dir    ='/tg0/projects/wrf-chem/wrfchemv31/Emission_data/fires_data/MODIS/Fires.',
+   bbem_inpe_data_dir     ='/tg0/projects/wrf-chem/wrfchemv31/Emission_data/fires_data/DSA/Focos',
+   bbem_extra_data_dir    ='/tg0/projects/wrf-chem/wrfchemv31/Emission_data/fires_data/BLMALASKA/current.dat',
+
+!---------------- veg type data set (dir + prefix)
+   veg_type_data_dir      ='/tg0/projects/wrf-chem/wrfchemv31/surface_data/GL_IGBP_MODIS_INPE/MODIS',	       
+
+!---------------- vcf type data set (dir + prefix)
+  use_vcf = 0,
+  vcf_type_data_dir      ='./datain/SURFACE_DATA/VCF/data_out/2005/VCF',
+!---------------- olson data set (dir + prefix)  
+  olson_data_dir      ='./datain/EMISSION_DATA/OLSON2/OLSON',  
+!---------------- carbon density data set (dir + prefix)
+
+   carbon_density_data_dir='/tg0/projects/wrf-chem/wrfchemv31/surface_data/GL_OGE_INPE/OGE',
+   fuel_data_dir      ='',		     
+
+
+!---------------- gocart background
+   use_gocart_bg=1, 
+   gocart_bg_data_dir='/discover/nobackup/projects/nu-wrf/cases/Global_emissions_v3/Emission_data/GOCART',
+   gocart_bg_data_type='new'
+
+!---------------- volcanoes emissions
+   use_volcanoes =0,
+   volcano_index =1143, !REDOUBT
+
+   use_these_values='NONE',
+! define a text file for using external values for INJ_HEIGHT, DURATION,
+! MASS ASH (units are meters - seconds - kilograms) and the format for 
+   begin_eruption='201303280000',  !begin time UTC of eruption YYYYMMDDhhmm   
+
+!---------------- degassing volcanoes emissions
+   use_degass_volcanoes =0,
+   degass_volc_data_dir ='./datain/EMISSION_DATA/VOLC_SO2', 
+
+!---------------- user specific  emissions directory
+!---------------- Update for South America megacities
+   user_data_dir='NONE',
+
+
+!--------------------------------------------------------------------------------------------------
+   pond=1,   ! mad/mfa  0 -> molar mass weighted 
+             !          1 -> Reactivity weighted   
+
+
+
+!---------------- for grid type 'll' or 'gg' only
+   grid_resolucao_lon=1.0,   ! degrees
+   grid_resolucao_lat=1.0,   ! degrees
+
+   nlat=320,        ! if gg (only global grid)
+   lon_beg = -180., ! (-180.:+180.) long-begin of the output file
+   lat_beg =  -90.,  ! ( -90.:+90. ) lat -begin of the output file
+   delta_lon= 360., ! total long extension of the domain (360 for global)
+   delta_lat= 180., ! total lat  extension of the domain (180 for global)
+
+
+!---------------- For regional grids (polar or lambert)
+
+   NGRIDS   = 1,            ! Number of grids to run
+ 
+   NNXP     = 150,         ! Number of x gridpoints
+   NNYP     = 120,         ! Number of y gridpoints
+   NXTNEST  = 0, 1,           ! Grid number which is the next coarser grid
+   DELTAX   = 18000,
+   DELTAY   = 18000,         ! X and Y grid spacing
+   
+   ! Nest ratios between this grid and the next coarser grid.
+   NSTRATX  = 1, 3,            ! x-direction
+   NSTRATY  = 1, 3,           ! y-direction
+  
+   NINEST = 1, 86,         ! Grid point on the next coarser
+   NJNEST = 1, 50,        !  nest where the lower southwest
+!   NKNEST = 1,  1,         !  nest where the lower southwest
+                             !  corner of this nest will start.
+                             !  If NINEST or NJNEST = 0, use CENTLAT/LON
+   
+   POLELAT  =  90.,          ! If polar, latitude/longitude of pole point
+   POLELON  =   0.,         ! If lambert, lat/lon of grid origin (x=y=0.)
+
+   STDLAT1  =  37.,          ! If polar, unused
+   STDLAT2  =  37.,          ! If lambert, standard latitudes of projection
+   STDLON   = -86.,
+
+   CENTLAT  =  37.0,
+   CENTLON  = -86.0,
+
+!---------------- project  grid  to lat/lon: 'YES' or 'NOT' (only set up for GrADS visualization)
+   proj_to_ll='NO', 
+   
+!---------------- model output domain for each grid (only set up for GrADS visualization)
+   lati =  -90.,  -90.,   -90., 
+   latf =  +90.,  +90.,   +90.,  
+   loni = -180., -180.,  -180., 
+   lonf =  180.,  180.,   180., 
+!---------------- output file prefix (may include directory other than the current)
+   chem_out_prefix = 'nuwrf', 
+   chem_out_format = 'vfm', ! don't change' this
+
+!---------------- convert to WRF/CHEM (yes,no)
+  special_output_to_wrf = 'yes',
+
+/

@@ -1,0 +1,88 @@
+
+&files
+  geosFileFormat=2,
+  geosFileName='e572p2_fp.inst3_3d_asm_Nv.20120409_00z+20120414_0000z.nc4',
+  outputDirectory='./',
+/
+ 
+&coordinates
+ longitudeName='lon',
+ latitudeName='lat',
+ hasVerticalDimension=.true.,
+ verticalName='lev',
+/
+
+&forecast
+ numberOfTimes=1,
+ validTimes(1)='2012-04-14_00',
+ timeIndices(1) = 1,
+ forecastHours(1)=120,
+/
+
+&variables
+ numberOfVariables=9,
+
+ variableRanks(1) = 4,
+ variableLevelTypes(1) = 11,
+ variableNamesIn(1)='PL',
+ variableNamesOut(1)='PRESSURE',
+ variableUnits(1)='Pa',
+ variableDescriptions(1)='Layer pressure',
+
+ variableRanks(2) = 4,
+ variableLevelTypes(2) = 11,
+ variableNamesIn(2)='T',
+ variableNamesOut(2)='TT',
+ variableUnits(2)='K',
+ variableDescriptions(2)='Air temperature',
+
+ variableRanks(3) = 4,
+ variableLevelTypes(3) = 11,
+ variableNamesIn(3)='U',
+ variableNamesOut(3)='UU',
+ variableUnits(3)='m s**-1',
+ variableDescriptions(3)='Eastward wind',
+
+ variableRanks(4) = 4,
+ variableLevelTypes(4) = 11,
+ variableNamesIn(4)='V',
+ variableNamesOut(4)='VV',
+ variableUnits(4)='m s**-1',
+ variableDescriptions(4)='Northward wind',
+
+ variableRanks(5) = 4,
+ variableLevelTypes(5) = 11,
+ variableNamesIn(5)='QV',
+ variableNamesOut(5)='SPECHUMD',
+ variableUnits(5)='kg kg**-1',
+ variableDescriptions(5)='Specific humidity',
+
+ variableRanks(6) = 4,
+ variableLevelTypes(6) = 11,
+ variableNamesIn(6)='H',
+ variableNamesOut(6)='HH',
+ variableUnits(6)='m',
+ variableDescriptions(6)='Geopotential height',
+
+ variableRanks(7) = 3,
+ variableLevelTypes(7) = 4,
+ variableNamesIn(7)='SLP',
+ variableNamesOut(7)='PMSL',
+ variableUnits(7)='Pa',
+ variableDescriptions(7)='Sea-level pressure',
+
+ variableRanks(8) = 3,
+ variableLevelTypes(8) = 1,
+ variableNamesIn(8)='PS',
+ variableNamesOut(8)='PSFC',
+ variableUnits(8)='Pa',
+ variableDescriptions(8)='Surface pressure',
+
+ variableRanks(9) = 3,
+ variableLevelTypes(9) = 1,
+ variableNamesIn(9)='PHIS',
+ variableNamesOut(9)='PHIS',
+ variableUnits(9)='m**2 s**-2',
+ variableDescriptions(9)='Surface geopotential',
+
+/

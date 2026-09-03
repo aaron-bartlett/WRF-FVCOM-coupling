@@ -1,0 +1,59 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Software Systems Support Office, Code 610.3
+!------------------------------------------------------------------------------
+!
+! FILE:  namelist.merra2wrf
+!
+! AUTHOR:
+! Eric Kemp, NASA SSSO/Northrop Grumman
+!
+! DESCRIPTION:
+! Lists input and output directories, number of days, dates, and
+! names of MERRA files to process.
+!
+! REVISION:
+! 16 Mar 2012 - First version
+!
+!------------------------------------------------------------------------------
+
+&input
+
+  ! Directory to write output
+  outputDirectory = './',
+
+  ! Directory with input MERRA files
+  merraDirectory = '/gpfsm/dnb32/ccruz/SCRATCH/gmao_prod',
+
+  ! Number of days to process.  Note that each file type (excluding const_2d_asm_Nx) 
+  ! will have one file per day.
+  numberOfDays = 1,
+
+  ! Dates of each day being processed (YYYY-MM-DD)
+  merraDates(1) = '2012-04-01',
+
+  ! Format and name of const_2d_asm_Nx file => note we get PHIS from Nv file
+  merraFormat_const_2d_asm_Nx = 3,
+  merraFile_const_2d_asm_Nx = 'DAS.ops.asm.inst3_3d_asm_Nv.GEOS572.20120401_0000.V01.nc4'
+
+  ! Names of tavg3_2d_chm_Nx => to get LWI mask
+  merraFormat_tavg3_2d_chm_Nx = 3,
+  merraFiles_tavg3_2d_chm_Nx(1) = 'DAS.ops.asm.tavg3_2d_chm_Nx.GEOS572.20120401_0130.V01.nc4',
+
+  ! Names of inst6_3d_ana_Nv files
+  merraFormat_inst6_3d_ana_Nv = 3,
+  merraFiles_inst6_3d_ana_Nv(1) = 'DAS.ops.asm.inst3_3d_asm_Nv.GEOS572.20120401_0000.V01.nc4',
+
+  ! Names of inst6_3d_ana_Np files => note we get SLP from Nv file
+  merraFormat_inst6_3d_ana_Np = 3,
+  merraFiles_inst6_3d_ana_Np(1) = 'DAS.ops.asm.inst3_3d_asm_Nv.GEOS572.20120401_0000.V01.nc4',
+
+  ! Names of tavg1_2d_slv_Nx files.
+  merraFormat_tavg1_2d_slv_Nx = 3,
+  merraFiles_tavg1_2d_slv_Nx(1) = 'DAS.ops.asm.inst3_2d_asm_Nx.GEOS572.20120401_0000.V01.nc4',
+
+  ! Names of tavg1_2d_ocn_Nx
+  merraFormat_tavg1_2d_ocn_Nx = 3,
+  merraFiles_tavg1_2d_ocn_Nx(1) = 'DAS.ops.asm.tavg1_2d_flx_Nx.GEOS572.20120401_0030.V01.nc4',
+
+/
+

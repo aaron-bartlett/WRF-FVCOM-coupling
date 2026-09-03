@@ -1,0 +1,17 @@
+#############################
+# BEGIN LIS4SCM SEGMENT
+#############################
+THIS=LIS4SCM
+
+cd $RUNDIR || exit 1
+
+if [ ! -e namelist.lis4scm ] ; then
+    echo "$THIS ERROR: namelist.lis4scm not found!"
+fi
+
+ln -sf $EXEDIR/utils/bin/lis4scm.x
+if [ ! -e lis4scm.x ] ; then
+    echo "$THIS ERROR: lis4scm.x does not exist!"
+    exit 1
+fi
+./lis4scm.x

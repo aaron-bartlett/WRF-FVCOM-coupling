@@ -1,0 +1,1 @@
+make OPT=pgi CHEM=RELACS_MX AER=MATRIX $1

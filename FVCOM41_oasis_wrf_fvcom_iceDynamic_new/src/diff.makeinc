@@ -1,0 +1,119 @@
+51,55c51,52
+< #  TOPDIR = /pexue5/chenfuh/GLM_lmhofs_sediment/FVCOM41_oasis_glmHR_wave_sediment
+< #  TOPDIR = /pexue2/chenfuh/WRF4.2.2/FVCOM41_oasis_wrf_fvcom
+< #  TOPDIR = /pexue2/chenfuh/WRF4.2.2/FVCOM41_oasis_wrf_fvcom_iceDynamic
+< #  TOPDIR = /discover/nobackup/pxue/coupled_nuwrf/FVCOM41_oasis_wrf_fvcom_iceDynamic
+<  TOPDIR = /compass/glm200001/cmu/coupled-run/FVCOM41_oasis_wrf_fvcom_iceDynamic_new
+---
+>  TOPDIR = /compass/glm200001/cmu/FVCOM/FVCOM41_coupled/src 
+>  INSTALLDIR = /compass/glm200001/cmu/FVCOM/FVCOM41_coupled/libs/install
+63d59
+<             INSTALLDIR    = $(TOPDIR)/libs/install
+78,79c74,75
+<              LIBDIR       =  -L$(subst $(colon),$(dashL),$(LIBPATH))
+<              INCDIR       =  -I$(subst $(colon),$(dashI),$(INCLUDEPATH))
+---
+> #             LIBDIR       =  -L$(subst $(colon),$(dashL),$(LIBPATH))
+> #             INCDIR       =  -I$(subst $(colon),$(dashI),$(INCLUDEPATH))
+87c83
+< 
+---
+> 	     
+102,107c98,103
+< #       IOLIBS = -L/discover/nobackup/pxue/local/netcdf3.6.3/lib  -lnetcdf
+< #       IOINCS = -I/discover/nobackup/pxue/local/netcdf3.6.3/include
+< #       IOLIBS = -L/discover/nobackup/pxue/local/netcdf4.2.1.1/lib  -lnetcdf -lnetcdff
+< #       IOINCS = -I/discover/nobackup/pxue/local/netcdf4.2.1.1/include
+< #   IOLIBS = -L/discover/nobackup/projects/nu-wrf/lib/sles12/ekman/intel-intelmpi/netcdf4/lib -lnetcdf -lnetcdff
+< #   IOINCS = -I/discover/nobackup/projects/nu-wrf/lib/sles12/ekman/intel-intelmpi/netcdf4/include
+---
+> #             IOLIBS       =  -lnetcdff -lnetcdf #-lhdf5_hl -lhdf5 -lz -lcurl -lm
+> #             IOLIBS       =  -lnetcdf #-L/hosts/mao/usr/medm/install/netcdf/3.6.3/em64t/lib -lnetcdf
+> #       IOLIBS       =  -L/local/netcdf4.2.1.1/lib -lnetcdff -lnetcdf
+> #       IOINCS       =  -I/local/netcdf4.2.1.1/include
+> #       IOLIBS       =  -L/opt/netcdf/4.6.3.2/intel/19.0/lib -lnetcdff -lnetcdf
+> #       IOINCS       =  -I/opt/netcdf/4.6.3.2/intel/19.0/include
+109,112c105,111
+<    IOLIBS = -L/compass/glm200001/cmu/coupled-run/netcdf/lib -lnetcdf -lnetcdff -L/cluster/apps/hdf5/1.14.6/oneapi/2024.2/lib -lhdf5
+<    IOINCS = -I/compass/glm200001/cmu/coupled-run/netcdf/include -I/cluster/apps/hdf5/1.14.6/oneapi/2024.2/include
+<  
+< #--------------------------------------------------------------------------
+---
+> FLAG_USE_NETCDF4     = -DUSE_NETCDF4
+> 
+> IOLIBS               = -L/cluster/apps/netcdf-fortran/4.6.1/oneapi/2024.2/lib -lnetcdff -L/cluster/apps/hdf5/1.14.6/oneapi/2024.2/lib -L/cluster/apps/netcdf-c/4.9.2/oneapi/2024.2/lib -lnetcdf -lm 
+> 
+> IOINCS               = -I/cluster/apps/netcdf-fortran/4.6.1/oneapi/2024.2/include -I/cluster/apps/netcdf-c/4.9.2/oneapi/2024.2/include -I/cluster/apps/hdf5/1.14.6/oneapi/2024.2/include      
+> 
+>  #--------------------------------------------------------------------------
+115c114
+< ##        OASIS3-MCT lib --chenfu2018
+---
+> ##        OASIS3-MCT lib
+118,119c117
+< COUPLE = /compass/glm200001/cmu/coupled-run/oasis3-mct
+< OASIS_DIR = /compass/glm200001/cmu/coupled-run/oasis3-mct
+---
+> OASIS_DIR = /compass/glm200001/cmu/FVCOM/FVCOM41_coupled/libs/oasis3-mct/install
+120a119
+> 
+124,125d122
+<         OASIS_INC = $(INCPSMILE)
+<         OASIS_LIB = -L$(OASIS_DIR)/lib -lpsmile.MPI1 -lmct -lmpeu -lscrip
+126a124,125
+> 	OASIS_INC = $(INCPSMILE) 
+> 	OASIS_LIB = -L$(OASIS_DIR)/lib -lpsmile.MPI1 -lmct -lmpeu -lscrip 
+177c176,178
+<              PARLIB = -lmetis  #-L/usr/local/lib -lmetis
+---
+>              PARLIB = -L$(LIBDIR) -lmetis
+>              PARINCS = -I/compass/glm200001/cmu/FVCOM/FVCOM41_coupled/libs/metis
+> 
+401,408d401
+< #--------------------------------------------------------------------------
+< #         Flag Oasis coupler --chenfu2018 added in make.inc
+< #--------------------------------------------------------------------------
+< #
+< # NOTE: must be enble to active coupler
+< # NOTE: must be turned off if want to run fvcom standalone
+< #
+<             FLAG_coupler = -Doasis_coupler
+500c493
+< #        DEVELOPMENT FLAGS
+---
+> #        DEVEOPMENT FLAGS
+566,572c559,566
+<          CPP      = /usr/bin/cpp
+<          COMPILER = -DIFORT  
+<          CC       = mpicc
+<          CXX      = mpicxx
+<          CFLAGS   = -O3 
+<          FC       = mpif90
+<          DEBFLGS  = #-check all
+---
+>          CPP      = /usr/bin/cpp #MiTech used
+>          COMPILER = -DIFORT  #MiTech
+>          CC       = mpicc #Mitech
+>          CXX      = mpicxx #Mitech
+>          CFLAGS   = -O3 #mitech
+>          FC       = mpif90 #mitech
+> 	 #FC       = mpiifort# I changed this
+> 	 
+577c571
+< #         OPT      = -O0 -g
+---
+>          OPT      =-O0 -g
+579,580c573,578
+< #         OPT      = -O3
+<          OPT      = -O3 -convert big_endian
+---
+> #OPT      = -O3 -convert big_endian
+> #OPT = -O3 -ip -xHost
+> #OPT      = -O3
+> #OPT      = -O3 -qno-openmp-simd
+> 
+> 
+661c659
+<             INCS  = 	$(INCPSMILE) $(INCDIR) $(IOINCS) $(GOTMINCS) $(BIOINCS)\
+---
+>             INCS  = 	$(INCPSMILE) $(INCDIR) $(PARINCS) $(IOINCS) $(GOTMINCS) $(BIOINCS)\

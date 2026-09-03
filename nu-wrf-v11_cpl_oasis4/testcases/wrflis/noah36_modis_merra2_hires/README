@@ -1,0 +1,11 @@
+Hurricane Kelvin weather event.
+NOAH-3.6 MERRA2 Forcing Testcase
+
+This is a test case that uses:
+  (a) Australia NW domain (116E-127E, 24S-13S) (1 km resolution)
+      Lambert projection
+  (b) Simulation time period from 00Z 16 Jan 2018 to 00Z 20 Jan 2018
+  (c) MODIS geographical data
+  (d) Noah-3.6 LSM with MERRA2 forcing and budget-bilinear Interpolation
+      with 1-day LIS spinup
+  (e) Goddard MP (3ice) and Goddard 2017 radiation

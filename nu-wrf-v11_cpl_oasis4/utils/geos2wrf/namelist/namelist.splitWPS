@@ -1,0 +1,9 @@
+
+ &input
+  directory='./',
+  prefix='MERRA',
+  year=2009,
+  month=08,
+  day=25,
+  hour=00,
+ /

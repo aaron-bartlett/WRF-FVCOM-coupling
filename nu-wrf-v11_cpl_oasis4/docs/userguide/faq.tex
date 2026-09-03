@@ -1,0 +1,297 @@
+\section{Frequently Asked Questions}
+\label{sec:FAQ}
+
+\paragraph{Q:} What modules should I use on Discover and Pleiades when running
+NU-WRF?
+
+\paragraph{A:} Modules are automatically loaded if you used the build.sh script provided with NU-WRF. The current defaults on Discover are (assuming Bash shell):
+
+\begin{quote}
+\texttt{source /usr/share/modules/init/bash} \\
+\texttt{module purge} \\
+\texttt{unset LD\_LIBRARY\_PATH} \\
+\texttt{module load comp/gcc/9.2.0}  \# For Intel C++ compiler \\
+\texttt{module load comp/intel/19.1.3.304} \\
+\texttt{module load mpi/impi/19.1.3.304} \\
+\texttt{module load python/GEOSpyD/Ana2019.10\_py3.7} \\
+\texttt{export NUWRFDIR=/discover/nobackup/projects/nu-wrf} \\
+\texttt{export LIBDIR\_TAG=\$NUWRFDIR/lib/sles12/ekman/intel-intelmpi} \\
+\texttt{export COMPILER\_VENDOR=intel} \\
+\texttt{export MPI\_VENDOR=intelmpi} \\
+\texttt{export LD\_LIBRARY\_PATH=\$LIBDIR\_TAG/jasper/lib:\$LD\_LIBRARY\_PATH} \\
+\texttt{export LD\_LIBRARY\_PATH=\$LIBDIR\_TAG/gdal/lib:\$LD\_LIBRARY\_PATH} \\
+\texttt{export LD\_LIBRARY\_PATH=\$LIBDIR\_TAG/eccodes/lib:\$LD\_LIBRARY\_PATH} \\
+\texttt{export LD\_LIBRARY\_PATH=\$LD\_LIBRARY\_PATH:/usr/lib64} \\
+\texttt{export PATH=\$LIBDIR\_TAG/netcdf4/bin:\$PATH} \\
+\end{quote}
+
+And on Pleiades:
+
+\begin{quote}
+\texttt{source /usr/share/modules/init/bash} \\
+\texttt{module purge} \\
+\texttt{unset LD\_LIBRARY\_PATH} \\
+\texttt{module load /nasa/intel/impi/2019.5.281/impi/2019.5.281/intel64/modulefiles/mpi} \\
+\texttt{module load gcc/6.2} \# For Intel C++ compiler \\
+\texttt{module load comp-intel/2018.3.222} \# Per NAS recommendation \\
+\texttt{export LD\_LIBRARY\_PATH=\$LD\_LIBRARY\_PATH:/usr/lib64} \\
+\end{quote}
+
+If you must change the modules (perhaps to test a different compiler version) or port to a new platform make sure that you modify the settings in scripts/other/set\_module\_env.bash. This includes specifying the location of third-party libraries used by NU-WRF.
+
+The module settings should be done in your shell if you are running a program 
+at the command line. If instead you are launching a batch job to SLURM or PBS,
+the above settings should be in the batch script, so the commands are run on 
+the allocated compute node.
+
+\paragraph{Q:} What other environment settings should I use?
+
+\paragraph{A:} Make sure to set stack size to unlimited. This can help 
+prevent memory allocation errors for automatic arrays. If using bash:
+
+\begin{quote}
+\texttt{ulimit -s unlimited}
+\end{quote}
+
+If using csh:
+
+\begin{quote}
+\texttt{limit stacksize unlimited}
+\end{quote}
+
+\paragraph{Q:} What namelist settings should I use with WRF?
+
+\paragraph{A:} It is not possible to provide a single configuration optimal for
+all types of simulations (LES, regional climate, cloud system resolving, 
+chemical transport, etc), but the settings in the \emph{testcases} directory
+that provide several starting points. Each testcase contains a README file 
+that summarizes the experiment. Additionally, table below shows a good first guess:
+\\
+
+\begin{tabular}{|l|l|l|l|} \hline
+Category     & Selection     & Namelist           & Comments             \\ \hline
+Microphysics & NU-WRF Goddard& mp\_physics=7     & Latest stable        \\
+             & 4ICE          &                    & NASA option.         \\ \hline
+
+Radiation    & NU-WRF Goddard& ra\_lw\_physics=5 & Latest stable NASA   \\
+             & 2017 Radiation& ra\_sw\_physics=5 & option.              \\ \hline
+Aerosol      & GOCART        & chem\_opt=300       & Simple aerosol, \\
+Coupling     & simple        & gsfcgce\_gocart\_coupling=1 & coupled with    \\
+             & aerosol       & gsfcrad\_gocart\_coupling=1 & radiation and   \\
+             &               & vertmix\_onoff=1            & microphysics,   \\
+             &               & chem\_conv\_tr=1            & no gas          \\
+             &               & dust\_opt=1                 & chemistry.      \\
+             &               & seas\_opt=1                 & \\
+             &               & dmsemis\_opt=1              & \\ \hline
+LSM          & LIS NoahMP 3.6  & sf\_surface\_physics=55     & Spin-up LIS on  \\
+             &               & num\_soil\_layers=4         & WRF grid for    \\
+             &               &                             & detailed initial\\
+             &               &                             & fields; cannot  \\
+             &               &                             & use moving      \\
+             &               &                             & nests; must have\\
+             &               &                             & lis.config file \\ \hline
+PBL          & MYNN2         & bl\_pbl\_physics=5          & Replaces MYJ PBL\\
+             &               & sf\_sfclay\_physics=5       & scheme; used in \\
+             &               &                             & RAPv2 and HRRR; \\
+             &               &                             & reportedly gives\\
+             &               &                             & unbiased PBL    \\
+             &               &                             & depth, moisture,\\
+             &               &                             & and temperature.\\ \hline
+Cumulus      & G3            & cu\_physics=5               & Third-gen Grell\\
+             &               & ishallow=1                  & scheme; tackles\\
+             &               &                             & ``grey zone''; \\
+             &               &                             & compatible with\\
+             &               &                             & used in RAPv2; \\
+             &               &                             & handles shallow\\
+             &               &                             & cumulus.\\ \hline
+\end{tabular}\\
+
+\begin{tabular}{|l|l|l|l|} \hline
+Category     & Selection     & Namelist           & Explanation          \\ \hline
+Diffusion    & 2nd Order on  & diff\_opt=1        & Appropriate for real \\
+             & coordinate    & km\_opt=4          & data cases           \\
+             & surfaces; eddy&                    & (dx $\geq$ 1 km)     \\
+             & coefficient   &                    & \\
+             & based on      &                    & \\
+             & deformation   &                    & \\ \hline
+6th-order    & Monotonic     & diff\_6th\_opt=2   & Removed 2*dx noise in  \\
+horizontal   &               & diff\_6th\_factor=0.12 & light winds; can be\\
+diffusion    &               &                        & tuned. \\ \hline
+Advection    & 5th-order,    & moist\_adv\_opt=1   & Used in RAPv2 and   \\
+             & positive-     & scalar\_adv\_opt=1  & HRRR; positive-     \\
+             & definite      & tke\_adv\_opt=1     & definite prevents   \\
+             &               & chem\_adv\_opt=1    & negative mixing     \\
+             &               & momentum\_adv\_opt=1& ratios from original\\
+             &               & h\_mom\_adv\_order=5& non-negative values.\\
+             &               & h\_sca\_adv\_order=5& \\
+             &               & v\_mom\_adv\_order=5& \\
+             &               & v\_sca\_adv\_order=5& \\ \hline
+Rayleigh     & Implicit      & damp\_opt=3         & Prevents gravity    \\
+Damping      &               & zdamp=5000.         & waves from          \\
+             &               & dampcoef=0.2        & reflecting off model\\
+             &               &                     & top; designed for   \\
+             &               &                     & real-data cases;    \\
+             &               &                     & used in RAPv2 and   \\
+             &               &                     & HRRR.\\ \hline
+Vertical     & Activated     & w\_damping=1        & Damps updrafts      \\
+Velocity     &               &                     & approaching CFL     \\
+Damping      &               &                     & limit; best used for\\
+             &               &                     & long or quasi-      \\
+             &               &                     & operational runs. \\ \hline
+Time Off-    & Tuning factor & epssm=0.1           & Controls vertically-\\
+Centering    &               &                     & propagating sound   \\
+             &               &                     & waves; set to max   \\
+             &               &                     & slope of model      \\
+             &               &                     & terrain. \\ \hline
+Nesting      & 1-Way         & feedback=0          & 2-way nesting does  \\
+             &               &                     & not work with LIS,  \\
+             &               &                     & and can lead to     \\
+             &               &                     & strange results with\\
+             &               &                     & high-res nesting.   \\ \hline
+\end{tabular}\\
+\\
+
+The above recommendations have some caveats: 
+
+\begin{itemize}
+
+\item The PBL and cumulus settings are the most debatable physics selections.
+Our recommendations are mostly because of their use in the NCEP RAPv2 and 
+HRRR models which speak to their robustness. In addition, WRF-Chem requires a 
+Grell-family cumulus scheme for most simulations, placing these schemes at an 
+advantage over popular alternatives such as Kain-Fritsch~\citep{ref:Kain2004}
+and Betts-Miller-Janji\'{c}~\citep{ref:Janjic1994}. However, the G3 scheme has
+a pronounced wet bias when shallow cumulus is turned on, and the new 
+Grell-Freitas scheme~\citep{ref:GrellFreitas2014} changes answers with varying
+ CPU counts (the cause is under investigation).  As for the PBL setting, the 
+YSU scheme~\citep{ref:HongEtAl2006} is a popular alternative and includes 
+options for subgrid orographic effects [e.g., \cite{ref:JimenezDudhia2012}].  
+Users are encouraged to experiment.
+
+\item 6th-order diffusion was added to WRF because the normal diffusion scheme
+is tied to the wind speed, and can insufficiently smooth the fields in light
+winds~\citep{ref:KnievelEtAl2007}. Users running a short case may wish to turn
+off the 6th-order scheme to see if $2\Delta{}x$ features develop in the 
+vertical velocity and divergence fields without it.
+
+\item A popular alternative to the positive-definite advection filter is the
+monotonic filter~\citep{ref:WangEtAl2009}, which damps both positive and 
+negative spikes in the advected fields (the positive-definite only damps 
+negative spikes). Unfortunately monotonic advection may lead to excessive 
+smoothing when 6th-order diffusion is also turned on. The user may wish to 
+experiment with monotonic advection and turning off 6th-order diffusion, 
+particularly with short chemistry runs where winds are not too light.
+
+\item Vertical velocity damping is artificial and is recommended mostly for
+situations where CFL violations are particularly unwelcome (e.g., quasi-
+operational runs).
+
+\item 2-way nesting cannot be used with WRF-LIS coupling because the feedback
+routine may change the land/sea mask for a parent WRF grid to better match
+the child WRF grid.
+
+\end{itemize}
+
+\paragraph{Q:} What settings should I use with GEOGRID?
+
+\paragraph{A:} For GEOGRID, we recommend these settings:
+
+\begin{itemize}
+\item Use MODIS land use data instead of USGS. This requires changing the
+geog\_data\_res variable in \texttt{namelist.wps} to something like:
+
+\begin{quote}
+ geog\_data\_res = 'modis\_30s+10m','modis\_30s+2m','modis\_30s+30s',
+\end{quote}
+
+or, if using lake temperature initialization:
+
+\begin{quote}
+ geog\_data\_res = 'modis\_lakes+10m','modis\_lakes+2m','modis\_lakes+30s',
+\end{quote}
+
+GEOGRID will check the \texttt{GEOGRID.TBL} settings to relate the selections
+to each dataset (terrain, soil type, etc). The 'modis\_30s' ('modis\_lakes')
+will only match with the land-use data and will force processing of MODIS 
+data; the remaining data types will fall back on '10m', '2m', or '30s' for 
+the respective WRF grid.  See Chapter 3 of~\cite{ref:ArwUserGuide} for more 
+information.
+
+\item Process all EROD data with GEOGRID. This requires use of the new
+\texttt{GEOGRID.TBL.ARW\_CHEM\_NUWRF} table which lists entries for four 
+different EROD datasets. The user does not need to decide which EROD option
+to use until running REAL.
+
+\end{itemize}
+
+
+\paragraph{Q:} Why does WRF or REAL fail with this error about NUM\_LAND\_CAT?
+\begin{quote}
+----------------- ERROR -------------------
+
+ namelist    : NUM\_LAND\_CAT =         20
+
+ input files : NUM\_LAND\_CAT =         24 (from geogrid selections).
+
+ -------------- FATAL CALLED ---------------
+
+ FATAL CALLED FROM FILE:  $\langle$stdin$\rangle$  LINE:     709
+
+ Mismatch between namelist and wrf input files for dimension NUM\_LAND\_CAT
+\end{quote}
+
+
+\paragraph{A:} There are two possible causes.
+
+First, you are running WRF without LIS coupling, your land use data is coming
+from GEOGRID, and your namelist settings for land use are inconsistent between
+GEOGRID, REAL, and WRF. Normally these programs expect USGS data (with 24 
+categories). If you configure GEOGRID to process MODIS instead, you must set 
+NUM\_LAND\_CAT in namelist.input to 20 for consistency.
+
+Second, you are trying to run WRF coupled with LIS, REAL is replacing the 
+landuse data from GEOGRID with that from LDT, and your namelist.input is not
+consistent. In this case, NUM\_LAND\_CAT should match the value from GEOGRID
+when you run REAL, but should match the value from LDT when you run WRF. 
+(The reference to geogrid in the error message from WRF is incorrect in this
+case, and stems from the community WRF not knowing anything about LDT.) Note
+that LDT can provide USGS (24 categories), MODIS (20 categories), or UMD
+(14 categories).
+
+\paragraph{Q:} How do I convert between netCDF3 and netCDF4?
+
+\paragraph{A:} NetCDF comes with a NCCOPY utility that allows you to 
+convert files between variants of netCDF.  This can be useful for sharing
+NU-WRF netCDF4 data with outside users that prefer netCDF3, or for compressing
+large legacy netCDF3 files with netCDF4/HDF5. For best results, make sure you 
+use a version of NCCOPY that was compiled with netCDF4/HDF5 compression 
+support.
+
+To convert to 64-bit netCDF3 (large file support):
+
+\begin{quote}
+\texttt{nccopy -k 2 infile outfile}
+\end{quote}
+
+And to convert to netCDF4:
+
+\begin{quote}
+\texttt{nccopy -k 3 infile output}
+\end{quote}
+
+It is also possible to remove compression from a netCDF4 file, which may make
+it readable to netCDF3 users:
+
+\begin{quote}
+\texttt{nccopy -d 0 infile outfile}
+\end{quote}
+
+Run \texttt{man nccopy} for more information, including options for tuning 
+netCDF4/HDF5 compression. Note that writing to netCDF3 classic format 
+(\texttt{-k 1}) is \emph{not} recommended due to file size limitations. 
+
+\paragraph{Q:} To be asked.
+
+\paragraph{A:} To be answered.
+
+

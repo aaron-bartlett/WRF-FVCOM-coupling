@@ -1,0 +1,213 @@
+%-------------------------------------------------------------------------------------------------------------------
+\section{Regression testing}
+\label{sec:reg_testing}
+%-------------------------------------------------------------------------------------------------------------------
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Definition}
+
+From \href{https://en.wikipedia.org/wiki/Regression_testing}{Wikipedia}:
+\footnotesize{
+\begin{verbatim}
+Regression testing is a type of software testing that verifies that
+software previously developed and tested still performs correctly
+even after it was changed or interfaced with other software. 
+Changes may include software enhancements, patches, 
+configuration changes, etc. During regression  testing, new 
+software bugs or regressions may be uncovered. 
+\end{verbatim}
+}
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Testing types}
+
+Software testing can be roughly divided into three categories:
+\begin{itemize}
+\item Automated regression  tests.   These tests compile and run a very large number of model configurations and may perform various checks.
+\item Manual/user testing.   These tests are intended to be performed by users that wish to verify their changes prior to pushing to a central repository.   In detail, these tests are similar to the automated tests, but are more easily executed from the command line. 
+\item Unit tests.  These tests execute extremely quickly and provide a finer-grained verification than the other regression tests, albeit with far less coverage of the source code. \emph{Unit tests do not form part of the NU-WRF code base at this time}. 
+\end{itemize}
+In this section we discuss the available NU-WRF regression testing infrastructure and how it can be used to perform automated and manual tests.
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{NU-WRF regression testing scripts}
+
+
+The NU-WRF regression scripts are a set of python scripts and configuration
+files designed to run tests on the NU-WRF code base.
+The scripts' functionality is all driven by the settings specified in a single
+configuration file.\\
+\mbox{}\\
+The configuration file is a text file with a particular structure readable by
+the python scripts and easily understood by humans too! The files are organized
+into sections, and each section contains name-value pairs for configuration data.\\
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{NU-WRF regression testing scripts}
+
+There is one configuration file required by the scripts - specified as a command
+line argument. The file can have any name but must have the '.cfg' extension.
+A sample configuration file (sample.cfg) is included \$NUWRFDIR/scripts/python/regression
+that can be modified and used for "personalized" testing. \\
+\mbox{}\\
+Note:\\
+\mbox{}\\
+There are three additional files that are used specifically for NU-WRF testing:
+master.cfg, develop.cfg and comp.cfg. These files should not be modified or used for anything
+other than as reference to build your own customized configuration.
+
+\end{frame}
+
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Workflows revisited}
+
+\footnotesize{
+\begin{verbatim}
+In this document we have discussed 4 workflows: basic, default, 
+chemistry and scm. For the purposes of regression testing 
+workflows are categorized as follows:
+
+   wrf: default WRF-ARW runs (without LIS) (basic)
+   wrflis: like wrf but with LIS-coupling (default and scm)
+   chem: like wrf with chemistry (chemistry)
+   kpp: like wrf with chemistry - uses KPP
+
+This distinction is necessary to specify test cases in 
+the configuration file. For a list of all supported NU-WRF
+configurations see: 
+
+$NUWRFDIR/scripts/python/regression/master.cfg
+\end{verbatim}
+}
+
+\end{frame}
+
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Python scripts}
+
+The python scripts are the following:
+\begin{itemize}
+\item reg : Main driver.
+\item RegPool.py    : A class with functionality to parallelize tasks.
+\item regression.py : A driver script to execute the NU-WRF component tasks.
+\item RegRuns.py    : A class that defines regression test run instances.
+\item RegTest.py    : A class that defines regression test instances.
+\item reg\_tools.py  : Various tools used by the main drivers.
+\item reg\_utils.py  : Various utilities used by all the scripts.
+\end{itemize}
+The scripts can be used to perform both automated regression tests as well as "manual testing".
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Manual testing}
+
+Before running the regression testing scripts make sure you duplicate the sample.cfg file 
+and customize it to your needs. When ready to run the scripts, specify the configuration file 
+name as an argument to reg and wait for the results:
+
+\footnotesize{
+\begin{verbatim}
+
+$ cd $NUWRFDIR/scripts/python/regression 
+
+To run the scripts, specify the configuration file name as an 
+argument to reg:
+
+$ reg <cfg_file> &
+
+Note that the configuration file name extension should 
+not be specified.
+\end{verbatim}
+}
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Manual testing}
+
+\footnotesize{
+\begin{verbatim}
+Upon execution you will see some messages echoed to STDOUT 
+but all the output will be logged to a file named <cfg_file>.LOG.
+
+There will be other "log" files, one for each  <workflow> and one for 
+each <experiment>, that will be generated for each 'reg' run.
+
+Workflow builds, a maximum of four, will be generated in 
+	<scratch_dir>/builds
+	
+Each build will have its own make.log as well as <workflow>.out 
+and <workflow>.err  files that will be useful to diagnose build /run 
+errors.
+\end{verbatim}
+}
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Manual testing}
+
+\footnotesize{
+\begin{verbatim}
+Run logs will be generated in each run directory under 
+<scratch_dir>/results.
+These will have the name <experiment>-regression.log 
+and should also be very useful to diagnose test-case-specific 
+run-time issues.
+
+At the end of a "reg" an email test report will be emailed to 
+the recipient specified in the mail_to field in USERCONFIG.
+
+Note that all 'reg' runs are tagged with a unique time stamp 
+corresponding to the date/time the run was executed. 
+\end{verbatim}
+}
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle{Manual testing within interactive queue}
+
+One can run NU-WRF test cases interactively. To do so make sure you set use\_batch=no in 
+your configuration file. Also, if running interactively, one can only use one compiler option; i.e.
+in the 'compilers' setting you can only use intel-sgimpt or gnu-openmpi. With those caveats in mind:
+
+\footnotesize{
+\begin{verbatim}
+Request an interactive queue on DISCOVER, for example:
+
+salloc --ntasks=84 --time=1:00:00 --account=s0492 --constraint=hasw
+
+Once you get the prompt
+
+$ cd $NUWRFDIR/scripts/python/regression 
+
+$ reg <cfg_file> &
+
+Note that the extension should not be specified.
+\end{verbatim}
+}
+
+\end{frame}
+
+%-------------------------------------------------------------------------------------------------------------------
+\begin{frame}
+
+As you may have figured out, all the workflows described 
+earlier in this tutorial can be recreated with the appropriate
+configuration file and the testing scripts.\\
+\mbox{}\\
+For more information about regression testing or any workflow described in this
+tutorial please feel free to contact the NU-WRF software integration group.
+
+
+\end{frame}
+
+
+

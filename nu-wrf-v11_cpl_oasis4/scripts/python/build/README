@@ -1,0 +1,90 @@
+usage: ./build.sh [-h] [-e] [-p prefix] [-c configfile] [-o options] [target(s)]
+
+positional arguments:
+  target(s)             Name(s) of NU-WRF component(s) to build.
+
+optional arguments:
+  -h, --help  
+     Show this help message and exit.
+  -p prefix, --prefix prefix
+     Specify installation prefix.
+  -c configfile, --config configfile
+     Name of optional user-specified config file.
+  -o options, --options options
+     Options for target.
+  -e envs
+     Dump build environment to file nu-wrf.envs and exit. Note
+     envs is _the_ argument.
+
+description:
+    -e envs
+    Print build environment - as specified in configuration file - to file
+    nu-wrf.envs and exit. This is useful for debugging.
+                        
+    --prefix [prefix]
+    Optionally install all built executables in specified path. This is
+
+    --config [configfile]
+    Optionally indicate the user-specified configuration file to be used
+    for library paths and modules. The configuration file is a human-readable
+    text file with a particular structure readable by python.
+
+    [options] are keyword options to pass to build programs:
+      cleanfirst:  Clean each component to be built before building.
+      nest=1:  Compile WRF with basic nesting [default].
+      nest=2:  Compile WRF with preset-moves nesting.
+      nest=3:  Compile WRF with vortex-following nesting.
+      debug:   Compile WRF,LIS,WPS,ldt,lvt,utils with debug compiler flags.
+      nompi:   Compile WRF,LIS without MPI (serial mode)
+      rebuild: Use this option to re-build the WRF executable only and skip
+               LIS re-compilation. It has no effect on other components.
+    Multiple options should be comma-separated, e.g. cleanfirst,debug,nest=2
+    Note that only one nest option can be specified at a time.
+
+    [target] is a required argument which can be one or more of the following:
+    (Note that all* and ideal* targets are mutually exclusive.)
+      all                  : Build all components without WRF-chemistry
+      allchem              : Build all components with WRF-chemistry
+      allclean             : Clean all components and exit
+      allkpp               : Build all components with WRF-chemistry and KPP
+      arw                  : Build executables in ARWpost directory
+      casa2wrf             : Build executables in utils/casa2wrf directory
+      chem                 : Build executables in WRF directory with chemistry
+      doc                  : Generate NU-WRF documentation
+      geos2wrf             : Build executables in utils/geos2wrf directory
+      gocart2wrf           : Build executables in utils/gocart2wrf directory
+      gmp                  : Build executables in postproc/GMP directory
+      grad                 : Build executables in postproc/GRAD directory
+      gsdsu                : Build executables in GSDSU directory
+      ideal_b_wave         : WRF 3D baroclinic wave in a channel idealized case
+      ideal_convrad        : WRF 3D convective-radiative equilibrium idealized case
+      ideal_heldsuarez     : WRF 3D Held-Suarez idealized case
+      ideal_tropical_cyclone : WRF 3D tropical cyclone idealized case
+      ideal_les            : WRF 3D large eddy simulation idealized case
+      ideal_quarter_ss     : WRF 3D quarter-circle shear idealized case
+      ideal_scm_xy         : WRF 3D single-column model idealized case
+      ideal_scm_lis_xy     : WRF 3D single-column model with LIS coupling idealized case
+      kpp                  : Build executables in WRF directory with KPP
+      ldt                  : Build executables in LISF/ldt directory
+      lis                  : Build LIS as standalone executable in LISF/lis directory
+      lisWrfDomain         : Build executables in utils/lisWrfDomain directory 
+      lis4scm              : Build executables in utils/lis4scm directory.
+      lvt                  : Build executables in LISF/lvt directory
+      met                  : Build executables in MET directory (*)
+      ndviBareness4Wrf     : Build executables in utils/ndviBarenes4Wrf directory
+      plot_chem            : Build executables in utils/plot_chem
+      prep_chem_sources    : Build executables in utils/prep_chem_sources directory
+      rip                  : Build executables in RIP4 directory
+      sst2wrf              : Build executables in utils/sst2wrf directory
+      upp                  : Build executables in UPP directory
+      utils                : Build all executables in utils directory
+      wps                  : Build executables in WPS directory
+      wrf                  : Build executables in WRF directory w/o chemistry
+      wrfonly              : Like wrf but without LIS coupling
+    Multiple targets must be comma-separated, e.g. chem,wps,prep_chem_sources,gocart2wrf
+    (*) met target must be built separately than all other targets, i.e. 
+       ./build.sh all
+    will not build MET executables. Instead, to build MET executables execute
+       ./build.sh met
+    separately.
+

@@ -1,0 +1,19 @@
+#############################
+# BEGIN SST2WRF SEGMENT
+#############################
+THIS=SST2WRF
+
+cd $RUNDIR || exit 1
+
+# Block for regression testing
+
+if [ -z ${SBATCH_JOB_ID+x} ]; then
+   echo 'Using pre-staged data'
+   SST_DATA=(`ls $DATADIR/SSTRSS_201507/SSTRSS*`)
+   for file in "${SST_DATA[@]}"; do
+      ln -sf $file
+   done
+   exit 0
+fi
+
+

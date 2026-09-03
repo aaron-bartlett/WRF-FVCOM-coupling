@@ -1,0 +1,10 @@
+#!/bin/bash
+# Load config file for modules and paths
+source ./common.reg || exit 1
+
+cd $RUNDIR || exit 1
+
+ln -sf $NUWRFDIR/scripts/python/utils/sst2wrf.py  || exit 1
+
+./sst2wrf.py 20150715 20150716 -i mw  -n $NUWRFDIR >& sst2wrf.log || exit
+

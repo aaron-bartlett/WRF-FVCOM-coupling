@@ -1,0 +1,35 @@
+#############################
+# BEGIN AVG_TSFC SEGMENT
+#############################
+THIS=AVG_TSFC
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.wps is present.
+if [ ! -e namelist.wps ] ; then
+   echo "ERROR, namelist.wps not found!"
+   exit 1
+fi
+
+# Run avg_tsfc.exe
+ln -fs $EXEDIR/WPS/util/avg_tsfc.exe avg_tsfc.exe || exit 1
+if [ ! -e avg_tsfc.exe ] ; then 
+    echo "$THIS ERROR: avg_tsfc.exe does not exist!"
+    exit 1
+fi
+./avg_tsfc.exe >& avg_tsfc_data.log || exit 1
+
+
+# Tidy up logs
+mkdir -p avg_tsfc_logs || exit 1
+mv -f avg_tsfc_data.log avg_tsfc_logs || exit 1 2>/dev/null
+mv -f logfile.log avg_tsfc_logs || exit 1 2>/dev/null
+
+# Clean up symbolic link
+link1=`readlink -f namelist.wps`
+link2=`readlink -f namelist.wps.4weeks`
+if [ "$link1" == "$link2" ] ; then
+   rm -f namelist.wps || exit 1
+fi
+
+

@@ -1,0 +1,18 @@
+
+  &input
+    instrument="mw_ir",
+    year=2007,
+    dayOfYear=020,
+    version="v04.0",
+    inputDirectory = "./sstdownload/mw_ir",
+  /
+
+  &output
+    outputDirectory = "./sstdata/mw_ir",
+    prefixWPS="SSTRSS",
+  /
+
+  &fakeoutput
+    numFakeHours=4,
+    fakeHours =  0, 6, 12, 18,
+  /

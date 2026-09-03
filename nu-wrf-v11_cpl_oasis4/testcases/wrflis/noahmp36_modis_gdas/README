@@ -1,0 +1,11 @@
+WRF-ARW Testcase
+
+This is a test case that uses:
+
+  (a) SGP region with 1 nest (9 km)
+      Lambert projection
+  (b) Simulation time period from 12Z 11 Jul 2015 to 12Z 12 Jul 2015
+  (c) MODIS+lakes geographical data, GFS data
+  (d) Goddard MP (option 7) and Goddard 2017 radiation (option 5)
+
+Compare with wrflis_noahmp36_modis_gdas 

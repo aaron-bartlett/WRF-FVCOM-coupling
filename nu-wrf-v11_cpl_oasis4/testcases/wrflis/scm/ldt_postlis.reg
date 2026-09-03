@@ -1,0 +1,32 @@
+#############################
+# BEGIN LDT_POSTLIS SEGMENT
+#############################
+THIS=LDT_POSTLIS
+
+cd $RUNDIR || exit 1
+
+# make sure ldt.config.postlis is present.
+if [ ! -e ldt.config.postlis ] ; then
+    echo "ERROR, ldt.config.postlis not found!"
+    exit 1
+fi
+
+rm -f $RUNDIR/LS_PARAMETERS
+if [ ! -e $LISDIR/LS_PARAMETERS ] ; then 
+    echo "$THIS ERROR: $LISDIR/LS_PARAMETERS does not exist!"
+    exit 1
+fi  
+ln -fs $LISDIR/LS_PARAMETERS $RUNDIR/LS_PARAMETERS || exit 1
+
+rm -f ldt.config
+ln -s ldt.config.postlis ldt.config || exit 1
+
+# Run LDT
+ln -fs $EXEDIR/LISF/ldt/LDT LDT || exit 1
+if [ ! -e LDT ] ; then 
+    echo "$THIS ERROR: LDT does not exist!"
+    exit 1
+fi
+$MPIRUN ./LDT ldt.config || exit 1
+
+

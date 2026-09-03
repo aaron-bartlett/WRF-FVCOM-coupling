@@ -1,0 +1,120 @@
+CFFLAGS = -O0 -check bounds -g -traceback -assume byterecl       # Normal DEBUG 
+
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   1.692106    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is  0.9200581    
+ MSG write output -->
+ ./../OUTPUT/wrfout_d02_2006-08-06_01:00:00.2011_noa.bin                        
+ ./../OUTPUT/wrfout_d02_2006-08-06_01:00:00.2011_noa.ctl
+  Finished 
+
+
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   6.672417    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   6.468405    
+ MSG write output -->
+ ./../OUTPUT/wrfout_d02_2006-08-06_01:00:00.2014_noa.bin                        
+ ./../OUTPUT/wrfout_d02_2006-08-06_01:00:00.2014_noa.ctl
+  Finished 
+
+==================================================================================
+CFFLAGS = -O3 -ip -assume byterecl -axAVX -xSSE4.1                 # Full run (intensive optimization)
+426x10x60 columns
+
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   4.260266    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   2.400150    
+
+ ==== Fast Option Profiles =========
+ * Start 
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   4.004250    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   2.240140    
+
+
+* Add effective radius computation
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   4.024252    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   2.328145    
+
+* Add opt_cloud (just copying )
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   4.000249    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   2.248141    
+
+* Add full opt_cloud (version1)
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   4.036252    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   3.200200    
+
+* Add full opt_cloud (version2) LUT is seperate for sw and ir
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   3.968248    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   3.104193    
+
+* Add full opt_cloud (version3) re dispatching 
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   3.996249    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   3.040190  
+
+* Add full opt_cloud (version4) nband bundling loop
+ call goddard longwave radiation scheme 
+ total CPU time for LW schem is   4.020252    
+ call goddard shortwave radiation scheme 
+ total CPU time for SW schem is   2.428152    
+
+
+* Add full opt_cloud (version5) nband bundling loop (slitlly changed LUT array)
+ call goddard longwave radiation scheme
+ total CPU time for LW schem is   4.020252
+ call goddard shortwave radiation scheme
+ total CPU time for SW schem is   2.428152
+
+
+==============================================
+ Collumn Skipping method
+
+!=======================================================
+
+Bench mark 411x420x60 (all domain)
+
+Skip 0                                           
+ CALL NUWRF goddard longwave radiation scheme
+ running NUWRF goddard lw radiation
+ total CPU time for LW schem is   250.1116    
+ CALL NUWRF goddard shortwave radiation scheme
+ running NUWRF goddard sw radiation
+ total CPU time for SW schem is   172.6908    
+
+Skip 2 
+CALL NUWRF goddard longwave radiation scheme
+ running NUWRF goddard lw radiation
+ total CPU time for LW schem is   86.63342    
+ CALL NUWRF goddard shortwave radiation scheme
+ running NUWRF goddard sw radiation
+ total CPU time for SW schem is   67.18020    
+
+Skip 3                                           
+ CALL NUWRF goddard longwave radiation scheme
+ running NUWRF goddard lw radiation
+ total CPU time for LW schem is   54.78342    
+ CALL NUWRF goddard shortwave radiation scheme
+ running NUWRF goddard sw radiation
+ total CPU time for SW schem is   45.79086    
+
+Skip 4                                           
+ CALL NUWRF goddard longwave radiation scheme
+ running NUWRF goddard lw radiation
+ total CPU time for LW schem is   44.18276    
+ total CPU time for SW schem is   39.08644    
+                                                                                
+

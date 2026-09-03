@@ -1,0 +1,1632 @@
+===============================================================================
+NASA Unified WRF (NU-WRF)
+23 May 2019
+===============================================================================
+-------------------------------------------------------------------------------
+Release Tag: v9p3-wrf391-lis72 (23 May 2019) -- "Charney Patch 3"
+-------------------------------------------------------------------------------
+
+New changes:
+* Version 9 Patch 3 (v9p3-wrf391-lis72; "Charney Patch 3")
+  - Includes WRF-NoahMP.3.6 coupling as well as some testcases.
+  - Includes new physics parameterizations
+    - DOE CRM
+      utilizes WRF as a CRM/LES using doubly periodic lateral boundaries
+    - NTU (National Taiwan University) microphysics
+      A multi-moment four-ice (pristine ice, aggregate, graupel, and hail)
+      bulk microphysical scheme
+    - WRF electrification scheme
+      This scheme requires environment variable WRF_ELEC=1. This can be set
+      in the build configuration files.
+    - Includes testcases for the above.
+  - Upgraded Intel compiler version to 18.x, consistent with LISF.
+  - Updated build system.
+  - Updated NU-WRF User Guide.
+  - Updated tutorial documentation and testcases.
+  - NEVS: Updated documentation and organization to make it easier to use.
+
+-------------------------------------------------------------------------------
+Release Tag: v9p2-wrf391-lis72 (1 February 2019) -- "Charney Patch 2"
+-------------------------------------------------------------------------------
+
+New changes:
+* Version 9 Patch 2 (v9p2-wrf391-lis72; "Charney Patch 2")
+  - Fixed a problem observed in LIS precipitation being consistently less 
+    than that coming from WRF and which was due to a unit conversion issue. 
+    This bug may impact some results, specifically soil moisture and overall 
+    soils wet/dryness, for very long simulations.
+  - This release also contains several build system enhancements that had 
+    already been merged into the develop branch.
+
+-------------------------------------------------------------------------------
+Release Tag: v9p1-wrf391-lis72 (13 April 2018) -- "Charney Patch 1"
+-------------------------------------------------------------------------------
+
+New changes:
+* Version 9 Patch 1 (v9p1-wrf391-lis72; "Charney Patch 1")
+  - Corrections to WRF 3.9.1 merge (on the recommendation of NCAR core team).
+    - Move some initializations to physics init to avoid race conditions.
+    - Remove file remnants from WRF 3.7.1.
+    - Renamed NU-WRF diagnostics modules to conform with WRF conventions.
+  - Replaced bash-based build mechanism with a python-based one configurable in a
+    text file.
+    - Standardized interface to differentiate between required and optional arguments.
+    - Standardized build steps (clean, configure, build, install).
+  - Updated regression testing suites.
+    - Corrections to various tests.
+    - Added standard ARW tests.
+    - Added WRF-Lake tests.
+    - Added tests that perform a LIS spinup. 
+    - Added support for Pleiades testing.
+  - Upgraded Intel compiler version to 17.0.4.196.
+  - Upgraded GNU compiler version to 6.3.
+  - Updated NU-WRF User Guide.
+  - Updated tutorial documentation and testcases.
+  - Note on MET component: New compilers are incompatible with MET 6.x, 
+    so we have made a temporary revert to v5.1.
+
+-------------------------------------------------------------------------------
+Release Tag: v9-wrf391-lis72r (13 December 2017) -- "Charney"
+-------------------------------------------------------------------------------
+
+New changes:
+* Upgrade to WRF 3.9.1
+  - Includes 2017 Goddard radiation (uses one LUT: BROADBAND_CLOUD_GODDARD.nc)
+  - New longwave and shortwave radiation options are ra_lw_physics=57 and
+    ra_sw_physics=57 respectively.
+  - Update Registry.EM_COMMON and Makefile as needed.
+* Upgrade to WRF-chem 3.9.1
+* Upgrade to WPS 3.9.1
+ - Update GEOGRID.TBL.ARW table.
+* Upgrade to MET 6.0
+* Upgrade to UPP 3.1.1
+* Apply RIP4 2017 updates
+* Updated regression testing suites.
+  - Removed 2011 Goddard radiation tests.
+  - Removed Noah 2.7.1 and Noah 3.2 tests.
+  - Updated GFEDv3 tests to use GFEDv4 option.
+  - Add new option to setup run scripts.
+  - SOILPARM table in lis.config is now read from noah3X_parms directory.
+* Upgraded Intel compiler version to 17.0.1.132.
+* Updated NUWRF User Guide.
+
+-------------------------------------------------------------------------------
+Release Tag: v8p5-wrf371-lis72r (11 Sep 2017) -- "Bjerknes Patch 5"
+-------------------------------------------------------------------------------
+
+NOTE: Development source code, for versions greater than or equal to
+Bjerknes patch 4, is now being tracked in a Git repository. The new URL is:
+   progressdirect:/git/projects/nu-wrf.
+   
+* Ported under GNU.
+  - Ported utils and fixed issues with parallel compilation.
+  - There are some tweaks in RIP4, LDT, LVT, WPS and WRFV3.
+* Added scripts to facilitate installation of third-party libraries
+  and to help with code porting (see scripts/other/baselibs.*).
+* Significant refactoring of regression testing scripts that include
+ - Fixing commands that trigger nonzero return code.
+ - Adding a new file, check_nuwrf_repo.py, to monitor, via cron, the
+   new git repo.
+ - Adding a new script,diffnc4.py, to compare netcdf4 files produced by WRF.
+* Consolidated discover/pleiades cfg scripts into one (nu-wrf.cfg).
+* Moved build_ldt and build_lvt into respective directories and simplified
+  top level build.sh accordingly.
+* Add install option when running build.sh.
+ - If environment variable NUWRF_INSTALL_DIR is defined then all
+   executables will be installed in that directory.
+* Upgraded LVT/LDT/LIS to version 7.2r.
+ - Add user.cfg to temporarily disable RUC.
+   When RUC option is set to True, various subroutine stubs in RUC
+   conflict with duplicate ones in WRF. As a result, the RUC option has been
+   temporarily disabled.
+ - LVT failed to compile due to an assumption in:
+   datastreams/GIMMS_MODIS_NDVI/readGIMMSMODIS_NDVIObs.F90
+   where GDAL use was always expected. File was modified for NU-WRF
+   and the assumption was removed.
+* Added functionality to prep_chem_sources to deal with GFEDv4 sources.
+ - The utils code required additional code to process GFEDv4 data, specifically 
+   a module to read HDF5 files and a tokenizer for string conversion.
+* Added scripts that make up the NU-WRF Ensemble Verification System
+* Updated user guide and tutorial.
+
+-------------------------------------------------------------------------------
+Release Tag: v8p4-wrf371-lis71rp8 (3 Mar 2017) -- "Bjerknes Patch 4"
+-------------------------------------------------------------------------------
+* Upgraded LDT to version 7.1rp3.  See lvt/RELEASE_NOTES.txt for changes.
+* Updated LDT User Guide in docs/ directory.
+* Upgraded LIS to version 7.1rp8, plus additional patch to MERRA2 metforcing
+  to support lapse-rate correction option.  See WRFV3/lis/RELEASE_NOTES.txt
+  for changes.
+* Added tutorial in docs/ directory.
+* Added new ideal_scm_lis_xy target.  Compiles IDEAL preprocessor to produce
+  inputs for running WRF-LIS in Single Column Mode.  
+* Added support for ideal_b_wave, ideal_convrad, ideal_heldsuarez, ideal_les,
+  ideal_quarter_ss, ideal_scm_xy, ideal_tropical_cyclone targets from 
+  community WRF 3.7.1.  (Other idealized cases won't compile.)
+* Added LIS4SCM preprocessor to make LDT and LIS output files horizontally
+  homogenous for use in WRF-LIS Single Column Mode.
+* Added scripts for creating SCM forcing from METGRID output (borrowed from
+  Josh Hacker, NCAR).
+* 4ICE microphysics hand-vectorized by Jarno Mielikainen (University of 
+  Wisconsin), plus a bug fix for calculating hail intercept parameter.
+* 2014 Goddard radiation hand-vectorized by Jarno Mielikainen.
+* Updated CASA2WRF pre-processor allowing a moving average window option for
+  smoothing daily CO2 flux data.
+* Refactored NU-WRF utils to consolidate code and simplify build mechanism.
+* Added new './build.sh utils' target to compile all util programs.
+* Added REG regression test scripting system.
+* Moved User Guide LaTeX files to docs/ directory, and added build option.
+* Added tutorial LaTeX files to docs/ directory.
+* Updated User Guide contents.
+* Removed -ip compiler flag at suggestion of NCAR.
+
+-------------------------------------------------------------------------------
+Release Tag: v8p3-wrf371-lis71rp7 (14 Nov 2016) -- "Bjerknes Patch 3"
+-------------------------------------------------------------------------------
+
+* Added support for ECMWF T511 Nature Run files:
+  - UNGRIB now supports N256 Reduced Gaussian grid) GRIB files.
+  - Added VTables for N256 data.
+  - Added ecmwf_coeffs_L91 file listing hybrid sigma-pressure coefficients.
+  - Added script for CALC_ECMWF_P preprocessor.
+* LDT bug fix for compiler warning in ldt/metforcing/cmorph.F90 about external 
+  function not given explicit type.
+* LIS bug fixes:
+  - Fixes for warnings in 
+    WRFV3/lis/surfacemodels/land/clm2/csm_share/clm2_shr_sys_mod.F90 about 
+    unused argument (related to use of preprocessor flags).
+  - Fix for warning in WRFV3/lis/surfacemodels/land/mosaic/umd_sibalb.F90 
+    about function not given an explicit type.
+
+-------------------------------------------------------------------------------
+Release Tag: v8p2-wrf371-lis71rp7 (22 Sep 2016) -- "Bjerknes Patch 2"
+-------------------------------------------------------------------------------
+* WRF-LIS bug fix:  Added LIS irrigation support to WRF-LIS coupling.  This 
+  was overlooked in earlier versions of Bjerknes.
+* LIS bug fix:  Changed default output directory permissions to a+rwx, which
+  can be further restricted by the 'umask' shell command.  This is
+  cherry-picked from the LIS public7.1 branch, and is post 7.1rp7.
+* Included updated LIS User Guide for version 7.1rp7.
+
+-------------------------------------------------------------------------------
+Release Tag: v8p1-wrf371-lis71rp7 (19 Sep 2016) -- "Bjerknes Patch 1"
+-------------------------------------------------------------------------------
+* REAL bug fix:  Always copy TSK and TMN values from grid%*_gc arrays before
+  merging LIS data.  This corrects a fatal error when processing METGRID and
+  LIS fields without SST.
+* Minor bug fixes to sample batch config files.
+* UPP bug fixes:
+  - Reading 3ICE/4ICE radar reflectivity from WRF output:  Now reads the
+    'REFL_10CM' variable instead of the deleted 'DBZ' variable.
+  - Removed redundant deallocation statements for lightning product, which
+    were causing UPP to crash.
+* Added TLAG variable to WRF restart file (via Registry.EM_COMMON).  This 
+  patch was released by NCAR on 8 Sep 2016 to fix a problem with dynamic deep 
+  soil temperature in WRF 3.7, 3.7.1, 3.8, and 3.8.1.
+* Added ndviBareness4Wrf utility, which can process GIMMS or SPoRT MODIS NDVI
+  products and create a "bareness" field for dynamic dust emissions.
+* Updated NUWRFLIB version to 8r2, which now includes GDAL and FORTRANGIS 
+  libraries for ndviBareness4Wrf.
+* Retired build cfg file for GNU compilers, as these compilers cannot build
+  GDAL or FORTRANGIS (internal compiler errors).
+* Added fetch_sport_sst_northwestHemi.py script to download real-time
+  SPoRT SST GRIB2 files.  Script and config file is in the new 
+  scripts/fetch_data directory.
+* Updated UNGRIB to set all negative SST values to -1.E30 (the default 
+  missing flag used by METGRID).
+* Map projection now output by lisconfig Fortran program for insertion into
+  ldt.config file.
+* The lisconfig Python script now checks to see if domain settings from 
+  Fortran program are unused when updating the ldt.config and lis.config 
+  files.  This is assumed to indicate an error with the input template config 
+  files (i.e., a config setting is missing in the template), which can easily 
+  happen if the template is for a different map projection then what WRF will 
+  use.
+* Added initialization of dx and dy for LatLon and Gaussian data being
+  processed by METGRID.  Fixes interpolation problem.
+* Changed INT2NC utility to output in netCDF4.
+
+-------------------------------------------------------------------------------
+Release Tag: v8-wrf371-lis71rp7 (23 June 2016) -- "Bjerknes"
+-------------------------------------------------------------------------------
+New changes:
+* "Bug fix" rerelease of GSDSU 3.5.1.
+* Updated GSDSU User Guide.
+* Updated NU-WRF User Guide.
+
+-------------------------------------------------------------------------------
+Development Tag: v8dev3-wrf371-lis71rp7 (20 June 2016) Bjerknes Dev 3
+-------------------------------------------------------------------------------
+New changes:
+* Sea salt calculation:  Increase the threshold of geopotential height that 
+  distinguish between ocean and lakes that are responsible for sea salt 
+  emissions. 
+* Chemical mechanism linkage:  Connect the GOCART sulfate chemistry with the 
+  RADM2 gas phase chemistry to account for the heterogeneous conversion of SO2 
+  to sulfate. Previously such conversion is not sufficiently represented in 
+  RADM2.
+* Redistribution of BC/OC emissions into BC1, BC2, OC1, OC2 aerosol species.
+  This way the NU-WRF aerosol algorithm will be in line with the global GOCART 
+  one.
+* Tweaked build config and SLURM config files to load Intel compiler module
+  after GNU module.  This ensures $CC, $FC, and other environment variables
+  are assigned Intel compiler names, while still giving the Intel C++ compiler
+  access to the GNU 5 libraries.
+* Updated DRAFT NU-WRF Version 8 User's Guide.
+
+-------------------------------------------------------------------------------
+Development Tag: v8dev2-wrf371-lis71rp7 (13 June 2016) Bjerknes Dev 2
+-------------------------------------------------------------------------------
+New changes:
+* Dongchul Kim's December 2015 update to dynamic dust emissions.  The 
+  temperature of the second soil layer is now used instead of skin temperature
+  to shut off emissions (this fixes a diurnal cycle bias).  Also, the
+  threshold for snow depth is raised to 0.01 m (was zero).
+* Upgraded GSDSU to 3.5.1.
+* Added run_gsdsu.discover.sh and run_gsdsu.pleaides.sh batch scripts.
+* Merged WRF 3.7.1 community patches.
+  - Fix to cold bias when using icloud=3.
+  - Fix to allow use of Morrison microphysics w/o cumulus scheme.
+  - Fix to memory access problem when using BEP or BEM urban physics.
+* Merged UPP 3.0 community patch.
+  - Fix to valid time field in run_unipost_minutes script.
+* Merged MET 5.1 community patch updates through 25 May 2016.
+  - 05/25/2016: Fix Gen-Vx-Mask -value option to allow for negative numbers.
+  - 05/23/2016: Fix STAT-Analysis error for too many open files.
+  - 05/23/2016: Fix STAT-Analysis output for equality-type (==) thresholds.
+  - 04/18/2016: Fix STAT-Analysis filtering by threshold columns.
+  - 04/12/2016: Fix definition of NCEP grids 236 and 237.
+  - 03/14/2016: Fix parsing of Lambert Conformal grid information for 
+                CF-Compliant NetCDF files.
+  - 02/10/2016: Fix along and cross-track error computations in TC-Pairs for
+                tracks straddling the international date line.
+  - 01/29/2016: Fix MODE-Analysis "-lookin" option for directories.
+* Removed -xSSE4.2 ifort compiler flag.  Tests show no consistent improvement
+  in speed that justifies the hardware specific flag.
+* MPI is now an absolute requirement for WRF, WPS, and UPP (old, unused 
+  serial build options are now disabled).
+* Added namelist files for additional sample test cases.
+* Updated DRAFT NU-WRF Version 8 User Guide.
+
+-------------------------------------------------------------------------------
+Development Tag: v8dev1-wrf371-lis71rp7 (2 June 2016) Bjerknes Dev 1
+-------------------------------------------------------------------------------
+New changes:
+* Merged WRF 3.7.1, WPS 3.7.1, PREP_CHEM_SOURCES 1.5, RIP 4.6.7,
+  UPP 3, and MET 5.1.
+* Merged LIS 7.1rp7 and LDT 7.1rp2, including fixes for Mercator map
+  projection.
+* Upgraded Intel compilers to 15.0.3.187.  Default MPI implementation
+  on both Discover and Pleiades is SGI MPT.  Intel MPI 5.1.2.150 is also 
+  suppported on Discover (for legacy Sandy Bridge nodes).  GFORTRAN 4.9.0 
+  and OpenMPI 1.7.3 are temporarily supported for debugging (specifically 
+  with VALGRIND). Retired Intel MPI 4 on Pleiades.
+* External libraries are now packaged in separate NUWRFLIB collection.
+  This NU-WRF release links against NUWRFLIB 8r1 on Discover and Pleiades.
+  This includes new dependencies (CAIRO, FREETYPE, GHOSTSCRIPT, and PIXMAN)
+  and updates to older dependencies.
+* Added sample namelist and lis/ldt.config files for multiple test 
+  cases.  The LIS cases include use of SRTM 30 sec topography and 
+  ``slope-aspect'' correction which improves the spin-up of soil moisture.
+* Updated SST2WRF processing:  Changed output mask to separately indicate
+  ``low confidence'' and ``high confidence'' SST points.  ``Low confidence''
+  SST data are now included in output (originally were flagged as bad, but
+  this has a high false alarm rate in the C3VP test case).
+* Updated METGRID processing:  SST is now interpolated with parabolic,
+  bi-linear, weighted 4-pt average, or weighted 16-pt average (tried in order
+  until one works).  When processing TAVGSFC (from AVG_TSFC preprocessor),
+  METGRID tries parabolic before bi-linear interpolation.  This helps reduce
+  data voids and discontinuities in (blended) SST field.
+* Updated REAL processing:
+  - Preserves LIS greenness and albedo data but processes time-varying 
+    LAI data from GEOGRID and METGRID.
+  - Changed SST processing to check for obviously bad ocean SSTs when
+    30s MODIS+Lakes land data are used. Also, disabled use of TAVGSFC as
+    a replacement for bad ocean SST (it seems better to just use skin 
+    temperature in this case).
+* Added option to skip compiling of WRF CLM4 code.  CLM4 is not used by
+  GSFC, and this saves about 10 minutes of build time.
+* WRFV3 files module_first_rk_step_part1.F and module_comm_dm_4.f90 are now 
+  on the ``do not optimize'' list to cut down on build times (saves about 10 
+  minutes).
+* Multiple bug fixes to prevent memory corruption with arrays allocated
+  with size 1 instead of with WRF ``memory'' dimensions.
+* Updated GEOGRID.TBL files to make GEOGRID.TBL.ARW_CHEM_NUWRF a strict
+  superset of GEOGRID.TBL.ARW_CHEM, with the latter now a strict superset
+  of GEOGRID.TBL.ARW.
+* Added handling of both cumulative diabatic heating (K) and ``snapshot''
+  diabatic heating rates (K/s) from 3ICE and 4ICE microphysics schemes.
+  Cumulative heating is now written to restart file.
+* 4ICE microphysics updates:
+  - Change to ``melting'' diabatic heating rate to account for wet hail
+    accretion.
+  - Adjusted intercept scaling factors are now used to calculate 
+    reflectivity.
+* 3ICE microphysics update: Bug fix for warm rain code.
+* CASA2WRF updated to add bug fixes for the following:
+  - CO2 flux output files now has CO2 flux for time t and flux
+    tendency between time t and time t+1.
+  - Ocean CO2 and fossil fuel data is on the corner of the grid 
+    instead of the middle point of the grid.  All other components are at the
+    midpoint of the grid.
+* Added symbolic link to GODDARDRAD_SSLUT in WRFV3/run directory.
+* Added fetch_rss_sst.sh script to download RSS SST data (more fault 
+  tolerant than Run_SST.csh).
+* Added batch scripts to run WPS utility program AVG_TSFC.
+* Updated Discover SLURM batch scripts to remove reference to sp1 
+  constraint (no longer exists).
+* Multiple bug fixes to initialize variables.
+* Draft copy of Version 8 User Guide.
+
+-------------------------------------------------------------------------------
+Release Tag: v7lis7-3.5.1-p7 (18 April 2016) -- Seventh "Arthur" Patch Release
+-------------------------------------------------------------------------------
+
+New changes:
+* Upgrade to LIS 7.1rp5, LDT 7.1rp1, and LVT 7.1rp1.  Key changes include:
+  - Updates to MERRA2 and MERRA-Land met forcing readers to work with certain
+    LIS time step lengths. Also updates start and end dates for some MERRA2
+    streams.
+  - Corrections to GDAS T170 domain and terrain data.
+  - Updates to NLDAS-2 met forcing reader (improves rainfall and convective
+    rainfall around island/coastal areas when downscaled to higher 
+    resolutions.)
+  - Fix to pcp met forcing field when also reading snow.
+  - Updated user guides.
+* Added taucldc and taucldi to Goddard and CAM radiation package listings in
+  Registry.EM_COMMON.  These arrays are expected by the radiation schemes 
+  to be allocated with the WRF "memory" bounds, but WRF was allocating them
+  with shape (1,1,1) instead.  This caused memory corruptions.
+* NUWRF 3ICE and 4ICE microphysics now output reflectivity as REFL_10CM.
+* Removed DBZ array from grid data structure to save space.  Updated sample
+  RIP template sfcDBZUV.in to use REFL_10CM instead.
+* COMDBZ now calculated in microphysics driver for all microphysics schemes
+  where REFL_10CM is available.
+* Updated Run_MERRA2.csh to use new path for MERRA2 data on Discover.
+* Updated proc_merra2_ges_disc.sh to use new filename for MERRA2 terrain file
+  on GES DISC web page.
+* Updated paths to MERRA2 files on Discover GMAO disk.
+* Retired old build config files for SLES 11 SP1 nodes on Discover (these no
+  longer exist).  Also removed obsolete DISCOVER_INSTRUCTIONS.TXT.
+* Updated NU-WRF User Guide.
+
+-------------------------------------------------------------------------------
+Release Tag: v7lis7-3.5.1-p6 (11 Jan 2016) -- Sixth "Arthur" Patch Release
+-------------------------------------------------------------------------------
+
+Emergency changes (8 March 2016):
+* Updated LIS_coreMod.F90 to prevent LIS hangs on Pleiades.
+* Added sample input files for running Arthur Patch 6 on Pleiades. Provided
+  by Toshi Matsui.
+
+New changes:
+* WRF-LIS coupling updates:
+  - Enables coupling to Noah 2.7.1, Noah 3.2, and Noah 3.6.  Includes fixes
+    to Noah 2.7.1 and Noah 3.2 export code to handle patches, adds export
+    for Noah 3.6, and adds output support for all three LSMs.
+  - Now passing pure LWDOWN (w/o multiplying by surface emissivity) from WRF
+    to LIS.
+  - Changed Noah 2.7.1 to multiply LWDOWN by emissivity internally (already
+    done with newer Noah versions).
+  - Now copying LIS exported emissivity back to WRF array for input to 
+    radiation.
+* Added the capability for CASA2WRF to temporally interpolate the CO2 flux
+  depending on NU-WRF state. 
+  - This program reads the component CO2 fluxes, interpolate to WRF grid
+  - Read the WRF output from NU-WRF
+  - Interpolate the CO2 flux components based on Shortwave radiation, and 
+    Surface Temperature from NU-WRF state, and compute the net production 
+    of CO2, compute the total flux and its tendency 
+  - Create input flux files for WRFCHEM runs with CASACO2 
+* Updated user guide.
+
+-------------------------------------------------------------------------------
+Release Tag: v7lis7-3.5.1-p5 (19 Nov 2015) -- Fifth "Arthur" Patch Release
+-------------------------------------------------------------------------------
+New changes:
+* Updated 4ICE microphysics scheme, and added aerosol coupling.
+* Added a general, MPI-safe convective stratiform index diagnostic for all
+  microphysics schemes rather than just 3ICE and 4ICE. Old CSI code in 3ICE and
+  4ICE has been removed.
+* Revised wrfout variable list to reduce file size and write times. Also added
+  total latent heat rate calculation, and now pass dx to 4ICE scheme.
+* Fixed asynchronous I/O ("quilting") for coupled WRF-LIS.
+* REAL: Changed reads from LDT/LIS file to use less memory.
+* LIS updates:
+  - Combined lisconfig_offline, lisconfig_coupled1, and lisconfig_coupled2 
+    routines into lisconfig_generic.
+  - Add VIIRS and SPoRT GVF testcases.
+  - Add support to diagnose greenness in units of percentage.
+  - Update ldt.config files for the wrfout testcase.
+  - Add nest loop to metForcGen_interp_finalize routine.
+* GOCART2WRF updates:
+  - Added support for offline GOCART netCDF files.
+  - Added support for MERRA2 GOCART inst3_3d_aer_Nv files.
+  - New proc_merra2_gocart_ges_disc.sh script to download MERRA2 GOCART data 
+    from GES DISC web page and process with GOCART2WRF.
+  - Revised GOCART2WRF logic for MERRAero dR_MERRA-AA-r2.inst3d_aer_v files.
+  - Updated README file.
+* New proc_merra2_ges_disc.sh script. This downloads and processes MERRA2 data
+  hosted on the NASA GES DISC web page. The GES DISC fields appear identical
+  to the data hosted on Discover by the GMAO, and no changes are required for
+  MERRA2WRF. [Note: No aerosol data is processed.]
+* Disabled call to WRF-Chem optical driver when using 2011 or 2014 Goddard
+  radiation.
+* Bug fixes to GOCART volumetric mean refractive index calculation: (1) Removed
+  erroneous copying of dust to "other inorganics", which created spurious extra
+  source of aerosols; and (2) Removed MSA from refractive index calculation.
+* Updates to 2014 Goddard radiation:
+  - Rescaled molecular absorption up 50% in SW scheme to correct severe
+    underestimation of clear-sky atmospheric absorption. Value adjusted toward
+    RRTMG.
+  - Increased CO2 concentration.
+  - Moved mcdat_int variable to ensure scheme runs under hybrid MPI/OpenMP.
+  - New lookup tables for 4ICE microphysics.
+* Lateral boundary condition bug fix (cherrypicked from WRF 3.7).
+* Fixed bug for spreading dust emissions across multiple near-surface levels.
+* Increase in maximum I/O time levels.
+* Added kinetic energy spectra scripts (from DSCALE project).
+* Upgrade GSDSU to 3.5, which includes:
+  - Global IR emissivity database from University of Wisconsin (Seemann et al.
+    2008);
+  - Modified size boundaries for precipitating and non-precipitating particles
+    (200-micron diameter threshold consistently) for computing microwave/
+    visible-IR optical properties;
+  - UV-VIS-IR non-spherical ice scattering database for visir simulator from
+    Texas A&M University team (Yang et al. 2013).
+  - Bug fixes for memory allocation, writing to netCDF output file, and 
+    handling MPI aborts.
+  - Updated GSDSU User Guide.
+* Modified LDT to output netCDF4 file for REAL if selected at compile time.
+  Earlier code was hardwired to use classic netCDF3, which made LDT unusable
+  for very large domains (e.g., 5000x5000).
+* Bug fix to G3 cumulus scheme to prevent division by zero in Himalayas.
+* Changed PREP_CHEM_SOURCES to support new 72-level GOCART background data 
+  files for actual year and month being processed.  The user should edit 
+  prep_chem_sources.inp and set gocart_bg_data_type=``new''; create a 
+  gocart_bg_new subdirectory on the same level as the gocart_bg folder 
+  containing the community 55-level files; and store new
+  geos5_met_1MAVG_YYYYMM.nc and gmi_merra_oxidants_YYYYMM_1.25x1.nc files in
+  gocart_bg_new, where YYYY is the 4-digit year and MM is the 2-digit month. 
+  If PREP_CHEM_SOURCES cannot find both files, it will fall back on 
+  gmi_2006MM.nc files in gocart_bg_new, which are also 72-levels but only 
+  exist for 2006.
+* Limited UPP support for Goddard microphysics schemes. Graupel and hail
+  mixing ratios are now read in. If the NUWRF 3ICE or 4ICE scheme was used
+  (not the community WRF version), then the 3D dBZ field will also be read in.
+  Radiance generation is disabled (use GSDSU for that). Since hail is not
+  in the NCEP GRIB table, hail and graupel mixing ratios are combined. This
+  may lead to problems with the GSD visibility product, but the proper
+  extinction coefficients for hail are unknown.
+* Added preprocessor flag to UPP SGI MPT build configuration to remove OpenMP
+  library calls.
+
+-------------------------------------------------------------------------------
+Release Tag: v7lis7-3.5.1-p4 (1 Sep 2015) -- Fourth "Arthur" Patch Release
+-------------------------------------------------------------------------------
+
+New changes:
+* Upgrade LIS to 7.1r. This includes:
+  - Noah 3.6, NoahMP 3.6, and CABLE 1.4b LSMs (only Noah 3.6 tested with 
+    NU-WRF).
+  - Flood and drip irrigation.
+  - VIIRS Daily GVF data
+  - TRMM 3B42 V7 real time precipitation
+  - Gaussian T1534 GFS met forcing data
+  - MERRA-2 met forcing data (data only available to select users).
+  - Downscaling precipitation (PRISM) (NLDAS-2 only)
+  - Should compile now with gfortran.
+* Updated LDT to 7.1r. This includes:
+  - Fixes to several metforcing readers that process the forcing terrain-
+    height or elevation fields when processing model parameters.
+  - Corrected conserved (budget-bilinear) interp routines. Users may
+    notice slight differences in results.
+  - MetTimeDScale and Metforcproc runmodes.
+  - Crop, CLM2, Flake, Mosaic, Noah, SiB2, and VIC parameters.
+  - TRMM 3B42 V7 real time precipitation.
+  - Aquarius L2, GCOMW AMSR2 L3, and SMOS L2 soil moisture observations.
+  - Simulated GRACE products.
+* Updated LVT to 7.1r. This includes:
+  - Fixed bug affecting output of summary and final metric files.
+  - GCOMW, ASCAT, SMOS, and SMOS L1 Tb observations.
+  - MODIS LST and Great Lakes Hydro data.
+  - Time lagged computations.
+* Upgraded compiler version to Intel 13.1.3.192 (required for LIS 7.1)
+* Upgraded build config files.
+* Updated LIS, LDT, and LVT User Guides.
+* Updated NUWRF User Guide.
+
+-------------------------------------------------------------------------------
+Release Tag: v7lis7-3.5.1-p3 (29 June 2015) -- Third "Arthur" Bug Fix Release
+-------------------------------------------------------------------------------
+
+New changes:
+
+* Updated pleaides.cfg to use new generic SGI MPT module on Pleiades. NAS will
+  remove older versions of SGI MPT on 6 July 2015, and advises use of this 
+  generic module to prevent future breakage when SGI MPT is upgraded and older
+  versions are removed.
+* Fixed chunking and deflation in GOCART2WRF when writing new chemistry fields
+  to wrfinput and wrfbdy. Also removed unused variables, and reorganized
+  makefiles.
+* Added new temporalInterpolation GEOS2WRF tool, plus scripts to automate
+  use to interpolate 6-hrly MERRA2 reanalyses from MERRA2WRF to 3-hrly.
+* Upgraded LIS to 7.0rp3.
+* Modified PREP_CHEM_SOURCES to process NASA QFED wildfire emissions. The 
+  following species are supported: acet,ald2,alk4,bc,c2h6,c3h6,c3h8,ch2o,ch4,
+  co,co2,mek,nh3,no,oc,pm25,so2.  bc, oc, pm25, and so2 are used by the 
+  simple GOCART option in WRF-Chem; the other species are used in gas 
+  chemistry options.
+* Modified dynamic dust capability to optionally suppress emission, or to
+  specify model layers to distribute the dust from the surface.
+* Changed sample batch scripts to check if SGI MPT, Intel MPI, or MVAPICH2 is 
+  used and invoke the corresponding appropriate run command when starting a 
+  MPI program (mpirun, mpiexec, mpiexec_mpt, mpiexec.hydra).
+* Modified Run_MERRA2.csh script to allow user to override base path of
+  MERRA2 data via environment variable.
+* Modified ARWPOST to read wrfout files from WRF-Chem.
+* Modified build system to optionally compile WRF for use with Allinea MAP (a 
+  code profiler). Only works on Discover.
+* Updated NUWRF User Guide.
+
+-------------------------------------------------------------------------------
+Release Tag: v7lis7-3.5.1-p2 (27 April 2015) -- Second "Arthur" Bug Fix Release
+-------------------------------------------------------------------------------
+
+New changes:
+* Bug fixes to using WRF-Chem GOCART without a Grell cumulus scheme (affects
+  cloud fraction field)
+* Updates to LIS MERRA-Land reader code: fix downward shortwave radiation
+  index, and better handles missing input.
+* Updated Run_MERRA2.csh script to reflect current stream status and to
+  use consistent indentation.
+* Added MERRA2 support in LIS.
+* Added bug fix to GEOS2WPS to handle 3-hourly MERRA2 assimilation data.
+* Added run_geos2wrf_merra2_3hrassim.discover.sh script to run GEOS2WRF to 
+  process 3-hourly MERRA2 assimilation data (GEOS-5 output as the model is 
+  adjusting towards the MERRA2 6-hr analyses via IAU). The collection for this
+  data is a bit different than the 6-hr analyses, and it was easier to use 
+  GEOS2WRF rather than edit MERRA2WRF. Script only works on Discover, and 
+  assumes the user has access to the MERRA2 GMAO directory on Discover.
+* Allow WRF to run with Noah LSM selection if REAL processed LIS data. Allows
+  user to switch from WRF-LIS coupling to WRF-Noah-initialized-from-LIS without
+  rerunning LIS to produce GRIB files.
+* Updated LIS/LDT/LVT Makefiles to reduce number of include directories to
+  search through (cuts down on build time).
+* Fixed loops in WRF-Chem convective transport code to skip nv=1 (which is not
+  a valid chemical species), and to loop through all chemical species instead
+  of just gas (that patch is from WRF-Chem 3.6.1).
+* Added value for DELZ_THRESOLD in plume model. Plume model with stop when 
+  plume top changes less than 100 meters over ten minutes.
+* Bug fix to prep_chem_sources, resolving conflicting symbols imported from 
+  two different modules (detected by Intel 15 compiler). This was cherrypicked
+  from the v7_compilers branch.
+
+-------------------------------------------------------------------------------
+Release Tag: v7lis7-3.5.1-p1 (9 March 2015) -- "Arthur" Bug Fix Release
+-------------------------------------------------------------------------------
+
+* Modified build .cfg files for Discover. 
+  - Default discover.cfg will check that compilation node is running SLES11.1,
+    and will abort if SLES11.3 is detected. Still uses Intel 13 compilers and
+    Intel MPI 4. Executables with this configuration should stick with older
+    Sandy Bridge nodes running SLES 11.1.
+  - New discover_intel13_impi5_sp3.cfg and discover_intel13_sgimpt_sp3.cfg
+    files for Intel 13 compilers and either Intel MPI 5 or SGI MPT, both 
+    for SLES 11.3. If SLES 11.1 is detected on compilation node the build 
+    script will abort. Executables with this configuration should stick with
+    Haswell nodes running SLES 11.3.
+  - Updated pleiades_intel13_impi.cfg. This file had erroneously not been
+    updated in Version 7 and did not work in the original Arthur tag.
+* Merged in LIS 7.0rp2
+  - Bug fix: Do not reset zh and zm for processes with zero tiles.
+  - Add function to count VIC state variables, including those for VIC lake
+    model.
+  - Changes need to lis.config for VIC 412 restarts.
+  - CMAP updates, including new grid change update and correcting timing of 
+    when to change grids.
+  - Update ldt.config files for internal testcases
+  - Updated RELEASE_NOTES.txt
+* Merged in LDT 7.0rp2
+  - Fix mapping between fine-scale Lambert Conformal and coarser Lat-Lon 
+    parameter grid extents.
+  - Fix domain boundary checks when using NLDAS-1 and NLDAS-2 data.
+* Bug fixes to Goddard 2011 and 2014 radiation schemes. Transmission functions
+  in the CO2, O3, and three water vapor bands with strong absorption are now 
+  computed using table look-up.  Significantly improves accuracy for pressures
+  less than 10 mb.
+* Modified WRF and LIS configure templates to add -xCORE-AVX2 compiler flag
+  options. However, early tests show slower run times compared to -xSSE4.2,
+  so the build cfg files do not currently use them.
+* Merged in Weile Wang's (ARC) modifications to the WRF spectral nudging code.
+  FFT runs significantly faster with Weile's changes.
+* Modified WRF code to fix -DBENCH instrumentation for most parts of the
+  WRF solver.
+* Added Python scripts to calculate summary metrics from WRF RSL files for
+  benchmarking. 
+* Added support for MERRA2 in MERRA2WRF.
+* Updated User Guide to diagram sample workflows.
+* Tweaked Run_SST.sh
+* Tweaked build system to better handle CASA CO2 preprocessors.
+
+-------------------------------------------------------------------------------
+Release Tag: v7lis7-3.5.1 (12 January 2015) -- "Arthur"
+-------------------------------------------------------------------------------
+
+* Incorporates WRF 3.5.1, WPS 3.5.1, prep_chem_sources 1.3.2, RIP 4.6.5, 
+  UPP 2.1, and MET 4.1.
+  - Updated GEOGRID.TBL tables to incorporate WPS 3.5.1 changes.
+  - Several new microphysics, radiation, and cumulus schemes. 
+  - Grell-Devenyi scheme option changed to 93; option 3 is new Grell-Freitas
+* Changed build system to link all programs against netCDF4 with HDF5.
+* Revised Goddard microphysics options:
+  - Option 7 is from community WRF (incorporates recent changes by NCAR)
+  - Option 55 is from NUWRF project. Updated intercept parameters and 
+    densities of graupel and hail (no longer constant). File, module, and
+    subroutine names have changed. Also corrected radar reflectivity 
+    calculation. Includes GOCART aerosol coupling. NOTE: Cloud effective
+    radius calculation in GOCART case uses simple formula from GCE.
+  - Option 56 is new 4ICE microphysics (graupel and hail are separate 
+    species). Includes GOCART aerosol coupling but doesn't include wet
+    deposition. NOTE: Ice cloud effective radius calculation in GOCART case 
+    uses simple formula from GCE.
+* Revised Goddard longwave radiation options:
+  - Option 5 is from community WRF (incorporates recent changes by NCAR).
+  - Option 55 is from NUWRF project. File, module, and subroutine names have
+    changed. Includes GOCART aerosol coupling option.
+  - Option 56 is new 2014 version from NUWRF project. Includes optimizations
+    and use of effective cloud/precip radii. Includes GOCART aerosol coupling
+    option. User must copy or link WRFV3/GODDARDRAD_SSLUT to GODDARDRAD_SSLUT
+    subdirectory in working directory when running with this scheme.
+* Revised Goddard shortwave radiation options:
+  - Option 2 is (very old) version from community WRF.
+  - Option 5 is from community WRF (incorporates recent changes by NCAR).
+  - Option 55 is from NUWRF project. File, module, and subroutine names have
+    changed. Includes GOCART aerosol coupling option.
+  - Option 56 is new 2014 version from NUWRF project. Includes optimizations
+    and use of effective cloud/precip radii. Includes GOCART aerosol coupling
+    option. User must copy or link WRFV3/GODDARDRAD_SSLUT to GODDARDRAD_SSLUT
+    subdirectory in working directory when running with this scheme.
+* LIS updates:
+  - Namelist option changed to 55. (Option 5 is now CLM4, same as community 
+    WRF.)
+  - Replaced LIS 6 with LIS 7.0rp1 from LIS Public Branch.
+  - Added LDT 7rp1 (Land Data Toolkit -- new preprocessor for LIS and REAL) 
+    from LDT Public Branch
+  - Updated ESMF to 5.2.0rp3
+  - Added GRIB_API 1.12.3 dependency.
+  - Updated LISCONFIG to support LDT and LIS 7, plus bug fixes to better 
+    support nesting and map projection options.
+  - Removed "lisreal" build option -- LIS sensitive logic changes now handled
+    at runtime if LIS is used as WRF's LSM option.
+  - Modified Vtable.LIS for UNGRIB processing of LIS GRIB data.
+  - Upgraded LVT to 7r from LVT Public Branch.
+* Revised options for erodible soil (EROD):
+  - New &chem namelist option "erod_option" specifies which EROD data to use.
+  - Option 'static' uses annual data from community WRF. Variables names 
+    changed to incorporate "STATIC" suffix. Data is passed from GEOGRID.
+    *DEFAULT*.
+  - Option 'mdb' uses seasonal EROD (DJF, MAM, JJA, SOM) based on MODIS Deep
+    Blue climatological aerosol depths. Data is passed from GEOGRID.
+  - Option 'dyn_climo' reads monthly "bareness" (derived from MODIS 
+    climatological greenness and sanity checked against MODIS and USGS land 
+    use and against soil type) and "topographic depression". Fields are passed
+    from GEOGRID. EROD field is constructed within WRF from those two fields,
+    but is further adjusted to screen out snowy/cold locations.
+  - Option 'dyn' reads topographic depression (again from GEOGRID) and daily
+    bareness derived from NASA SPoRT NDVI analyses (in WPS intermediate 
+    format, same as that written to by UNGRIB). NDVI-based greenness is also
+    read in from GEOGRID for consistency. EROD is derived from MODIS based on 
+    bareness and topographic depression, but is further adjusted to screen out
+    snowy/cold locations. NDVI can also be fed to WRF but it will not use the 
+    variable for any calculations.
+  - Uses new GEOGRID.TBL.ARW_CHEM_NUWRF for these options, plus to add 
+    'gvfsport' (NASA MSFC SPoRT's MODIS based Green Vegetation Fraction 
+    product, available daily over CONUS). Also modified METGRID.TBL.ARW.
+* Added LAI-to-Vegetation Fraction parameterization.
+* Bug fix to restart files when using time-varying sea ice (patch provided
+  by Weile Wang).
+* Revised WRF diagnostic mean and standard deviation calculations to use
+  Welford algorithm (less sensitive to roundoff errors, avoids NaNs when
+  fields vary little with time).
+* Changed Registry to write RAINNCV and RAINCV to history files by default.
+* Fixed uninitialized variables in Noah LSM.
+* Added precipitable water, liquid water path, ice water path, cloud liquid
+  water path, cloud ice water path, rain water path, and frozen precipitation
+  water path.
+* Added time-averaged integrated vapor transport vector components. User
+  adjusts time-averaging period using IVT_INTERVAL &time_control namelist
+  option (in minutes).
+* Added freezing level height calculation.
+* Added spatial subsetting option to GEOS2WPS, allowing user to specify 
+  start and end i,j,k indices of GEOS data to process.
+* Added new Python scripts to use GEOS2WRF to process GEOS-5 7-km "Ganymed"
+  Nature Run (first prototype of scripts for DSCALE project).
+* Overhauled processing of GFEDv3.1 biomass burning data. Now processes
+  BC, C2H4O, C2H4, C2H5OH, C2H6S, C2H6, C3H6O, C3H6, C3H8, C5H8, CH2O,
+  CH3OH, CH4, CO2, CO, NH3, NOx, OC, PM2p5, SO2, Terpenes, Toluene_lump,
+  and TPM, plus DM. C2H4, CH4, CO2, DM, and Terpenes are only handled
+  by CONVERT_EMISS if the new gfedv3_biomass_burn_extravars flag is
+  set to 1 in the &chem namelist block in namelist.input. DM is only
+  passed to WRF-Chem for future use in modifying emission values on-line.
+* Changed processing of GOCART background fields by PREP_CHEM_SOURCES to
+  use bilinear interpolation if fewer than two background grid points fit
+  within a WRF grid point. Also changed logic for processing "new" 72-level
+  files -- these must now be in a gocart_bg_new subdirectory, making it
+  easier to toggle between "new" 72-level and "old" (community) 55-level files
+  (the latter remain in a gocart_bg subdirectory).
+* Added support for CASA CO2. This includes:
+  - Adding option (chem_opt==18) for treating CASA CO2 as a tracer, and 
+    options (emiss_opt==18 and emiss_inpt_opt==18) to read in CO2 total
+    emissions.  TODO: Break emissions down into anthropogenic, biogenic,
+    and volcanic components.
+  - Modifying the WRF-Chem dry deposition scheme to support CASA CO2.
+  - Added new casa2wrf preprocessor to read in CASA CO2 netCDF files, regrid 
+    and add the CO2 concentration to wrfbdy and wrfinput files (LBCs and ICs,
+    respectively), and add regridded CO2 fluxes to new netCDF files processed 
+    as auxinput18 in WRF's namelist.input file.  Includes nesting support and 
+    capability to use emission flux data interpolated at every time step.
+* GSDSU: Updated to version GSDSU 3.3.3.  
+  - A new microphysics option for Goddard 4ICE scheme is added:  
+    cloud_microphysics = 'GMP4ICE' 
+  - capability of simulating Doppler velocity (profiler only) in radar 
+    simulator
+  - unified treatment of the Goddard class and generalized-gamma classes in 
+    microphysics
+  - bug fixes
+* Removed SZIP dependencies.
+* RIP updates:
+  - Tweaked RIP 4.6.5 to read WRF/Chem 3.5.1 netCDF files, and to recognize
+    new NUWRF microphysics options, radiation options, and LIS (including UMD
+    and MODIS land use).
+  - Changed precip accumulation to 3 hr, added radar reflectivity.
+  - Adjusted batch scripts specifying default variables to plot.
+* Removed old Pleiades cfg file for Intel 12 compilers/Intel MPI.
+* Upgraded pleaides.cfg to use SGI MPT 2.11r13. Older versions of MPT will
+  be removed in early January 2015 by NAS, making this update a requirement.
+* Removed Discover.cfg file for GFORTRAN/OpenMPI. (GFORTRAN support will
+  be added back at a future date.)
+* Added discover_intel13_mvapich2.cfg file to use MVAPICH2 instead of
+  Intel MPI with Intel compilers.
+* Added community documentation, and documentation for GSDSU, 2014 Goddard
+  radiation, EROD dust source function, and CASA2WRF. Updated User's Guide.
+* Added capability to process MERRAero data in addition to gocart data. 
+  Revised Gocart2wrf and tested to process MERRAero data. 
+* Revised SST2WRF to update to latest version of RSS SST data version 4 for 
+  mw (Microwave) and mw_ir (microwave - Infrared) 9km data sets. Added new
+  run scripts.
+* Updated Vtable.GFS to support new GFS GRIB2 files with corrected soil
+  temperature "discipline" and "parameter" settings. File is backward
+  compatible with older data.
+* Updated sample SLURM batch scripts for DISCOVER.
+* Updated sample PBS batch scripts for PLEIADES.
+
+---Updates since v7lis7-3.5.1-dev6--
+* Updated NUWRF User's Guide and documentation for LIS, LDT, and LVT.
+* Fixed bug with restarts involving skin temperature and time varying sea ice.
+  Fix provided by Weile Wang of the DSCALE project.
+* Changed 2014 Goddard radiation to use vertical "tile" dimensions in vertical
+  loops. Also added warning messages if vertical tile and memory dimensions
+  differ, and pass current time and time step length to radiation scheme for
+  diagnostics.
+* Updated sample PBS scripts for Pleaides.
+* Added scripts for running SST2WRF
+* Modified Vtable.GFS to support recent NCEP GRIB2 changes for soil 
+  temperature. File is backward compatible and will support older GFS GRIB2 
+  files.
+* Modified cloud effective radius calculation in NUWRF 3ICE and 4ICE 
+  microphysics schemes when GOCART coupling turned on (switched to simple 
+  diagnostic used in GCE).
+* Fixed bug in calculating activated ice nuclei in 3ICE. Now updates every
+  time step when GOCART coupling is turned on.
+
+-------------------------------------------------------------------------------
+Development Tag: v7lis7-3.5.1-dev6 (05 December 2014)
+-------------------------------------------------------------------------------
+
+[Note: These entries were added on 10 December 2014]
+
+---Updates since v7lis7-3.5.1-dev5---
+* Overhauled processing of GFEDv3.1 biomass burning data. Now processes
+  BC, C2H4O, C2H4, C2H5OH, C2H6S, C2H6, C3H6O, C3H6, C3H8, C5H8, CH2O,
+  CH3OH, CH4, CO2, CO, NH3, NOx, OC, PM2p5, SO2, Terpenes, Toluene_lump,
+  and TPM, plus DM. C2H4, CH4, CO2, DM, and Terpenes are only handled
+  by CONVERT_EMISS if the new gfedv3_biomass_burn_extravars flag is
+  set to 1 in the &chem namelist block in namelist.input. DM is only
+  passed to WRF-Chem for future use in modifying emission values on-line.
+* Changed processing of GOCART background fields by PREP_CHEM_SOURCES to
+  use bilinear interpolation if fewer than two background grid points fit
+  within a WRF grid point. Also changed logic for processing "new" 72-level
+  files -- these must now be in a gocart_bg_new subdirectory, making it
+  easier to toggle between "new" 72-level and "old" (community) 55-level files
+  (the latter remain in a gocart_bg subdirectory).
+* Added spatial subsetting option to GEOS2WPS, allowing user to specify 
+  start and end i,j,k indices of GEOS data to process.
+* Added new Python scripts to use GEOS2WRF to process GEOS-5 7-km "Ganymed"
+  Nature Run (first prototype of scripts for DSCALE project).
+* Bug fix for cleanfirst build.sh option for wrf, chem, and kpp targets.
+* Bug fix to emissions_driver.F (changed order of dimensions for EROD)
+* Added support for MVAPICH2 with Intel 13 compilers on DISCOVER.
+* Changed SGI MPT version to 2.11r13 on PLEIADES.
+* SST2WRF upgraded to use Version 4 datasets from RSS.
+* Fixed reduced compilation of 4ICE microphysics scheme.
+* User Guide updates.
+
+-------------------------------------------------------------------------------
+Development Tag: v7lis7-3.5.1-dev5 (23 October 2014)
+-------------------------------------------------------------------------------
+
+---Updates since v7lis7-3.5.1-dev4-DSCALE---
+* Merged LIS 7rp1
+* Merged LDT 7rp1
+* Merged LVT 7r
+* Disabled 2-way nesting with LIS coupling to prevent changes in WRF land mask.
+* Improved LISCONFIG to handle nesting and to better handle map projection
+  selections (now case-insensitive).
+* Fixed 2-way nesting with EROD fields.
+* Added preliminary support for MERRAaero data in GOCART2WRF, plus some 
+  improvements in memory handling. 
+
+-------------------------------------------------------------------------------
+Development Tag: v7lis7-3.5.1-dev4-DSCALE (6 October 2014)
+-------------------------------------------------------------------------------
+
+---Updates since v7lis7-3.5.1-dev3---
+* Major MPI bug fixes to LIS 7 public.
+* Fixed LIS 7 output of GRIB data (lambert conformal)
+* Upgraded GRIB_API to 1.12.3.
+* Revised Vtable.LIS for UNGRIB processing of LIS GRIB data.
+* Revised WRF diagnostic mean and standard deviation calculations to use
+  Welford algorithm.
+* Changed Registry to write RAINNCV and RAINCV to history files by default.
+* Fixed uninitialized variables in Noah LSM.
+* Added precipitable water, liquid water path, ice water path, cloud liquid
+  water path, cloud ice water path, rain water path, and frozen precipitation
+  water path.
+* Added time-averaged integrated vapor transport vector components. User
+  adjusts time-averaging period using IVT_INTERVAL &time_control namelist
+  option (in minutes).
+* Added freezing level height calculation.
+* Minor updates to User Guide. Added LIS 7, LDT, and LVT User Guides plus
+  README in docs/ directory.
+* Retired GFORTRAN/OpenMPI build cfg file. GFORTRAN will be restored in future
+  tag.
+
+-------------------------------------------------------------------------------
+Development Tag: v7dev3-3.5.1 (19 Sep 2014)
+-------------------------------------------------------------------------------
+
+***DOES NOT INCLUDE LIS 7, LDT, OR UPDATE LVT***
+***NO UPDATES YET TO USER GUIDE***
+
+---Updates from v7dev2-3.5.1 tag---
+* Modified CASACO2 preprocessor to handle different resolutions, plus bug
+  fixes and mods to run script.
+
+-------------------------------------------------------------------------------
+Development Tag: v7lis7-3.5.1-dev3 (26 August 2014)
+-------------------------------------------------------------------------------
+
+---Updates since v7lis7-3.5.1-dev2---
+* Add bug fix to LIS canopy water.
+* Bug fix for RIP to recognize MODIS land use data.
+* Modified LISCONFIG to drop processing of reference latitude and longitude.
+* Added assignment of surface saturation flag for MYJ PBL when LIS used as
+  LSM.
+* Added initialization of hydrometeor effective radii.
+* Added LIS 7 Public branch
+* Added LDT development branch revision 5326.
+
+-------------------------------------------------------------------------------
+Development Tag: v7dev2-3.5.1 (31 July 2014)
+-------------------------------------------------------------------------------
+
+***DOES NOT INCLUDE LIS 7, LDT, OR UPDATE LVT***
+***NO UPDATES YET TO USER GUIDE***
+
+---Updates from v7dev1-3.5.1 tag---
+* Reorganized EROD options into "static", "mdb", "dyn_climo", and "dyn" 
+  options.
+* Added LAI to fveg parameterization from Toshi.
+* Bug fix to 4ICE debug build option.
+* Updated GEOGRID.TBL to capture WRF 3.5.1 updates, and add gvfsport 
+  dataset for daily NASA MSFC SPoRT NDVI based GVF products.
+* Revised patch for VEGFRA overflow bug in REAL.
+* Updated GSDSU to 3.3.3.
+* Bug fixes to 3ICE and 4ICE schemes.
+* Bug fix for CASA2WRF pressure computation. Cleaned up preprocessors, and
+* added build system support.
+* Added community documentation, and documentation for GSDSU, 2014
+  Goddard radiation, EROD dust source function, CASA2WRF.
+
+-------------------------------------------------------------------------------
+Development Tag: v7lis7-3.5.1-dev2 (19 June 2014)
+-------------------------------------------------------------------------------
+
+---Updates since v7lis7-3.5.1-dev1 tag---
+* Added LDT build support for toggling off "run time" metadata writes.
+* Added Pleiades build support.
+* Captured GSDSU 3.3.3, 3ICE/4ICE, and CASA updates from trunk.
+
+-------------------------------------------------------------------------------
+Development Tag: v7lis7-3.5.1-dev1 (2 May 2014)
+-------------------------------------------------------------------------------
+
+---Updates since v7dev1-3.5.1 tag---
+
+* Replaced LIS 6 with LIS 7, added LDT (both alphas)
+* Modified REAL to process LDT output files.
+* Updated ESMF to 5.2.0rp3.
+* Removed SZIP dependency.
+* Added GRIB_API dependency.
+* Updated LISCONFIG to support LDT and LIS 7.
+* Removed "lisreal" build option -- LIS sensitive logic changes now handled
+  at runtime if LIS is used as WRF's LSM option.
+* WARNING: GFORTRAN support dropped!!!
+* WARNING: NO SUPPORT FOR PLEIADES!!!
+* WARNING: LVT won't compile!!!
+
+-------------------------------------------------------------------------------
+Development Tag: v7dev1-3.5.1 (26 March 2014)
+-------------------------------------------------------------------------------
+
+***DOES NOT INCLUDE LIS 7, LDT, OR UPDATED LVT***
+***NO UPDATES YET TO USER GUIDE***
+
+* Merged WRF 3.5.1, WPS 3.5.1, prep_chem_sources 1.3.2, RIP 4.6.5, UPP 2.1, 
+  and MET 4.1.
+
+* Goddard radiation and 3ICE microphysics are now split into separate 
+  "community" and "NUWRF" versions, as the codes have diverged and continue 
+  to evolve in different ways. All codes link against netCDF4.
+
+* Changes to 3ICE scheme: updated intercept parameters and densities of
+  graupel and hail (no longer constant). File, module, and subroutine names
+  changed. Also corrected radar reflectivity diagnostic.
+
+* Added 4ICE microphysics (w/o aerosol coupling). Note that ifort won't 
+  optimize the 4ICE source code due to size of a subroutine. TODO: Add
+  aerosol coupling.
+ 
+* Removed SZIP dependencies for those programs that link to HDF5 but not
+  HDF4.
+
+* Updated batch scripts for Discover and Pleiades.
+
+* Tweaked RIP 4.6.5 to read WRF/Chem 3.5.1 netCDF files, and to recognize
+  NUWRF microphysics and radiation options, and LIS.
+
+* Removed old Pleiades cfg file for Intel 12 compilers/Intel MPI.
+
+* Added support for seasonal EROD values of sand, silt, and clay based on
+  dataset from Ginoux. This includes:
+  - New GEOGRID.TBL.ARW_CHEM_GINOUX file for processing seasonal EROD in 
+    geogrid binary format.
+  - New namelist variable ginoux_erod in &chem in namelist.input; =0 uses
+    standard annual value, while = 1 uses the Ginoux values based on time of
+    year.
+
+* Added support for CASA CO2. This includes:
+  - Adding option (chem_opt==18) for treating CASA CO2 as a tracer, and 
+    options (emiss_opt==18 and emiss_inpt_opt==18) to read in CO2 total
+    emissions.  TODO: Break emissions down into anthropogenic, biogenic,
+    and volcanic components.
+  - Modifying the WRF-Chem dry deposition scheme to support CASA CO2.
+  - Added new casa2wrf preprocessor to read in CASA CO2 netCDF files, add the
+    CO2 to wrfbdy and wrfinput files (LBCs and ICs, respectively), and add
+    CO2 fluxes to new netCDF files processed as auxinput18 in WRF's 
+    namelist.input file.  Includes nesting support and capability to use
+    emission flux data interpolated at every time step.
+
+* Namelist changes include: 
+  - Community WRF Goddard microphysics is mp_physics==7
+  - CAM 5.1 5-class microphysics is mp_physics==11
+  - NSSL 1-moment 6-class microphysics is mp_physics==19
+  - NSSL-LFO 1-moment 6-class microphysics is mp_physics==21
+  - NUWRF 4ICE microphysics is mp_physics=56
+  - NUWRF 3ICE microphysics is mp_physics=55
+  - NUWRF LW radiation is ra_lw_physics=55
+  - NUWRF SW radiation is ra_sw_physics=55
+  - CLM4 LSM is sf_surface_physics==5
+  - NUWRF LIS is now sf_surface_physics=55
+  - Grenier-Bretherton-McCaa (GBM) TKE-type PBL scheme is bl_pbl_physics==12
+  - Grell-Freitas cumulus ensemble scheme is cu_physics==3
+  - Grell-Devenyi cumulus ensemble scheme is cu_physics==93
+  - GRIMS shallow cumulus scheme is shcu_physics==3
+  - New ginoux_erod option in &chem. If set to 1, will use seasonal EROD data.
+    Default is zero (use normal GEOGRID EROD data).
+
+* Minor tweaks to RIP plots (changed accumulated precip to 3-hr instead of
+  6-hr; added reflectivity).
+
+-------------------------------------------------------------------------------
+Bug Fix Release: v6-3.4.1-p2
+-------------------------------------------------------------------------------
+* Updated pleiades.cfg files to reflect change in NU-WRF project folder path.
+* Updated User Guide
+* Updated error checking for aerosol coupling:
+  - Replaced naked stop statements in module_gocart_coupling.F with calls to
+    wrf_error_fatal to accomodate MPI runs.
+  - Added checks for NaN and Infinity for variables passed to checkerror
+    routines.
+* Bug fixes to prep_chem_sources:
+  - Initialized gocart_bg_data_type namelist variable to 'old'
+  - Prevent deallocation of GOCART pressure level array when multiple domains
+    are processed (was causing zero pressures to be written to output files)
+* Fixed bug for changing restart dump interval when the simulation is itself
+  restarted.
+* Merged in LIS 6.1rp7 updates. including:
+  - Fixes to latitude of NARR forcing
+  - Bug fixes to WRFout reader
+* Changed build system to disable applying debug flags to registry program.
+  Registry has a bug with an uninitialized variable and will crash. Bug
+  hasn't been fixed yet.
+* Reorganized sample batch scripts into Discover/SLURM and Pleiades/PBS 
+  versions.
+* Added support for GNU 4.8 compilers on Discover with OpenMPI 1.7.2.
+* Added support for GNU 4.8 compilers on MacOSX with OpenMPI.
+* Replaced several pause statements in LIS code. Pause will cause LIS or
+  WRF/LIS to hang indefinitely if executed in batch mode.
+* Removed Intel-specific function in WRFV3/phys/module_gocart_coupling.F for
+  detecting NaNs, and replaced with crude test that relies on ABS and HUGE.
+  Note that gfortran does not support the standard Fortran ieee_arithmetic
+  module, so some hackery is necessary.
+* Changed several C files and a yacc file to #include stdlib.h instead of
+  malloc.h. (malloc.h is non-standard and doesn't exist on OS X.)
+* Fixed several bugs in LVT/core/LVT_histDataMod.F90. First, a logical
+  variable (lo) was assigned to a real variable; code inspection suggests
+  real variable (go) should be used instead of lo. Second, changed multiple
+  IF statements where integers were evaluated as if they were logicals (legal
+  in C, illegal in Fortran).
+* Changed LIS and LVT Makefiles to greatly trim number of include paths.
+  OpenMPI mpif90 barfed with the original list, but it turns out most paths
+  are unnecessary.
+* Tweaked logic for creating configure.lis when building standalone LIS
+  executable. Easier to specify platform or MPI implementation specific
+  libraries.
+* Changed UPP/build.sh to create fake configure.upp when cleaning. This
+  specifies certain paths that are needed for purging binaries and object
+  files.
+* Fixed MET/pcp_combine to ensure open files are closed when no longer
+  needed.
+* Fixed minor bug in GSDSU makefile that prevented cleaning of output
+  directory.
+* Tweaked GSDSU/build.sh to create appropriate output directory.
+* Tweaked LVT/build.sh to ensure LVT/run directory is cleaned.
+* Added several output directories.
+* Increased length of character array in yylval union in
+  WRFV3/chem/KPP/kpp/kpp-2.1/src/scan.y to avoid buffer overrun.
+* New build cfg file for running on MacBook Pro laptop.
+* New Makefile templates for GNU compilers and OpenMPI.
+* Changed LIS C function mangling for gfortran so only single underscore is
+  appended.
+* Changed LIS lib Makefiles to pass optimization flags for gfortran. Also,
+  changed LIS_ARCH from Darwin_intel to Darwin_gfortran.
+* Added Darwin_gfortran LIS_ARCH for LVT.
+* UPP Makefile edits to handle case-insensitive OS X file system (basically
+  change suffix of post-processed source files)
+* Tweaked some format statements to appease gfortran.
+* Tweaked IF statements in LIS, WRF, and GSDSU so "==" and ".eq." aren't used
+  to test logicals against .true. or .false. (gfortran doesn't like these
+  comparisons).
+* Tweaked some character array initializations to ensure consistent-length
+  string literals are used. Gfortran doesn't like, e.g., var = (/'A','BB'/)
+  but instead wants var = (/'A ','BB'/).
+* Tweaked ProTex comments to trim end spaces to appease gfortran.
+
+-------------------------------------------------------------------------------
+Bug Fix Release: v6-3.4.1-p1
+-------------------------------------------------------------------------------
+* Updated to Intel MPI 4.0.3.008 on Discover. The older 4.0.1.007-beta 
+  version is scheduled for deletion by NCCS.
+* Updated optimization flags to use -ip (interprocedural optimizations) and
+  -xSSE4.2 (advanced code for Westmere, Sandy Bridge, and Ivy Bridge chips).
+  Assumes Intel 13 compilers are used. External users with older hardware
+  will need to remove the -xSSE4.2 flag.
+* Switched default MPI implementation on Pleiades to SGI MPI 2.08r7.
+* Replaced 'system' call with POSIX 'mkdir' C function to allow use of
+  SGI MPT with LIS and WRF/LIS.
+* Tweaked WRFV3/build.sh to avoid unnecessary changes to LIS_misc.h and
+  configure.lis. This should reduce unnecessary changes to LIS source code
+  files.
+* Tweaked main build.sh to properly check status of WRFV3 build. A variable
+  was being changed after the build attemp, and the build status code was
+  lost.
+* Minor bug fix to cleaning GSDSU.
+
+-------------------------------------------------------------------------------
+Release 6: Version 6-3.4.1 
+-------------------------------------------------------------------------------
+* Updated build system to better handle netCDF and ESMF paths for LVT.
+* WRFV3/phys/module_diagnostics.F: Change to the clim1 parameter for LFA 
+  threat 1 (went from 0.01*1.22 to 1.50)
+* UPP/src/unipost/RQSTFLD.f: Clean-up by commenting out redundant graupel 
+  declarations.
+* UPP/src/unipost/INITPOST.f: More clean-up by commenting out the LTG3_MAX 
+  code block, which is not used in the interval max calculations for lightning
+  threat.
+* UPP/src/unipost/CALPW.f: Change to the clim1 parameter in the same manner as
+  above.
+* UPP/src/unipost/CLDRAD.f: numerous book-keeping changes/corrections, and 
+  updates to how the LFA individual threats 1 and 2, and the blended threat 3 
+  are handled.
+
+
+-------------------------------------------------------------------------------
+Release 6: Version 6-3.4.1 Dev 6
+-------------------------------------------------------------------------------
+- Merged in bug patches to MET 4.0 released by DTC on 23 July 2013.
+  * 07/23/2013: Update to virtual temperature bugfix to handle older GDAS data.
+  * 07/16/2013: Bug in pb2nc selecting observations of virtual temperature 
+                instead of sensible temperature.
+  * 06/03/2013: Bug parsing Mercator grid information from GRIB2 files
+  * 05/21/2013: Bug applying lat/lon polyline to global GFS grid
+  * 05/21/2013: Bug parsing GFS grid information from GRIB2 file
+  * 03/29/2013: Bug in MADIS2NC using the wrong GRIB code for dewpoint
+  * 03/28/2013: Bug in Point-Stat when reading multiple fields from a MET 
+                NetCDF file
+  * 03/27/2013: Support GRIB files larger than 2GB
+  * 03/11/2013: Removed user-defined message type restriction
+  * 02/14/2013: Fixed undefined PATH_MAX compilation error
+  * 11/13/2012: Fixed the gen_poly_mask grid masking feature
+- Bug fixes to pleiades.cfg to compile GSDSU, LIS, and WRF.
+- Several bug fixes to REAL processing of LIS netCDF data.
+- Added forcing_variables.txt variant for coupled WRF/LIS case.
+- Modified LANDUSE.TBL to support UMD land categories (used frequently with
+  LIS)
+- Bug fix to LIS to write deep soil temperature (tempbot) to output file
+  when requested.
+- Modified LIS to optionally adjust initial climatological deep soil 
+  temperature as function of terrain height (use standard lapse rate of
+  -6.5 K / km -- used in WPS)
+- Modified LIS to add time varying deep soil temperature option for Noah 3.2
+  as function of lagged skin temperature, based on Salathe et al, J. Climate,
+  2008 (based on WRF implementation)
+- Updated Goddard microphysics to add variables rainncv_sepa and rainnc_sepa.
+- Added deep soil temperature TMN as WRF input to LIS when coupled.
+- Major bug fix to LIS and coupled WRF/LIS -- each LIS domain now uses 
+  appropriate time step, rather than the minimum time step.
+- Merged in LIS 6.1 updates (r3885:4090).  Major changes include:
+  * Write snowt as an intstaneneous values
+  * Bug fix for writing netCDF output header
+  * Changes to formatting of testcases for consistency
+  * Add support for writing albedo and max snow albedo to LIS history files
+  * Added WPS reader
+  * Added SiB-2 LSM test case
+  * Reorganized LIS_histDataMod.F90 to variables are closer to ALMA output
+    order and grouping.
+  * Updated test cases to reflect changes to LIS_histDataMod
+  * Bug fixes for setting latitude and longitude
+  * Changed LIS_vicforcingId from 16 to 31
+  * Bug fixes for MERRA baseforcing
+  * Adjusted NLDAS2 forcing domain definition
+  * Corrected output of SMLiqFrac
+  * Updated lis.config documentation
+- Disable setting in WRF to change land/sea table as function of sea ice
+  fraction when compiled with 'lisreal' option.
+- Added LIS as a separate compile target.
+- Added WRFout plugin to use WRF netCDF output files as atmospheric forcing
+  for uncoupled LIS.
+
+-------------------------------------------------------------------------------
+Release 6: Version 6-3.4.1 Dev 5
+-------------------------------------------------------------------------------
+
+- Fixed bug in properly compiling WRFV3 executables when 'netcdf4' option is
+  used.
+- When REAL processes LIS data, it now updates metadata in wrfinput files 
+  specifying new the land use classification system.
+- Changed WRF to correctly calculate XLAND when UMD data are read in from
+  wrfinput_d01.  NOTE:  Users ***MUST*** use LIS coupling in this case, as
+  other critical variables (e.g., roughness) are not set in WRF.
+- Modified WRF and LIS code to pass snow depth, snow liquid water equivalent,
+  and snow coverage from LIS back to WRF.  Currently only the LIS Noah LSMs
+  are supported.
+- Modified RIP4 to handle WRF output when UMD is used.
+- Added script support for plotting composite reflectivity, surface
+  reflectivity, and skin temperature.
+
+-------------------------------------------------------------------------------
+Release 6: Version 6-3.4.1 Dev 4
+-------------------------------------------------------------------------------
+
+- Added 'netcdf4' build option to link WRFV3 targets against netCDF4 library
+  (with HDF5 support).  This is a preliminary step to allow processing of 
+  LIS7 netCDF4 history files by REAL.  NetCDF4 compressed output is *NOT*
+  currently supported in NU-WRF, even with the 'netcdf4' build option.
+- Modified REAL to process LIS6 netCDF history files and modify relevant WRF
+  variables.  Users must use 'lisreal' build.sh option to turn on; LIS files
+  are REQUIRED in this case.  Added &lis namelist block to namelist.input to 
+  support.
+- Added support for LIS6 netCDF output when run coupled with WRFV3.
+- Tweaked default compiler flags for WRFV3
+- Now passes WRF Fortran and C compiler flags to most external libraries in
+  WRFV3 directory.
+- Reorganized debug flags for wrf.exe
+- Merge LIS 6.1 updates, bringing NU-WRF up to LIS 6.1rp6
+  * Updated enkf_syn_swe_noah test case
+  * Apply dynamic observation error
+  * Added synthetic snow water equivalent ensemble Kalman filter test case
+  * Added SWE DA support to Noah 3.2
+  * Removed old data assimilation test cases
+  * Updates and cleanups to the perturbation schemes
+- Multiple bug fixes to WRFV3/phys/module_mp_gsfcgce.F
+- Fixed bugs in WRFV3/chem/module_optical_averaging.F
+
+-------------------------------------------------------------------------------
+Release 6: Version 6-3.4.1 Dev 3
+-------------------------------------------------------------------------------
+
+- Merged in MET 4.0 bug patches
+  * 10/24/2012: Fixed the trmm2nc.R script.
+  * 10/16/2012: Fixed a PCP-Combine bug for the -add option
+  * 10/12/2012: Update to the GRIB2 library gridding patch
+  * 10/11/2012: Fixed a PGI compilation problem
+  * 10/05/2012: Fixed a GRIB2 library bug that caused gridding problems
+- WRF 3.4.1 bug patch
+  * 10/12/2012: There is a bug in computing radar reflectivity for Thompson 
+                scheme. The bug is about not utilizing spherical snow 
+		assumption used in the scheme. 
+
+-------------------------------------------------------------------------------
+Release 6: Version 6-3.4.1 Dev 2
+-------------------------------------------------------------------------------
+
+- Merged in UPP 2.0
+- Updated User's Guide.
+
+-------------------------------------------------------------------------------
+Release 6: Version 6-3.4.1 Dev 1
+-------------------------------------------------------------------------------
+
+- Merged in WRF 3.4.1 (including Chem)
+- Merged in WPS 3.4.1 plus patches
+- Merged in MET patches released in July-early September 2012.
+- Merged in GSDSU V3.0
+- Changed build.sh to rebuild libraries for SLES11.1 OS on Discover.
+- Updated User's Guide.
+
+-------------------------------------------------------------------------------
+Release 5: Version 5-3.4 Beta 1
+-------------------------------------------------------------------------------
+
+- LIS 6.1 updates:  
+  * Reset negative GDAS precip rates to 0.
+  * Bug fixes to TRMM 3B42RT routines for interpolation and checking precip 
+    rates
+  * Bug fixes to Catchment LSM
+  * Updates to polar stereographic and HRAP projections
+  * Bug fix to allocation of param_dd array.
+  * Small fixes to Noah 3.1, Noah 3.2 and Noah 3.3 to correct output of 
+    SMLiqFrac, and to fix output warning message to lisdiag file for default
+    minimum greenness value.
+- Updated GOCART2WRF to handle case where aerosol array already exists in WRF 
+  netCDF file; also moved to utils/gocart2wrf_2 directory.
+- Tweaked documentation.
+
+-------------------------------------------------------------------------------
+Release 5: Version 5-3.4 Dev 2
+-------------------------------------------------------------------------------
+
+- Tweaked build system to pass ZLIB to UPP (required because WRF/LIS uses
+  ZLIB, and WRF/LIB libraries are linked to UPP).
+- Tweaked build system to pass ESMF paths to configure lis.  Created new 
+  simpler configure.lis templates for Linux and Intel compilers.
+- Checked in WRF/Chem bug fix for AFWA GOCART dust emissions.
+- Added user-defined tuning factors for GOCART dust emissions.
+- Merged in Joe Santanello's porosity fix; values from NOAH 2.7.1, NOAH 3.1,
+  NOAH 3.2, and CLM2 in LIS are now passed back to WRF and used in GOCART
+  dust emissions.
+- Overhauled lisconfig software to process geogrid.exe output instead of
+  metgrid.exe.
+- Merged in Zhining Tao's changes to avoid double counting of aerosols.
+- Merged in geos2wrf 2.0.  Moved this and merra2wrf code into utils/geos2wrf_2
+  directory.
+- Merged in MET 4.0 plus bug fixes through 29 June 2012.
+- Updated "external library" build script for Intel 12.1 compilers and for
+  correct ESMF version.
+- Merged in UPP bug fix released on 12 June 2012 (fixes erroneous zeroes for
+  hydrometeor fields when using ARW/binary with Ferrier physics).
+
+-------------------------------------------------------------------------------
+Release 5: Version 5-3.4 Dev 1
+-------------------------------------------------------------------------------
+
+- Merged in WRF 3.4 (including WRF/Chem) with bug patches.
+- Merged in WPS 3.4 with local bug patches.
+- Merged in RIP 4.6.3.
+- Merged in UPP 1.1 with bug patches.
+- Merged in bug patches to MET 3.1.
+- Merged in prep_chem_sources 1.2_10apr2012 with local bug patches.
+- Updated sample run scripts.
+- Changed discover.cfg and pleiades.cfg to support WPS 3.4.
+- Changed convert_emiss to skip read of OL2.
+- Fixed bug in GOCART2WRF 2.0 (affecting final time level boundary variables).
+- Added sample batch script to run GOCART2WRF 2.0.
+- Tweaked RIP batch script to disable most plots and process 3-hourly wrfout.
+- Updated compilers to Intel 12.1.
+
+-------------------------------------------------------------------------------
+Release 4: Version 4-3.3.1
+-------------------------------------------------------------------------------
+
+- Added several bug fixes to MERRA2WRF 2.0.  In particular, virtual temperature
+  correction now included in geopotential height calculation, and relative
+  humidity calculated from mixing ratio instead of specific humidity.
+- Added Zhining Tao's temporary bug fix for porosity when running coupled
+  LIS/WRF-Chem.  LIS does not return porosity, which is a required input for
+  GOCART dust emissions.  The bug fix calculates porosity as a function of
+  dominant soil type, and assumes the STATSGO soil type dataset and Noah LSM
+  are being used.  (A more general solution is still under development).
+- Updated User's Guide.
+
+-------------------------------------------------------------------------------
+Release 4: Version 4-3.3.1 Beta 1
+-------------------------------------------------------------------------------
+
+- Added User's Guide in PDF format.
+- Merged in MERRA2WRF 2.0.  This new program processes HDF4 and netCDF MERRA
+  files from the NASA Goddard Earth Sciences Data Information Services Center
+  (GES DISC) web page (http://disc.sci.nasa.gov/daac-bin/DataHoldings.pl).
+  Software put in new utils/merra2wrf directory.  Build system updated to
+  support new target, and to disable compilation of MERRA2WRF 1.0 in 
+  utils/geos2wrf (this older version only works with obsolete versions of
+  MERRA data on Discover, which are no longer available outside of the Global
+  Modeling and Assimilation Office).
+- Merged in GOCART2WRF 2.0.  This new program processes GEOS-5 netCDF4 files
+  containing GOCART data, interpolates to the WRF grid, and appends the
+  data to WRF initial condition (wrfinput_d**) and lateral boundary condition
+  (wrfbdy_d01) files.  Old GOCART2WRF code has been removed, as has the
+  fromGEOS5_to_GEOS4 utility programs.  **Old GEOS-4 netCDF3 files containing
+  GOCART data are no longer supported.**
+- Removed sample input and output data files in GSDSU and MET directories to 
+  reduce disk space usage.
+- Fixed bug in RIP4 that prevented processing of wrfout files from WRF/Chem.
+
+-------------------------------------------------------------------------------
+Release 4: Version 4-3.3.1 Dev 3
+-------------------------------------------------------------------------------
+
+- Merged in GSDSU V3BETA.  Directory structure is reorganized to move source
+  code in new SRC directory, and store new input files in DATAFILES and SSLUT
+  directories, and to stage binary executables in QRUN_DISCOVER or QRUN_PLEIADES
+  directory (depending on which machine is being used).  Also, the 
+  FIND_THREAD_NUMBER.f90 utility is included in the SRC directory and is 
+  automatically built when compiling GSDSU.  NOTE:  Sample WRF input and output
+  files from the recent GSDSU tutorial were excluded to conserve disk space,
+  and PDF files of useful references were excluded to avoid copyright issues.
+- Merged in Qian Tan's changes to CONVERT_EMISS.  Program now supports both "old"
+  55-level GOCART BG files and "new" 72-level files with improved vertical 
+  positioning.  Added "new_gocart_bg_files" logical variable to &chem namelist
+  to toggle between data sources; by default, new_gocart_bg_files is .false.
+  (i.e., 55-level data is assumed).
+
+-------------------------------------------------------------------------------
+Release 4: Version 4-3.3.1 Dev 2
+-------------------------------------------------------------------------------
+
+- Merged in WRF/Chem 3.3.1 bug patch released on 7 Oct 2011.  This fixes a
+  problem with convective time averaging that is believed to impact a lot of
+  WRF/Chem users.
+- Changed prep_chem_sources to stop writing OL2 to the binary files processed
+  by convert_emiss, which stopped reading this field in WRF/Chem 3.3.1.  This
+  change in prep_chem_sources is necessary to ensure convert_emiss reads and 
+  assigns species data correctly.
+- Changed cu_diag default for WRF/Chem back to zero, consistent with 3.3.1.  
+- Added support for building WRF/Chem with the Kinetic Pre-Processor.  Users
+  should type "./build.sh kpp" to build with this option.  NOTE:  KPP issues
+  an error message when processing equations for cbm4, but an executable
+  is still created.
+
+-------------------------------------------------------------------------------
+Release 4: Version 4-3.3.1 Dev 1
+-------------------------------------------------------------------------------
+
+- Merged with the following software: WRF 3.3.1 with an official patch
+  for Morrison microphysics scheme, WPS 3.3.1, ARWpost 3.1, RIP 4.6.2, MET 
+  3.1, UPP 1.0 with severe weather diagnostics (support for WPP has been 
+  removed), and prep_chem_sources v2_04aug2011 updates.  Changed default 
+  setting for cu_diag to 1.
+  
+- Added WPS map projection support to prep_chem_sources.  Added plot_chem 
+  utility to plot grads output from prep_chem_sources.
+
+- Outputs a new ASCII "map" file that contains key map projection  information
+  (used by separate plot_chem program)
+
+- Updated GEOS2WRF which now reads specific humidity from the GEOS-5 HDF4 file 
+  and converts to relative humidity.  Corrected initial value for LANDSEA, 
+  corrected naming convention for 2-meter relative humidity.  Added new 
+  rename.py script to create symbolic links to GEOS-5 HDF4, effectively 
+  renaming them to conform to the expected prefix length.
+  
+- Added sample batch scripts and input files for running geogrid, ungrib, 
+  metgrid, real, wrf, and rip on Discover.
+
+
+-------------------------------------------------------------------------------
+Release 3: Version 3-3.2.1
+-------------------------------------------------------------------------------
+
+Updates for this release include the following:
+
+LIS:
+- LIS updated to v6.1 rp1 updates include:
+    - Made landcover consistent with UMD and USGS, added two
+      diagnostics T2 and Q2, updated to use ESMF 3.1.0rp3 library and NU-WRF
+      MPI library, other minor changes and fixes related to greenness fraction,
+      offline use of background and actual roughness length, and forcing 
+      height.
+    - Support for SPoRT Daily GVF data, North American Regional Reanalysis 
+      (3d) (NARR) data, NCEP's modified IGBP MODIS landcover data, and specify
+      direction for output variables.   Fixes a problem affecting non-square 
+      lat/lon grids.
+    - Changes to make Noah 2.7.1, Noah 3.1, and Noah 3.2 consistent and add 
+      fixes for handling of exchange coefficients, running Noah 3.2 in LIS-WRF
+      with nesting enabled, catchment, running nests in non-ESMF coupled mode, 
+      writing NetCDF when running in parallel, overwriting CH and CM 
+      coefficients.
+- Added METGRID.TBL file for use with LIS soil data and LIS Vtable (assumes
+  Noah LSM is run).
+- Adds LIS Verification Toolkit (LVT) added into the standard NU-WRF packages.
+  Builds on Discover as part of the NU-WRF automated build system.
+- Adds LIS-to-WRF configuration utility is added to support automatic 
+  generation of lis.config files that match the WRF/WPS grid.
+
+Goddard Radiation:
+- Updated Radiation and aerosol coupling component with bug fixes to
+  prevent negative effective radii and division-by-zero.
+- Adds special handling of spurious negative mixing ratios.
+- Includes sanity checking routines mostly for debugging purposes, but
+  can be expanded to support other areas of the code.
+- Bug fix to the Grell-Devenyi cumulus scheme.
+
+Goddard Microphysics:
+- Added Goddard Microphysics-GOCART aerosol coupling.
+- Goddard Microphysics updated with a new ice microphysics scheme and
+  enhancements for coupling.
+ 
+WRF/Chem/GOCART:
+- Added capability of estimating SOA from biogenic terpene emissions,
+  including three new variables: e_terp, e_api, e_lim
+- Linked the following components to GOCART chemistry: MEGAN2 biogenic
+  emissions scheme, GOCART dry deposition scheme, and various optical
+  property schemes
+- Linked RADM2 chemistry to GOCARTRADM2 option
+- Fixed bugs in various emissions modules
+
+Goddard SDSU:
+- Renamed folder to "GSDSU" to differentiate from HyARC version.
+- Adds GOCART input options to WRF input, GCE-SBM 3D option, SBM moment
+  output, grads control file automatically written, and Morrison
+  two-moment support.
+- Also adds bug fixes.
+
+Data Utilities:
+- Added "fromGEOS5_to_GEOS4" utility to support on-line GEOS-5 GOCART data to 
+  off-line GEOS-4 GOCART format for gocart2wrf, including conversions of 
+  several mixing ratios to mol/mol.  This is a temporary utility with some 
+  hard-wired settings.  A future version of gocart2wrf should support both 
+  data natively.
+- Added "prep_chem_sources" utility based on a third-party source code for use
+  of GFEDv3 fire dataset.  Handles new and old GOCART background files (set by
+  namelist variable "gocart_bg_data_type".  Supports Mercator map projection.
+- LISConfig Fortran program and accompanying Python script have been written 
+  to aid configuring LIS as input to WRF.  
+- Modified convert_emiss to be compatible with WRF3.3 version of 
+  prep_chem_sources by adding read sequence for NO2 after SO2 and ASH after 
+  SULF.
+- Added "fromGEOS5_to_GEOS4" utility to support on-line GEOS-5 GOCART data to 
+  off-line GEOS-4 GOCART format for gocart2wrf, including conversions of 
+  several mixing ratios to mol/mol.  This is a temporary utility with some 
+  hard-wired settings.  A future version of gocart2wrf should support both 
+  data natively.
+- GOCART2WRF updated.  Fixed bug triggered when WRF and GOCART pressures are
+  identical and added minor optimizations.  Also Supports converted GEOS-5 
+  data (e.g. GEOS-5 data are vertically flipped.)  Now works with inner-nest 
+  domains, but each must be processed separately.  Also writes pressures of 
+  GOCART levels in each WRF column (to file p_gocart_3d) for use in 
+  convert_emiss, which is currently forced to uniform 1023 mb.
+
+Build System:
+- Build support for incremental building as the default option (instead of a
+  performing a complete rebuild.  Note that in certain cases a full rebuild of
+  WRF must still occur.  Build also adds these new targets:
+     "allclean" - deletes all executables and intermediates.
+     "clean" - deletes specified executables and intermediates.
+- Automatic detection of configuration file (e.g. discover.cfg) using the 
+  $HOSTNAME variable; user can still override using --config flag.
+- Updated Discover configuration to use Intel MPI 4.0.1.007-beta.
+- Build support added for Pleiades (NAS) using the "pleiades.cfg" file.
+- Rebuilt and configured all NU-WRF libraries for SLES 11 on Discover and also
+  did similar upgrade on Pleiades.
+- Added build script that helps install/build external NU-WRF libraries.
+- Patched configure scripts for NCAR Graphics 6.0.0 and BUFRLIB 10.0.1.
+- Build convert_emiss.exe when 'chem' target is selected.  
+- Eliminated some false compiler errors and made other minor fixes.
+
+Configuration:
+- Added chemistry namelist options to support optional couplings:
+    - gsfcgce_gocart_coupling: GOCART aerosols and GSFC microphysics
+    - gsfcrad_gocart_coupling: GOCART aerosols and GSFC radiation
+    - bio_emiss_soa: emission conversion to SOA (off by default)
+- Adds NU-WRF configuration templates for WRF and LIS under:
+    WRFV3/test/em_real and WRFV3/lis/testcases/nuwrf
+- WRF registry update significantly reduces overall chemistry outputs.
+
+
+-------------------------------------------------------------------------------
+Release 2: Version 2-3.2.1
+-------------------------------------------------------------------------------
+
+This release of NU-WRF adds a number of improvements to both the third-party 
+software packages and in-house enhancements. 
+ 
+LIS was upgraded to version 6.0rp6.  Changes introduced into this version 
+include:
+1. GDAS and GFS T574 grib and writing GRIB output on a Mercator project
+2. LIS export data no longer overwrites the WRF data at water-points (for 
+consistency) 
+3. Checks for the surface physics scheme in wrfinput file is disabled, 
+4. REAL (part of WRF) can now be built in a special mode to generate 
+consistent initial conditions for coupled WRF-LIS runs.
+5. Fixes regarding the GDAS T574 grid change, setting dlon in get_fieldpos,
+use of griddesc for lat/lon domains, and NLDAS2 parameter corrections.
+ 
+Goddard radiation and GOCART are coupled when running with WRF/Chem.  The 
+radiative transfer model now factors in aerosols, such as elemental carbon and 
+water, in the short and long-wave radiation.
+ 
+Severe weather diagnostics support was added to WPP for applicable physics 
+schemes.  These diagnostics include: maximum 10 meter wind speed, column mean 
+vertical velocity, max column integrated graupel, maximum lightning threat, 
+derived radar reflectivity, precipitation accumulation for a given time 
+window, convective precipitation accumulation and others.
+ 
+Utility enhancements include: 
+1. MERRA2WRF now outputs relative humidity (RH) rather than specific humidity 
+(QV). Also added improved error checking when calling the HDF4 library.  
+Finally, a script for running the code on DISCOVER was fixed to gracefully 
+handle bad PBS charge codes. 
+2. GOCART2WRF includes a bug fix to calculate correct tendencies at the final 
+time level, and adds error checking when calling the netCDF library. 
+
+Removed SST from Vtable.ECMWF.  REAL does not process SST correctly from GRIB.
+ 
+Added a unified build system to compile all provided packages of NU-WRF.  This 
+build capability is currently targeted for NASA's NCCS Discover system, with 
+environment settings (compilers, libraries, etc.) defined in a configuration 
+file.  See the README.TXT for usage details.
+
+Also adds official MET bug fixes through 15 Feb 2011.
+
+
+-------------------------------------------------------------------------------
+Release 1: Version 1-3.1.1
+-------------------------------------------------------------------------------
+
+First official NU-WRF release (formerly "1.0").  
+
+Simple build script for model code only on Discover.
+
+Minor LIS updates and bug fix.  Added severe weather diagnostics code from Jon 
+Case.  This update also turns off the defaul microphysics fields in the 
+Registry outputs for EM.
+
+Updated sst2wrf to 1.0-beta9 tag.  Removed utils/merra2wrf directory, as this
+duplicated code in utils/geos2wrf.  Updated geos2wrf to 1.0.1-beta1 tag.
+
+Added utilities:  
+ARWpost v2.1, RIP v4.5, sst2wrf v1.0-beta7, geos2wrf/merra2wrf v1.0
+
+Updates to LIS-WRF coupling, bug fixes, compilation udpates, etc.
+
+Merged NU-WRF test case repository into the NU-WRF repository as a
+sub-repository called "cases" and "code," respectively.
+
+LIS integrated into NU-WRF as a WRF component.
+
+Contains new NASA microphysics and radiation with WRF 3.1.1.
+
+Originally pulled NU-WRF code from the LIS repository and modified it for a 
+new directory structure.

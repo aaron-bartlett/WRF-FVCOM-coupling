@@ -1,0 +1,30 @@
+
+Utility code for customizing lis.config file to match WRF/WPS grid
+configuration.
+
+Fortran program:  lisWrfDomain
+Purpose:  Run in directory containing a namelist.wps and corresponding netCDF
+          output files from geogrid.exe.  This program will read relevant
+	  information from these files and create a text file "domain_data" 
+	  of lis.config entries. The python script will replace the domain data 
+          in lis.config and ldt.config files from domain_data.  
+Usage:  Just "lisWrfDomain" in the directory with the input files.
+
+Python script:  lisWrfDomain.py
+Purpose:  Wrapper script for running the lisWrfDomain Fortran program.
+          Also reads in an existing lis.config file and outputs a modified
+          version with updated entries from "domain_data."
+Usage:  lisWrfDomain.py DOMAINPROG LISCONFIG LDTCONFIG WPSDIR
+        where:
+	    DOMAINPROG is the link to the lisWrfDomain executable.
+	    LISCONFIG is the link to the input lis.config file.
+	    LDTCONFIG is the link to the input ldt.config file.
+	    WPSDIR is the directory with the namelist.wps and geogrid files.
+
+Eric Kemp NASA SSSO/SSAI
+Updated 17 July 2012 
+
+Updated for LIS7 with LDT.
+Jossy Jacob NASA/SSSO/ SSAI
+Updated 11, March 2014
+

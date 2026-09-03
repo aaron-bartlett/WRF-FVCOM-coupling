@@ -1,0 +1,171 @@
+#############################################################################################
+################################### G-SDSU V4 README FILE  ##################################
+#############################################################################################
+
+This is the Quick Start Guide for G-SDSU V4.0
+Please read this, and enjoy simulators. 
+Toshi Matsui @ NASA GSFC 
+
+========================= Quick history of G-SDSU =======================================
+
+ V3.0 : Major upgrade is the development of scan orbit simulator, which account very realistic
+        scanning and FOV impact on simulated radiance. It's only done for microwave and radar
+        simulator at this point. 
+
+ V3.1 : Scanning and orbit simulator have been extended to visible-IR and lidar simulator. 
+
+ V3.2 : Radar simulator now simulate Doppler velocity. And codes have been cleaned for this.
+
+    V3.2.1: Add melting fraction for grauple and hail in single-scattering computation for SBM43. 
+    V3.2.2: Add Goddard Microphysics 2013 4ICE option.
+
+ V3.3 : SARTA (AIRS) simulator has been coupled for AIRS spectral simuation for clear sky columns. 
+ 
+    V3.3.1: Add 2way slant-path option for non-orbital microwave simulator.
+            incidence angle and view angle configuration have been corrected. 
+
+    V3.3.2: Add hydrometeor identification algorithm in radar simulator (only works for WRF-SBM so far). 
+            Now seperate radar 2D outout is generated (including composite reflectivity, echo-top height, pia). 
+
+    V3.3.3: Many bugs fixed by E. Kemp. Also significant bugs fix in microwave slant-path simulator.
+
+ V3.4: Spectrum IR emissvity database (U. Wisconsin, CIMSS) is incorporated. 
+       GCE input subroutine has MPI=2 options (and Morrison MP option).   
+
+ V3.5: UV-VIS-IR Ping Yang non-spherical ice scattering database was incorporated in vis-IR simulator and 
+           broadband simulator.
+           Because of new scattering database, lidar simulator is now capable of simulating polarization component.
+           Particle size threshold between non-precip and precipitating species are redefined as 200um for both 
+           vis-IR and microwave optics module.
+           Create CloudSat-CALIPSO cloud fraciton routine for NASA MMF.
+           Add CF-compilant text output options for hadoop file system. 
+ 
+ V4.0: Polarimetric radar simulator (POLARRIS) was developed.  
+
+     vV4.1:  Scattering LUT is now all in NetCDF format, and LUT interpolation was vectorized 
+             (x2 speed for micowave/radar and broadband simulator). 
+               
+========================= G-SDSU Directories ================================================
+
+DATAFILES: misceleneous input files necesary to run Goddard SDSU.   
+
+INPUTS: place to store model (CRM) input files.  
+
+OUTPUTS: place to store output file from G-SDSU run.  
+
+QRUN_****: Place to run G-SDSU.  
+
+CITATIONS: References for Goddard SDSU.   
+
+SRC: G-SDSU source codes.
+
+SSLUT: Pre-calculated single-scattering look-up tables. 
+
+
+======================== Steps for running G-SDSU ==========================================
+1. Go to SRC directory. 
+
+2. Change compiler option in makefile. 
+  * Essentially, the G-SDSU requires C-preprocessor, C, Fortran90 compiler with
+    NetCDF library (and optionally MPI library and HDF library). 
+  * Already some parameters are available for the NCCS Discover and the NAS Pleiades as default. 
+
+
+3. Make necesary changes indefine_CPP.h depending on your library (HDF or MPI). 
+   Unless debugging, MPI = 2 and HDF=0 is default.
+  *  MPI  0 - no mpi, 1 - file decomposition, 2- domain decomposition. 
+  *  HDF  0 - no HDF library, 1 - HDF library (default is zero). 
+
+4. Under /GSDSU_MASTER_V4Beta directory. 
+   Compile source codes, then it also copy GSDSU.x into your QRUN_*** directry. 
+  >./build.sh cleanfirst gsdsu    (for whole compilation)
+  or 
+  >./build.sh gsdsu  (if you changed one source code)
+
+5. Go to QRUN directory
+ 
+6. Modify run-time parameters in Configure_SDSU.F
+  * This configuration file is fortran namelist file, and not fortran code. 
+    (Append *.F is just for vim color purpose. So, after change, you DO NOT NEED to re-compile source code.) 
+  * Specify all simulator switch, sensors, IO directy input CRM file grid, etc...
+    It may take for a while to look through and understand all parameters.
+
+    For the fist time run, the easiest way to check the set up is to make all simulator turn off. 
+    e.g.,  
+
+$simulator_switch
+  micro  = .false.     ! microwave simulator switch; on when .true. (logical)
+  radar  = .false.     ! radar simulator switch; on  when .true.  (logical)
+  visir  = .false.     ! visble/IR simulator switch; on when .true. (logical)
+  lidar  = .false.     ! Lidar simulator switch; on when .true. (logical)
+  broad  = .false.     ! Broad-band simulator switch; on when .true. (logical)
+  sarta  = .false.     ! SARTA (AIRS) simulator switch; on when .true. (logical)
+  GV     = .false.     ! GV simulator switch; on when .true. (logical)
+  polarris = .false.    !POLLLARIS switch; on when .true. (logical)
+$end
+
+
+7. Prepare input file list consistent to Configure_SDSU.F
+ 
+   * if you set, sdsu_io_name  = 'inpfile' in Configure_SDSU.F
+     You must prepare "inpfile", which is a simple text file that contains a list of input file names like. 
+     e.g., 
+     > vi inpfile
+     wrfout_d02_2010-09-21_07:00:00
+     wrfout_d02_2010-09-21_08:00:00
+     You can make this by going to your CRM input directry, and command (>ls wrf* > inpfile)
+
+   * if you run scan simulator (e.g., scan_micro = .true. ..etc.)
+     , and set inpfile_overpass_micro  = 'overpass_****' in Configure_SDSU.F
+
+     You must prepare "overpass_****", which is similar to CRM inpfile, but contains satellite overpassing
+     information. 
+     e.g.,
+     > vi inpfile
+     wrfout_d02_2010-09-21_07:00:00     -30.5     150.0      A     TAG01234
+     wrfout_d02_2010-09-21_08:00:00     -32.0     160.2      D     TAG05432
+
+     1st column s CRM file name, consistent to CRM input file.
+     2nd column is satellite overpassing latitude  (-90 ~ 90deg)
+     3rd column is satellite overpassing longitude (-180 ~ 180deg)
+     4th column is "A" or "D", whch is ascending or descending overpass, respectively.
+     5th column is satellite-overpassing tag, which may obtains from actual satellite L1B file or
+                   you can put whatever you want.
+
+
+8. Run executable.
+
+  * For single CPU 
+  >./GSDSU.x
+
+  * For mpi domain-decomposition run (MPI=2) , you may first compile and run FIND_THREAD_NUMBER.f90. 
+    This program ask you to input the number of CRM input grid points, and
+    tell you the optimum number of CPUs for your run. 
+   >mpi -n## GSDSU.x
+
+  * If you are using NASA super computer, a sample Qscript / Slurm script is available. 
+    So, edit for your own run, and then
+   > qsub Qbatch_****.sh  (Sbatch_####.sh)
+
+9. Outputs are dumped in the designated directory (specified in Configure_SDSU.F)
+  * Basic outputs is GrADS binary and control files. 
+  * Scan simulator also generate additional data, including
+    satellite track information and netcdf orbital data. 
+
+
+============ Questions/Consultant ===============
+
+Question: Toshi Matsui @ NASA GSFC
+Tel     : 301-614-5658
+E-mail  : Toshihisa.Matsui-1@nasa.gov
+
+
+
+ References:
+
+ Matsui, T., J. Santanello, J. J. Shi, W.-K. Tao, D. Wu, C. Peters-Lidard, E. Kemp, M. Chin, 
+   D. Starr, M. Sekiguchi, and F. Aires, (2014): Introducing multisensor satellite radiance-based 
+   evaluation for regional Earth System modeling, Journal of Geophysical Research, 119, 8450-8475, 
+   doi:10.1002/2013JD021424.
+
+

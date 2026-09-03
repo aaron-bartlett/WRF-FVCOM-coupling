@@ -1,0 +1,104 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Software Systems Support Office, Code 610.3
+!------------------------------------------------------------------------------
+!
+! FILE:  README 
+!
+! AUTHOR:
+! Jossy Jacob, NASA SSSO/ SSAI
+!
+! DESCRIPTION:
+! README document for CASA2WRF
+!
+! Created  Jan 20, 2015 
+! Updated on April 20, 2016
+! Minor updates on 12/16
+!------------------------------------------------------------------------------
+
+CASA2WRF Preprocessor:
+======================
+CO2_pproc/Read_CO2_conc : This program reads the CASA CO2 concentration binary data file and convert it to netcdf file with a timestamp. 
+CO2_pproc/Read_CO2_flux : This program reads the CASA CO2 flux binary data file and convert it to netcdf file with a timestamp. 
+!------------------------------------------------------------------------------
+To compile: 
+build.sh casa2wrf from NU-WRF directory. 
+!------------------------------------------------------------------------------
+To run: scripts/
+qsub run_casa2wrfPPROC.discover.sh
+ 
+CASA2WRF is a completely rewritten Fortran program used to:  (1) extract
+casaCO2 data from CASACO2 netcdf files; (2) horizontally and vertically
+interpolate the fields to the WRF grid; and (3) append them to the initial and
+lateral boundary condition files of WRF (wrfinput_d* and wrfbdy_d01).  
+
+A namelist.casa2wrf file is provided, and contains three namelist blocks:
+
+&wrf
+  max_dom ! Integer, number of WRF domains to process
+  wrf_dir ! String, lists directory path containing wrfinput and wrfbdy files
+  flux_only ! integer, =0 for processing both wrfinput, wrfbdy and flux data
+  flux_interpolate = 1
+            ! = 1 for processing only flux data
+  fluxdt !real = 3.0 for 3 hourly data , flux data interval in hours
+  moving_average_window = 3
+  wrf_out_dir
+
+/
+
+&casa
+  data_format ! Integer, specifies GEOS version of GOCART data; currently
+                ! must be set to 5 (for GEOS-5 netCDF4 files)
+  conc_dir    ! String, lists directory path containing GEOS-5 netCDF4 GOCART
+                ! files to process
+  conc_prefix ! String, lists file name prefix for binary CASACO2 concentration
+  flux_dir    ! String, lists directory path containing GEOS-5 netCDF4 GOCART
+                ! files to process
+  flux_prefix ! String, lists file name prefix for binary CASACO2 flux
+             != 'CO2flux_'
+/
+
+Example for namelist.casa2wrf
+-----------------------------
+&wrf
+  max_dom = 1,
+  wrf_dir = '.',
+  flux_only = 1 #(if this is 0, then both wrfinput/wrfbdy files will be processed)
+  flux_interpolate = 1
+  fluxdt = 1.0
+  moving_average_window = 3
+  wrf_out_dir = './WRFout'
+/
+
+&casa
+  data_format = 5,
+  conc_dir = './conc',
+  conc_prefix  = 'CASACO2.',
+  flux_dir = './flux',
+  flux_prefix  = 'CO2flux_',
+/
+
+-----------------------------
+Copy the netcdf files in Netcdf_data/*.nc to a casa_dir/
+(In the above example, it should be 
+>cp Netcdf_data/*.nc data/
+Create a link for WRFout in casa_dir
+>ln -sf /discover/nobackup/jjacob/NUWRF/CASA2/data1/nuwrf WRFout 
+Create a link for CO2 concentration files in casa_dir
+>ln -sf /discover/nobackup/jjacob//NUWRF/CO2_data/CASA/conc conc 
+If Flux interpolate is 0, then creata link to flux files as this: 
+>ln -sf /discover/nobackup/jjacob//NUWRF/CO2_data/CASA/flux flux
+Interpolated files will be created in directory: chem_flux/
+>mkdir chem_flux 
+
+------------------------------
+To run: scripts/
+qsub run_casa2wrf.discover.sh
+
+DATA REQUIREMENTS
+CASA CO2 concentration data (hourly, with 5days of data in 1 file) This data is put into WRF boundary condition (at the wrf input interval 6 hours) and Initial condition (wrfinput_d01, wrfinput_d02...).  
+Emission flux data : 3hourly data will be extracted and written into separate files after converting to WRFGRID. 
+wrfinput_d01, wrfinput_d02... : These IC file before running CASACO2
+wrfbdy_d01 : wrfbdy file before CASACO2 run. 
+  
+
+

@@ -1,0 +1,354 @@
+#############################
+# BEGIN WRF SEGMENT
+#############################
+THIS=WRF
+
+cd $RUNDIR || exit 1
+
+# make sure namelist.input is present.
+if [ ! -e namelist.input.wrf ] ; then
+    echo "$THIS ERROR: namelist.input.wrf not found!"
+    exit 1
+fi
+ln -sf namelist.input.wrf namelist.input
+
+if [ ! -e $NUWRFDIR/WRF/run/BROADBAND_CLOUD_GODDARD.nc ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/BROADBAND_CLOUD_GODDARD.nc does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/BROADBAND_CLOUD_GODDARD.nc || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/aerosol.formatted ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/aerosol.formatted does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/aerosol.formatted aerosol.formatted || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/aerosol_lat.formatted ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/aerosol_lat.formatted does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/aerosol_lat.formatted aerosol_lat.formatted || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/aerosol_lon.formatted ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/aerosol_lon.formatted does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/aerosol_lon.formatted aerosol_lon.formatted || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/aerosol_plev.formatted ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/aerosol_plev.formatted does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/aerosol_plev.formatted aerosol_plev.formatted || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/bulkdens.asc_s_0_03_0_9 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/bulkdens.asc_s_0_03_0_9 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/bulkdens.asc_s_0_03_0_9 bulkdens.asc_s_0_03_0_9 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/bulkradii.asc_s_0_03_0_9 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/bulkradii.asc_s_0_03_0_9 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/bulkradii.asc_s_0_03_0_9 bulkradii.asc_s_0_03_0_9 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CAM_ABS_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CAM_ABS_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CAM_ABS_DATA CAM_ABS_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CAM_AEROPT_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CAM_AEROPT_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CAM_AEROPT_DATA CAM_AEROPT_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.A1B ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.A1B does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.A1B CAMtr_volume_mixing_ratio.A1B || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.A2 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.A2 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.A2 CAMtr_volume_mixing_ratio.A2 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP4.5 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP4.5 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP4.5 CAMtr_volume_mixing_ratio.RCP4.5 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP6 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP6 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP6 CAMtr_volume_mixing_ratio.RCP6 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP8.5 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP8.5 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CAMtr_volume_mixing_ratio.RCP8.5 CAMtr_volume_mixing_ratio.RCP8.5 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/capacity.asc ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/capacity.asc does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/capacity.asc capacity.asc || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CCN_ACTIVATE.BIN ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CCN_ACTIVATE.BIN does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CCN_ACTIVATE.BIN CCN_ACTIVATE.BIN || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_ALB_ICE_DFS_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_ALB_ICE_DFS_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_ALB_ICE_DFS_DATA CLM_ALB_ICE_DFS_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_ALB_ICE_DRC_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_ALB_ICE_DRC_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_ALB_ICE_DRC_DATA CLM_ALB_ICE_DRC_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_ASM_ICE_DFS_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_ASM_ICE_DFS_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_ASM_ICE_DFS_DATA CLM_ASM_ICE_DFS_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_ASM_ICE_DRC_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_ASM_ICE_DRC_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_ASM_ICE_DRC_DATA CLM_ASM_ICE_DRC_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_DRDSDT0_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_DRDSDT0_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_DRDSDT0_DATA CLM_DRDSDT0_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_EXT_ICE_DFS_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_EXT_ICE_DFS_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_EXT_ICE_DFS_DATA CLM_EXT_ICE_DFS_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_EXT_ICE_DRC_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_EXT_ICE_DRC_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_EXT_ICE_DRC_DATA CLM_EXT_ICE_DRC_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_KAPPA_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_KAPPA_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_KAPPA_DATA CLM_KAPPA_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/CLM_TAU_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/CLM_TAU_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/CLM_TAU_DATA CLM_TAU_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/co2_trans ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/co2_trans does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/co2_trans co2_trans || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/coeff_p.asc ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/coeff_p.asc does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/coeff_p.asc coeff_p.asc || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/coeff_q.asc ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/coeff_q.asc does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/coeff_q.asc coeff_q.asc || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/constants.asc ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/constants.asc does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/constants.asc constants.asc || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/ETAMPNEW_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/ETAMPNEW_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/ETAMPNEW_DATA ETAMPNEW_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/ETAMPNEW_DATA_DBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/ETAMPNEW_DATA_DBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/ETAMPNEW_DATA_DBL ETAMPNEW_DATA_DBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/ETAMPNEW_DATA.expanded_rain ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/ETAMPNEW_DATA.expanded_rain does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/ETAMPNEW_DATA.expanded_rain ETAMPNEW_DATA.expanded_rain || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/ETAMPNEW_DATA.expanded_rain_DBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/ETAMPNEW_DATA.expanded_rain_DBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/ETAMPNEW_DATA.expanded_rain_DBL ETAMPNEW_DATA.expanded_rain_DBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/GENPARM.TBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/GENPARM.TBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/GENPARM.TBL GENPARM.TBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/grib2map.tbl ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/grib2map.tbl does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/grib2map.tbl grib2map.tbl || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/gribmap.txt ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/gribmap.txt does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/gribmap.txt gribmap.txt || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/kernels.asc_s_0_03_0_9 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/kernels.asc_s_0_03_0_9 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/kernels.asc_s_0_03_0_9 kernels.asc_s_0_03_0_9 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/kernels_z.asc ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/kernels_z.asc does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/kernels_z.asc kernels_z.asc || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/LANDUSE.TBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/LANDUSE.TBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/LANDUSE.TBL LANDUSE.TBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/masses.asc ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/masses.asc does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/masses.asc masses.asc || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/MPTABLE.TBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/MPTABLE.TBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/MPTABLE.TBL MPTABLE.TBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/ozone.formatted ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/ozone.formatted does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/ozone.formatted ozone.formatted || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/ozone_lat.formatted ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/ozone_lat.formatted does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/ozone_lat.formatted ozone_lat.formatted || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/ozone_plev.formatted ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/ozone_plev.formatted does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/ozone_plev.formatted ozone_plev.formatted || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/RRTM_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/RRTM_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/RRTM_DATA RRTM_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/RRTM_DATA_DBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/RRTM_DATA_DBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/RRTM_DATA_DBL RRTM_DATA_DBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/RRTMG_LW_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/RRTMG_LW_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/RRTMG_LW_DATA RRTMG_LW_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/RRTMG_LW_DATA_DBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/RRTMG_LW_DATA_DBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/RRTMG_LW_DATA_DBL RRTMG_LW_DATA_DBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/RRTMG_SW_DATA ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/RRTMG_SW_DATA does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/RRTMG_SW_DATA RRTMG_SW_DATA || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/RRTMG_SW_DATA_DBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/RRTMG_SW_DATA_DBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/RRTMG_SW_DATA_DBL RRTMG_SW_DATA_DBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/SOILPARM.TBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/SOILPARM.TBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/SOILPARM.TBL SOILPARM.TBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/termvels.asc ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/termvels.asc does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/termvels.asc termvels.asc || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/tr49t67 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/tr49t67 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/tr49t67 tr49t67 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/tr49t85 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/tr49t85 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/tr49t85 tr49t85 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/tr67t85 ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/tr67t85 does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/tr67t85 tr67t85 || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/URBPARM.TBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/URBPARM.TBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/URBPARM.TBL URBPARM.TBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/URBPARM_UZE.TBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/URBPARM_UZE.TBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/URBPARM_UZE.TBL URBPARM_UZE.TBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/VEGPARM.TBL ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/VEGPARM.TBL does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/VEGPARM.TBL VEGPARM.TBL || exit 1
+if [ ! -e $NUWRFDIR/WRF/run/wind-turbine-1.tbl ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/run/wind-turbine-1.tbl does not exist!"
+    exit 1
+fi
+ln -fs $NUWRFDIR/WRF/run/wind-turbine-1.tbl wind-turbine-1.tbl || exit 1
+rm -f $RUNDIR/LS_PARAMETERS
+if [ ! -e $LISDIR/LS_PARAMETERS ] ; then 
+    echo "$THIS ERROR: $LISDIR/LS_PARAMETERS does not exist!"
+    exit 1
+fi  
+ln -fs $LISDIR/LS_PARAMETERS $RUNDIR/LS_PARAMETERS || exit 1
+rm -f $RUNDIR/MET_FORCING
+if [ ! -e $LISDIR/MET_FORCING ] ; then 
+    echo "$THIS ERROR: $LISDIR/MET_FORCING does not exist!"
+    exit 1
+fi  
+ln -fs $LISDIR/MET_FORCING $RUNDIR/MET_FORCING || exit 1
+rm -f $RUNDIR/GODDARDRAD_SSLUT
+if [ ! -e $NUWRFDIR/WRF/GODDARDRAD_SSLUT ] ; then 
+    echo "$THIS ERROR: $NUWRFDIR/WRF/GODDARDRAD_SSLUT does not exist!"
+    exit 1
+fi  
+ln -fs $NUWRFDIR/WRF/GODDARDRAD_SSLUT $RUNDIR/GODDARDRAD_SSLUT || exit 1
+
+# Make lis connections as appropriate
+if [ -f lis.config.wrf ] ; then
+  rm lis.config
+  ln -s lis.config.wrf lis.config || exit 1
+fi
+
+# Run wrf.exe
+ln -fs $EXEDIR/WRF/main/wrf.exe $RUNDIR/wrf.exe || exit 1
+if [ ! -e $RUNDIR/wrf.exe ] ; then
+    echo "$THIS ERROR: $RUNDIR/wrf.exe does not exist!"
+    exit 1
+fi
+$MPIRUN ./wrf.exe || exit 1
+
+# Rename the various 'rsl' files to 'wrf.rsl'; this prevents real.exe from
+# overwriting.
+rsl_files=`ls rsl.*`
+for file in $rsl_files ; do
+    mv -f $file wrf.${file} 2>/dev/null
+done
+
+# Tidy up logs
+mkdir -p wrf_logs || exit 1
+mv -f wrf.rsl.* wrf_logs 2>/dev/null
+
+exit 0

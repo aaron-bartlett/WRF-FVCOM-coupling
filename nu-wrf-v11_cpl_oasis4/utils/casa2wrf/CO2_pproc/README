@@ -1,0 +1,24 @@
+READ_CO2_conc.f90 : Read the CASA CO2 concentration data files 
+e624.co2.b20100302.e20100307
+/archive/u/yliu7/e624/hist/ to get the history file and find the flux in /discover/nobackup/yliu7/GEOS_Chem/pctm/3-hrly_casa_gsfc/plpctm_merra
+
+This program reads the binary files and write them in netcdf format and add a timestamp
+dt=3 (3hrly input data file)
+odt = 6 (6hourly output)
+ndays=5 (5day input data file)
+Compile" : make -f Makefile_CO2_conc ,  
+to run: ./Read_CO2_conc.x filename indir dt odt ndays
+example: ./Read_CO2_conc.x e624.co2.b20100516.e20100521 conc/ 1 6 5 
+dt : input data interval in hours
+odt : output data interval required in hours
+ndays : number of days of data in 1 file
+
+Read_CO2_Flux.f90: Read the CASACO2 flux data files in binray yearly files,
+convert them to yearly ncetcdf file and add timestamp
+
+Compile" : make -f Makefile_CO2_Flux ,  
+to run: ./Read_CO2_Flux.x filename indir 
+Example: ./Read_CO2_Flux.x flux_e624_co2_3hrly_288x181_2010 flux/ 
+
+Note: For the concentration data set, the number of data points NLON and NLAT are read from the header, and compute LAT and LON. For the Flux data set, the NLON and NLAT are read from the data file name and compute the LAT and LON. 
+
