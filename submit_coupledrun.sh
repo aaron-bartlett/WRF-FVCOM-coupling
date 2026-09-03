@@ -2,8 +2,8 @@
 
 #SBATCH -A glm200001
 #SBATCH --job-name=coupled_run_glm
-#SBATCH --ntasks=125                # must equal WRF_TASKS + FVCOM_TASKS below
-#SBATCH --time=01:00:00             # short test window -- extend for production
+#SBATCH --ntasks=144                # must equal WRF_TASKS + FVCOM_TASKS below
+#SBATCH --time=24:00:00
 #SBATCH --output=logs/%x_%j.out
 #SBATCH --error=logs/%x_%j.err
 # #SBATCH --partition=<your_partition>
@@ -35,8 +35,8 @@ source load_modules.sh
 ########################################
 # 0. Configuration -- edit for your case
 ########################################
-WRF_TASKS=70                        # must match the "awrf" count in namcouple $NBMODEL
-FVCOM_TASKS=55                       # must match the "lfvc" count in namcouple $NBMODEL
+WRF_TASKS=120                        # must match the "awrf" count in namcouple $NBMODEL
+FVCOM_TASKS=24                       # must match the "lfvc" count in namcouple $NBMODEL
 TOTAL_TASKS=$((WRF_TASKS + FVCOM_TASKS))
 
 WRF_RUNDIR=/compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WRF/run
