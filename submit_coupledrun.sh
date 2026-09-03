@@ -3,7 +3,7 @@
 #SBATCH -A glm200001
 #SBATCH --job-name=coupled_run_glm
 #SBATCH --ntasks=144                # must equal WRF_TASKS + FVCOM_TASKS below
-#SBATCH --time=24:00:00
+#SBATCH --time=23:30:00
 #SBATCH --output=logs/%x_%j.out
 #SBATCH --error=logs/%x_%j.err
 # #SBATCH --partition=<your_partition>
