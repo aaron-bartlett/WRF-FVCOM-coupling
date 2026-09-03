@@ -32,7 +32,7 @@ WRF_RUN="$ROOT/nu-wrf-v11_cpl_oasis4/WRF/run"
 FVCOM_RUN="$ROOT/FVCOM41_oasis_wrf_fvcom_iceDynamic_new/run"
 WRF_NML="$WRF_RUN/namelist.input"
 FVCOM_NML="$FVCOM_RUN/gl_run.nml"
-COUPLED_SUBMIT="$SCRIPT_DIR/submit_coupledrun.sh"
+COUPLED_SUBMIT="$ROOT/submit_coupledrun.sh"
 
 SQUEUE_BIN="$(command -v squeue || true)"; SQUEUE_BIN="${SQUEUE_BIN:-squeue}"
 SBATCH_BIN="$(command -v sbatch || true)"; SBATCH_BIN="${SBATCH_BIN:-sbatch}"
@@ -81,6 +81,15 @@ fv_ts="${fv_raw/T/_}"
 fv_epoch="$(date -d "${fv_ts//[T_]/ }" +%s 2>/dev/null || true)"
 [[ -n "$fv_epoch" ]] || { log "cannot parse FVCOM restart ts '$fv_raw'"; finish 1; }
 log "latest FVCOM restart: $fv_ts   ($(basename "$latest_fvrst"))"
+
+fvrst_input="$FVCOM_RUN/input/$(basename "$latest_fvrst")"
+if cp -f "$latest_fvrst" "$fvrst_input"; then
+    log "staged FVCOM restart: $latest_fvrst -> $fvrst_input"
+else
+    log "failed to copy $latest_fvrst -> $fvrst_input"
+    finish 1
+fi
+
 
 if (( wrf_epoch == fv_epoch )); then
     restart_epoch=$wrf_epoch
@@ -135,7 +144,7 @@ case "$cwi_rc" in
     fv_set START_DATE     "'${fv_start}',"
     fv_set END_DATE       "'${fv_end}'"
     fv_set STARTUP_TYPE   "'hotstart',"
-    fv_set STARTUP_FILE   "'./output/${fv_base}',"
+    fv_set STARTUP_FILE   "'./${fv_base}',"
     fv_set RST_FIRST_OUT  "'${fv_start}',"
     fv_set NC_FIRST_OUT   "'${fv_start}',"
     fv_set NCAV_FIRST_OUT "'${fv_start}',"

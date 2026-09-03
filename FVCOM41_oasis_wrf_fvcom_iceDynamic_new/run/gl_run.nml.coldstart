@@ -20,11 +20,10 @@
  DATE_REFERENCE  = 'default',
  /
  &NML_STARTUP
- STARTUP_TYPE    = 'hotstart',
- STARTUP_FILE    = './gl_restart_0001.nc',
- STARTUP_UV_TYPE = 'set values',
- STARTUP_TURB_TYPE = 'set values',! 'default','set values' 
- STARTUP_TS_TYPE = 'set values',! 'constant','linear','observed','set values'
+ STARTUP_TYPE    = 'coldstart',
+ STARTUP_UV_TYPE = 'constant',! 'constant','default','set values' 
+ STARTUP_TURB_TYPE = 'default',! 'default','set values' 
+ STARTUP_TS_TYPE = 'constant',! 'constant','linear','observed','set values' 
  STARTUP_T_VALS  =  2.0,
  STARTUP_S_VALS  =  0.0,
  STARTUP_U_VALS  =  0.0,
