@@ -35,9 +35,6 @@ submissions, so a fixed daily trigger is safe.
 | `load_modules.sh` | HPC **environment**: purges and loads the compiler / MPI / HDF5 / NetCDF / Jasper stack and exports `NETCDF`, `HDF5`, `WRF_DIR`, `OASIS_DIR`, etc. Sourced by the scripts. |
 | `submit_coupledrun.sh` | **SLURM launcher** for the coupled MPMD job (WRF + FVCOM + OASIS). Job name `coupled_run_glm`, account `glm200001`. |
 | `small_submit_coupledrun.sh` | Reduced‑size / short‑test variant of the launcher. |
-| `submit_coupledrun.sh.bak`, `submit_coupledrun.sh.generate` | Backup and generator for the launcher script. |
-| `submit_instruction.txt` | Human notes on submitting a run by hand. |
-| `.gitignore` | Ignores build artefacts, large binaries, downloaded GRIB, model output. |
 
 ---
 
