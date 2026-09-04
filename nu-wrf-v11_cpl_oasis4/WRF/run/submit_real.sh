@@ -10,4 +10,6 @@ cd /compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WRF/run
 
 source /compass/glm200001/cmu/coupled-run/load_modules.sh
 
+ln -s /compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WPS/met_em* .
+
 srun --verbose -n 16 --export=ALL /compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WRF/run/real.exe 

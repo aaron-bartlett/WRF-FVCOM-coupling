@@ -1,0 +1,46 @@
+ln: failed to create symbolic link './met_em.d01.1997-01-01_00:00:00.nc': File exists
+ln: failed to create symbolic link './met_em.d01.1997-01-01_03:00:00.nc': File exists
+ln: failed to create symbolic link './met_em.d01.1997-01-01_06:00:00.nc': File exists
+ln: failed to create symbolic link './met_em.d01.1997-01-01_09:00:00.nc': File exists
+ln: failed to create symbolic link './met_em.d01.1997-01-01_12:00:00.nc': File exists
+ln: failed to create symbolic link './met_em.d01.1997-01-01_15:00:00.nc': File exists
+ln: failed to create symbolic link './met_em.d01.1997-01-01_18:00:00.nc': File exists
+ln: failed to create symbolic link './met_em.d01.1997-01-01_21:00:00.nc': File exists
+srun: defined options
+srun: -------------------- --------------------
+srun: (null)              : c24
+srun: export              : ALL
+srun: jobid               : 34074
+srun: job-name            : real_glm
+srun: mpi                 : pmix_v3
+srun: nodes               : 1
+srun: ntasks              : 16
+srun: oom-kill-step       : 0
+srun: verbose             : 1
+srun: -------------------- --------------------
+srun: end of defined options
+srun: jobid 34074: nodes(1):`c24', cpu counts: 48(x1)
+srun: CpuBindType=(null type)
+srun: launching StepId=34074.0 on host c24, 16 tasks: [0-15]
+srun: topology/tree: init: topology tree plugin loaded
+srun: Node c24, 16 tasks started
+ starting wrf task            5  of           16
+ starting wrf task            0  of           16
+ starting wrf task            4  of           16
+ starting wrf task            6  of           16
+ starting wrf task            7  of           16
+ starting wrf task           14  of           16
+ starting wrf task            2  of           16
+ starting wrf task            8  of           16
+ starting wrf task            1  of           16
+ starting wrf task           11  of           16
+ starting wrf task           12  of           16
+ starting wrf task           13  of           16
+ starting wrf task           15  of           16
+ starting wrf task           10  of           16
+ starting wrf task            9  of           16
+ starting wrf task            3  of           16
+(null): _log_init: Unable to open logfile `/var/log': Is a directory
+(null): _log_init: Unable to open logfile `/var/log': Is a directory
+srun: Received task exit notification for 16 tasks of StepId=34074.0 (status=0x0000).
+srun: c24: tasks 0-15: Completed

@@ -20,6 +20,13 @@ run by one restart cycle, kicks off the WPS / ERA5 pipeline if boundary data is 
 or notices there is nothing to do and exits cleanly. It self‑guards against overlapping
 submissions, so a fixed daily trigger is safe.
 
+<<<<<<< HEAD
+=======
+> Note: an earlier iteration of `scripts/README.md` documents a `*/30 * * * *` cron entry that
+> runs `glm_restart.sh` directly (not via `sbatch`). The line above is the schedule currently
+> in use. See **Open questions** below.
+
+>>>>>>> bd4f964 (Added to scripts README)
 ---
 
 ## What's in this repository
@@ -29,12 +36,22 @@ submissions, so a fixed daily trigger is safe.
 | `nu-wrf-v11_cpl_oasis4/` | **WRF source tree** — NU‑WRF v11 with the OASIS3 coupling interface (`frame/module_cpl.F`, `frame/module_cpl_oasis3.F`). Also contains `WRF/run/` (run directory: `namelist.input`, `wrfrst_d01_*`, `wrfbdy_d01`, `wrfinput_d01`) and `WPS/` (ungrib / metgrid / real preprocessing, `namelist.wps`). |
 | `FVCOM41_oasis_wrf_fvcom_iceDynamic_new/` | **FVCOM source tree** — FVCOM 4.1 with the OASIS coupling module `OASIS3MCT.F` (`module mod_var_cpl`) and the finite‑volume sea‑ice **dynamics** additions. Its `run/` directory holds `gl_run.nml`, `input/`, and `output/` (`gl_restart_*.nc`, history files). |
 | `ERA5_download/` | **ERA5 forcing acquisition** via the Copernicus CDS API. `cdsapi-levels.py` (monthly pressure‑level requests), `cdsapi-surface.py` (annual surface requests), `submit_levels.sh` / `submit_surface.sh` (SLURM submit wrappers), `wget_levels.py` / `wget_surface.py` (collect finished downloads), `cdsapi_requests.csv` (request/download ledger). GRIB lands in `plevs-ERA5/plevs-ERA5-YYYY/` and `surface-ERA5/`. |
+<<<<<<< HEAD
 | `scripts/` | **Restart automation.** `glm_restart.sh` (cron driver), `check_wrf_inputs.sh` (boundary‑coverage check), `submit_WPS.sh` (rebuild WRF inputs), `submit_ERA5_download.sh` (fire CDS requests for a year), `wget_cdsapi_requests.sh` (collect ERA5 downloads), `README.md`. |
+=======
+| `scripts/` | **Restart automation.** `glm_restart.sh` (cron driver), `check_wrf_inputs.sh` (boundary‑coverage check), `submit_WPS.sh` (rebuild WRF inputs), `submit_ERA5_download.sh` (fire CDS requests for a year), `wget_cdsapi_requests.sh` (collect ERA5 downloads), `submit_instruction.txt`, `README.md`. |
+>>>>>>> bd4f964 (Added to scripts README)
 | `namcouple`, `namcouple.archive` | **OASIS3‑MCT configuration** — field list, coupling periods, lags, remapping (SCRIPR `DISTWGT` / `BILINEAR`), and restart‑file names for each exchanged field. `.archive` is a kept previous version. |
 | `grids.nc`, `masks.nc` | **OASIS grid / mask description files** for the `fvcomN` (cell), `fvcomM` (node) and WRF (`wrf1_d01` / `wrf2_d01`) grids, written by the models on first run and reused thereafter. |
 | `load_modules.sh` | HPC **environment**: purges and loads the compiler / MPI / HDF5 / NetCDF / Jasper stack and exports `NETCDF`, `HDF5`, `WRF_DIR`, `OASIS_DIR`, etc. Sourced by the scripts. |
 | `submit_coupledrun.sh` | **SLURM launcher** for the coupled MPMD job (WRF + FVCOM + OASIS). Job name `coupled_run_glm`, account `glm200001`. |
 | `small_submit_coupledrun.sh` | Reduced‑size / short‑test variant of the launcher. |
+<<<<<<< HEAD
+=======
+| `submit_coupledrun.sh.bak`, `submit_coupledrun.sh.generate` | Backup and generator for the launcher script. |
+| `submit_instruction.txt` | Human notes on submitting a run by hand. |
+| `.gitignore` | Ignores build artefacts, large binaries, downloaded GRIB, model output. |
+>>>>>>> bd4f964 (Added to scripts README)
 
 ---
 
@@ -83,6 +100,10 @@ Each cron invocation runs one cycle:
 | `submit_WPS.sh` | `<YYYY‑MM‑DD_HH:MM:SS>` | Rebuilds `wrfinput_d01` / `wrfbdy_d01` from the restart time out to `WPS_WINDOW_MONTHS` months. Confirms required ERA5 monthly pressure‑level and yearly surface GRIB exist (launches downloads if not), then runs ungrib → metgrid → real as dependent SLURM jobs and widens the namelist windows. |
 | `submit_ERA5_download.sh` | `--input-year YYYY` | Fires asynchronous CDS requests for one calendar year — `cdsapi-levels.py` monthly, `cdsapi-surface.py` yearly — and appends rows to `cdsapi_requests.csv` with `pending` status. |
 | `wget_cdsapi_requests.sh` | none | Walks `cdsapi_requests.csv` for pending rows, queries CDS job status, atomically downloads finished GRIB into `plevs-ERA5/…` / `surface-ERA5/`, marks rows complete, logs to `log.cdsapi_downloads`. Skips not‑ready jobs silently. |
+<<<<<<< HEAD
+=======
+| `submit_instruction.txt` | — | Manual setup / submission notes. |
+>>>>>>> bd4f964 (Added to scripts README)
 
 ---
 
@@ -183,7 +204,39 @@ Monitor:
 ```bash
 tail -f /compass/glm200001/cmu/coupled-run/log.glm_restart
 tail -f /compass/glm200001/cmu/coupled-run/log.cdsapi_downloads
+<<<<<<< HEAD
 tail -f /compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WRF/run/rsl.out.0000
 squeue -A glm200001
 ```
 
+=======
+squeue -A glm200001
+```
+
+---
+
+## Building
+
+WRF, WPS, FVCOM and OASIS3‑MCT are expected to be **pre‑built** in the trees above; the
+automation does not compile them. Load the environment with `source load_modules.sh`, then use
+each model's normal build (`./compile em_real` for WRF, `make` in the FVCOM source dir with the
+`oasis_coupler` CPP key enabled, OASIS3‑MCT via its `make` targets).
+
+---
+
+## Open questions / decisions to confirm
+
+1. **Cron cadence & submission style.** The active line runs `sbatch scripts/glm_restart.sh`
+   once daily at 08:00; the older `scripts/README.md` ran `glm_restart.sh` directly every
+   30 min. Which is authoritative — should the driver run *on the login node* via cron (light,
+   frequent) or *as a batch job* (daily)? If daily, is one cycle/day enough to keep pace with
+   wallclock‑limited coupled jobs?
+2. **Coupling‑restart interval.** WRF currently writes `TC*_rst_wrf_*.nc` every coupling step
+   (1 h); FVCOM's `tocoupler` throttles to once per model day. Do you want both harmonised
+   (e.g. 3‑hourly) so hotstarts can land on any 3‑h boundary, and should that interval be a
+   namelist/edit constant or hard‑coded?
+3. **Restart-time disagreement policy.** When WRF and FVCOM restart stamps differ, is "use the
+   earlier time" the intended rule, or should the cycle abort and alert instead?
+4. **`WPS_WINDOW_MONTHS = 48`.** Keep 48, or shorten to reduce ERA5 volume / metgrid time?
+   Should windows align to calendar years to match the yearly surface GRIB?
+>>>>>>> bd4f964 (Added to scripts README)

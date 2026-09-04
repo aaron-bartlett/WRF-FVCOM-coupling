@@ -32,10 +32,10 @@
   11
  $END
  $NBMODEL
-  2  wrfexe  ocean1 120 24
+  2  wrfexe  ocean1 100 24
  $END
  $RUNTIME
-  43200
+  2678400
  $END
  $NLOGPRT
   2

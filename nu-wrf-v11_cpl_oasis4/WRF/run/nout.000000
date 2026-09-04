@@ -169,7 +169,7 @@
     Reading input file namcouple
   
   ***WARNING*** $NBMODEL is obsolete in OASIS3-MCT
-* ===>>> : The total time for this run is ntime =              43200
+* ===>>> : The total time for this run is ntime =            2678400
   ------   --------------------------------------                               
 
          ***WARNING*** Nothing on input for time statistic for $NLOGPRT
@@ -1259,4 +1259,5 @@
  (oasis_namcouple_init) sort           11          11          11           1
  Total number of coupling fields :          22
  (oasis_init_comp)   COUPLED models            1 wrfexe T
+ (oasis_init_comp)   COUPLED models            2 ocean1 T
  (oasis_init_comp)cdnam :wrfexe mynummod :           1

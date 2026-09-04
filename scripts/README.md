@@ -5,23 +5,14 @@ simulation of the Great Lakes. The run is executed as a chain of short SLURM job
 each cycle restarts the model from the last set of restart files, and — when the
 model catches up to the end of the prepared boundary window — a new block of WRF
 inputs is built from ERA5 first, then the run continues. The block length is set
-by `GLM_WPS_WINDOW_MONTHS`, a variable at the top of `glm_restart.sh` (default 48
-months), which is exported for `submit_WPS.sh` to read.
-
-Every cycle, `glm_restart.sh` also renames any FVCOM output/restart file still
-using FVCOM's native `gl_NNNN.nc` sequence numbering to a timestamped name (see
-`rename_fvcom_output.sh` below), and proactively requests ERA5 forcing for the
-month/year `ERA5_LOOKAHEAD_YEARS` years past the current restart time, so it is
-already on disk well before `submit_WPS.sh` needs it.
+by `WPS_WINDOW_MONTHS` at the top of `submit_WPS.sh` (default 48 months).
 
 `glm_restart.sh` is the single entry point. It is designed to be run **repeatedly
 from cron**; every invocation either advances the run by one cycle, or notices
 there is nothing to do and exits cleanly.
 
 ```
-cron ──► glm_restart.sh ──┬─► rename_fvcom_output.sh
-                          ├─► submit_ERA5_download.sh (5y look-ahead) ──► cdsapi-levels.py / cdsapi-surface.py
-                          ├─► check_wrf_inputs.sh ──► submit_WPS.sh ──► (sbatch) submit_metgrid.sh
+cron ──► glm_restart.sh ──┬─► check_wrf_inputs.sh ──► submit_WPS.sh ──► (sbatch) submit_metgrid.sh
                           │                                        └──► (sbatch) submit_real.sh
                           │                                        └──► submit_ERA5_download.sh ──► cdsapi-levels.py / cdsapi-surface.py
                           ├─► (sbatch) submit_coupledrun.sh
@@ -67,7 +58,6 @@ Referenced model directories:
 |---------------------|-----------------------------|---------|---------|
 | `GLM_COUPLED_ROOT`  | parent of `scripts/`        | all     | Project root override. Exported by `glm_restart.sh`. |
 | `GLM_LOG`           | `$ROOT/log.glm_restart`     | all     | Main log file. Exported by `glm_restart.sh`. |
-| `GLM_WPS_WINDOW_MONTHS` | `48`                     | `submit_WPS.sh` | Length, in months, of the boundary window `submit_WPS.sh` builds from a restart timestamp. Owned and exported by `glm_restart.sh`; falls back to `48` if `submit_WPS.sh` is run standalone without it set. |
 | `GLM_PYTHON`        | `python3`                   | `submit_ERA5_download.sh` | Python interpreter for the cdsapi scripts. |
 | `GLM_CDSAPI_VENV`   | *(unset)*                   | `submit_ERA5_download.sh` | If set and `$GLM_CDSAPI_VENV/bin/activate` exists, that venv is activated before calling the cdsapi scripts. |
 | `CDSAPI_RC`         | `$HOME/.cdsapirc`           | `wget_cdsapi_requests.sh` | CDS API credentials file (parsed for `url:` and `key:`). |
@@ -95,23 +85,12 @@ Each invocation:
 1. **Don't stack jobs.** Runs `squeue -u $USER` and greps job names
    `coupled_run_glm`, `real_glm`, `metgrid_glm`. If any is queued/running, it
    logs that and exits 0 immediately — no further action.
-1.5. **Rename FVCOM sequential output.** Calls `rename_fvcom_output.sh` (see
-   below) to convert any `gl_NNNN.nc` / `gl_restart_NNNN.nc` file left over
-   from FVCOM's native numbering into a timestamped name. Runs before the
-   restart point is located, so step 2 always sees timestamped filenames.
 2. **Find the restart point.**
    * WRF: newest `wrfrst_d01_*` in `WRF_RUN`; timestamp parsed from the filename.
    * FVCOM: newest `output/gl_restart_*.nc` in `FVCOM_RUN`; timestamp read from
      the last `Times` entry via `ncdump`.
    * If the two disagree, it logs the discrepancy and proceeds with the
      **earliest** of the two.
-2.5. **Proactive ERA5 look-ahead.** Computes the date `ERA5_LOOKAHEAD_YEARS`
-   years (default `5`) past the restart timestamp and calls
-   `submit_ERA5_download.sh --input-year <YYYY> --input-month <MM>` for that
-   single month/year — well ahead of when `submit_WPS.sh` would otherwise
-   request it. `submit_ERA5_download.sh` already skips the request if the grib
-   exists on disk or an undownloaded row for it is already in
-   `cdsapi_requests.csv`, so this is safe to run every cycle.
 3. **Validate WRF inputs** by calling `check_wrf_inputs.sh <restart_ts>`:
    * **exit 0** — boundary data still covers the upcoming window. Re-arm the
      namelists for a restart and submit the coupled run:
@@ -132,37 +111,8 @@ Each invocation:
    taken above (via the `finish()` helper, which also logs the end banner).
 
 **Reads:** `wrfrst_d01_*`, `gl_restart_*.nc`, `namelist.input`, `gl_run.nml`.
-**Writes:** `namelist.input`, `gl_run.nml`, `log.glm_restart`, renames FVCOM
-output/restart files. **Submits:** `coupled_run_glm`.
-
----
-
-### `rename_fvcom_output.sh` — timestamp FVCOM's sequential output files
-
-**Usage:** `./rename_fvcom_output.sh` (no arguments). Called by
-`glm_restart.sh` at the start of every cycle, before the restart point is
-located.
-
-FVCOM writes output and restart files with an opaque sequential suffix
-(`gl_0001.nc`, `gl_0002.nc`, ... and `gl_restart_0001.nc`, ...). This script
-scans `FVCOM_RUN/output`, reads each such file's own **first** `Times` entry
-via `ncdump`, and renames it to a timestamped name built from that entry
-(minutes/seconds forced to `00:00`):
-
-```
-gl_0001.nc         -> gl_2024-05-01_00:00:00.nc
-gl_restart_0001.nc -> gl_restart_2024-05-01_00:00:00.nc
-```
-
-Files that are already timestamped, or don't match the sequential naming, are
-left alone (idempotent — safe to call every cycle). A file whose `Times`
-can't be read, or whose target name already exists, is logged and skipped
-rather than overwritten.
-
-If `ncdump` is not on `PATH`, it first tries `source "$ROOT/load_modules.sh"`.
-
-**Reads:** `FVCOM_RUN/output/gl_*.nc`. **Writes:** renames files in place;
-appends to `log.glm_restart`.
+**Writes:** `namelist.input`, `gl_run.nml`, `log.glm_restart`. **Submits:**
+`coupled_run_glm`.
 
 ---
 
@@ -196,11 +146,10 @@ If `ncdump` is not on `PATH`, it first tries `source "$ROOT/load_modules.sh"`.
 Builds `wrfinput_d01` / `wrfbdy_d01` for a fresh window running from
 `<restart_ts>` (rounded down to the hour) to **restart + `WPS_WINDOW_MONTHS`**.
 
-The window length comes from `GLM_WPS_WINDOW_MONTHS`, exported by
-`glm_restart.sh` (default `48`, i.e. 4 years); change it there, not in this
-script. `submit_WPS.sh` falls back to `48` itself if run standalone without
-that variable set. The value is in **months** and every downstream date
-(namelist windows, ERA5 year/month coverage, `run_days`) is derived from it.
+`WPS_WINDOW_MONTHS` is a variable at the top of the script (default `48`, i.e.
+4 years). Set it to change the length of the window that gets built; the value is
+in **months** and every downstream date (namelist windows, ERA5 year/month
+coverage, `run_days`) is derived from it.
 
 1. **ERA5 availability.** Checks that every
    `ERA5_download/plevs-ERA5/plevs-ERA5-YYYY/era5_plevs_YYYY-MM.grib` (each month
@@ -235,20 +184,14 @@ its `squeue` guard, so nothing overlaps. Once `real_glm` finishes and
 
 ---
 
-### `submit_ERA5_download.sh` — request ERA5 forcing
+### `submit_ERA5_download.sh` — request one year of ERA5 forcing
 
-**Usage:** `./submit_ERA5_download.sh --input-year YYYY [--input-month MM]`
+**Usage:** `./submit_ERA5_download.sh --input-year YYYY`
 
-Fires **asynchronous** CDS requests:
+Fires **asynchronous** CDS requests for one calendar year:
 
-* pressure levels — one request per month, via `cdsapi-levels.py`. Without
-  `--input-month`, every month `1..12` of `YYYY` (up to 12 requests) — this is
-  how `submit_WPS.sh` calls it, to fill a whole boundary window. With
-  `--input-month`, only that single month is requested — this is how
-  `glm_restart.sh`'s proactive look-ahead (see above) calls it, one month at a
-  time, every cycle.
-* single levels — one request for the whole `YYYY` year, via
-  `cdsapi-surface.py` (always the whole year, regardless of `--input-month`).
+* pressure levels — one request per month (up to 12), via `cdsapi-levels.py`;
+* single levels — one request for the whole year, via `cdsapi-surface.py`.
 
 The Python scripts run with `wait_until_complete=False` and print
 `REQUEST_ID=<id>` (or `EXISTS` / `ERROR`); this script parses that line. Nothing
@@ -268,8 +211,7 @@ request_timestamp,request_year,request_month,request_id,downloaded
 `request_month` is blank for surface (whole-year) requests; `downloaded` is `0`
 (pending) or `1` (done, set later by `wget_cdsapi_requests.sh`).
 
-**Exit codes:** `0` normal, `2` bad/missing `--input-year`, or `--input-month`
-outside `1-12`.
+**Exit codes:** `0` normal, `2` bad/missing `--input-year`.
 
 If `GLM_CDSAPI_VENV` points at a venv with `bin/activate`, it is sourced first;
 otherwise `GLM_PYTHON` (default `python3`) must provide the `cdsapi` package.

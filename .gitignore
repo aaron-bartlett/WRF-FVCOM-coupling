@@ -9,8 +9,12 @@ debug*
 # 2 - Libraries directory
 libs/
 
-# 3 - Archive directory
+# 3 - Archive directory and backup files
 ARCHIVE/
+*.bak
+*.tmp
+scripts/submit_instruction.txt
+scripts/ARCHIVE
 
 # 4 - Data files (any directory)
 *.grib

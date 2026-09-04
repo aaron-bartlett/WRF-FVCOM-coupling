@@ -2,7 +2,7 @@
 
 #SBATCH -A glm200001
 #SBATCH --job-name=coupled_run_glm
-#SBATCH --ntasks=144                # must equal WRF_TASKS + FVCOM_TASKS below
+#SBATCH --ntasks=124                # must equal WRF_TASKS + FVCOM_TASKS below
 #SBATCH --time=23:30:00
 #SBATCH --output=logs/%x_%j.out
 #SBATCH --error=logs/%x_%j.err
@@ -35,7 +35,7 @@ source load_modules.sh
 ########################################
 # 0. Configuration -- edit for your case
 ########################################
-WRF_TASKS=120                        # must match the "awrf" count in namcouple $NBMODEL
+WRF_TASKS=100                        # must match the "awrf" count in namcouple $NBMODEL
 FVCOM_TASKS=24                       # must match the "lfvc" count in namcouple $NBMODEL
 TOTAL_TASKS=$((WRF_TASKS + FVCOM_TASKS))
 
@@ -189,7 +189,7 @@ else
     echo "  WARNING: no wrfout_d01_* files found -- WRF likely didn't reach its first output step"
 fi
 
-if ls "$FVCOM_RUNDIR/${FVCOM_CASE}"_*.nc >/dev/null 2>&1; then
+if ls "$FVCOM_RUNDIR/output/${FVCOM_CASE}"_*.nc >/dev/null 2>&1; then
     echo "  OK: FVCOM output files present"
 else
     echo "  WARNING: no FVCOM output NetCDF files found"
