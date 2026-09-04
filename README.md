@@ -29,7 +29,7 @@ submissions, so a fixed daily trigger is safe.
 | `nu-wrf-v11_cpl_oasis4/` | **WRF source tree** — NU‑WRF v11 with the OASIS3 coupling interface (`frame/module_cpl.F`, `frame/module_cpl_oasis3.F`). Also contains `WRF/run/` (run directory: `namelist.input`, `wrfrst_d01_*`, `wrfbdy_d01`, `wrfinput_d01`) and `WPS/` (ungrib / metgrid / real preprocessing, `namelist.wps`). |
 | `FVCOM41_oasis_wrf_fvcom_iceDynamic_new/` | **FVCOM source tree** — FVCOM 4.1 with the OASIS coupling module `OASIS3MCT.F` (`module mod_var_cpl`) and the finite‑volume sea‑ice **dynamics** additions. Its `run/` directory holds `gl_run.nml`, `input/`, and `output/` (`gl_restart_*.nc`, history files). |
 | `ERA5_download/` | **ERA5 forcing acquisition** via the Copernicus CDS API. `cdsapi-levels.py` (monthly pressure‑level requests), `cdsapi-surface.py` (annual surface requests), `submit_levels.sh` / `submit_surface.sh` (SLURM submit wrappers), `wget_levels.py` / `wget_surface.py` (collect finished downloads), `cdsapi_requests.csv` (request/download ledger). GRIB lands in `plevs-ERA5/plevs-ERA5-YYYY/` and `surface-ERA5/`. |
-| `scripts/` | **Restart automation.** `glm_restart.sh` (cron driver), `check_wrf_inputs.sh` (boundary‑coverage check), `submit_WPS.sh` (rebuild WRF inputs), `submit_ERA5_download.sh` (fire CDS requests for a year), `wget_cdsapi_requests.sh` (collect ERA5 downloads), `submit_instruction.txt`, `README.md`. |
+| `scripts/` | **Restart automation.** `glm_restart.sh` (cron driver), `check_wrf_inputs.sh` (boundary‑coverage check), `submit_WPS.sh` (rebuild WRF inputs), `submit_ERA5_download.sh` (fire CDS requests for a year), `wget_cdsapi_requests.sh` (collect ERA5 downloads), `README.md`. |
 | `namcouple`, `namcouple.archive` | **OASIS3‑MCT configuration** — field list, coupling periods, lags, remapping (SCRIPR `DISTWGT` / `BILINEAR`), and restart‑file names for each exchanged field. `.archive` is a kept previous version. |
 | `grids.nc`, `masks.nc` | **OASIS grid / mask description files** for the `fvcomN` (cell), `fvcomM` (node) and WRF (`wrf1_d01` / `wrf2_d01`) grids, written by the models on first run and reused thereafter. |
 | `load_modules.sh` | HPC **environment**: purges and loads the compiler / MPI / HDF5 / NetCDF / Jasper stack and exports `NETCDF`, `HDF5`, `WRF_DIR`, `OASIS_DIR`, etc. Sourced by the scripts. |
@@ -83,7 +83,6 @@ Each cron invocation runs one cycle:
 | `submit_WPS.sh` | `<YYYY‑MM‑DD_HH:MM:SS>` | Rebuilds `wrfinput_d01` / `wrfbdy_d01` from the restart time out to `WPS_WINDOW_MONTHS` months. Confirms required ERA5 monthly pressure‑level and yearly surface GRIB exist (launches downloads if not), then runs ungrib → metgrid → real as dependent SLURM jobs and widens the namelist windows. |
 | `submit_ERA5_download.sh` | `--input-year YYYY` | Fires asynchronous CDS requests for one calendar year — `cdsapi-levels.py` monthly, `cdsapi-surface.py` yearly — and appends rows to `cdsapi_requests.csv` with `pending` status. |
 | `wget_cdsapi_requests.sh` | none | Walks `cdsapi_requests.csv` for pending rows, queries CDS job status, atomically downloads finished GRIB into `plevs-ERA5/…` / `surface-ERA5/`, marks rows complete, logs to `log.cdsapi_downloads`. Skips not‑ready jobs silently. |
-| `submit_instruction.txt` | — | Manual setup / submission notes. |
 
 ---
 
