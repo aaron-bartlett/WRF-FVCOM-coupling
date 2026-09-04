@@ -183,44 +183,7 @@ Monitor:
 ```bash
 tail -f /compass/glm200001/cmu/coupled-run/log.glm_restart
 tail -f /compass/glm200001/cmu/coupled-run/log.cdsapi_downloads
+tail -f /compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WRF/run/rsl.out.0000
 squeue -A glm200001
 ```
 
----
-
-## Building
-
-WRF, WPS, FVCOM and OASIS3‑MCT are expected to be **pre‑built** in the trees above; the
-automation does not compile them. Load the environment with `source load_modules.sh`, then use
-each model's normal build (`./compile em_real` for WRF, `make` in the FVCOM source dir with the
-`oasis_coupler` CPP key enabled, OASIS3‑MCT via its `make` targets).
-
----
-
-## Open questions / decisions to confirm
-
-1. **Cron cadence & submission style.** The active line runs `sbatch scripts/glm_restart.sh`
-   once daily at 08:00; the older `scripts/README.md` ran `glm_restart.sh` directly every
-   30 min. Which is authoritative — should the driver run *on the login node* via cron (light,
-   frequent) or *as a batch job* (daily)? If daily, is one cycle/day enough to keep pace with
-   wallclock‑limited coupled jobs?
-2. **Coupling‑restart interval.** WRF currently writes `TC*_rst_wrf_*.nc` every coupling step
-   (1 h); FVCOM's `tocoupler` throttles to once per model day. Do you want both harmonised
-   (e.g. 3‑hourly) so hotstarts can land on any 3‑h boundary, and should that interval be a
-   namelist/edit constant or hard‑coded?
-3. **Restart-time disagreement policy.** When WRF and FVCOM restart stamps differ, is "use the
-   earlier time" the intended rule, or should the cycle abort and alert instead?
-4. **`WPS_WINDOW_MONTHS = 48`.** Keep 48, or shorten to reduce ERA5 volume / metgrid time?
-   Should windows align to calendar years to match the yearly surface GRIB?
-5. **ERA5 variable set.** Which pressure‑level and surface fields do `cdsapi-levels.py` /
-   `cdsapi-surface.py` request, and on which levels? Worth documenting explicitly here.
-6. **`submit_coupledrun.sh` completeness.** Does the committed launcher contain the real
-   MPMD `srun` line (WRF ranks + FVCOM ranks + OASIS), or is that still a stub to be filled?
-7. **Source trees in‑repo.** Full WRF and FVCOM source is vendored here. Keep it (self‑contained,
-   large) or switch to submodules / patch files against upstream tags?
-8. **Secrets.** Confirm `~/.cdsapirc` and any account tokens are outside the repo and covered by
-   `.gitignore`.
-9. **Run root.** Is `/compass/glm200001/cmu/coupled-run` the only deployment, or should paths be
-   fully `GLM_COUPLED_ROOT`‑relative for portability to another allocation?
-10. **Retention.** How long are `wrfrst_*`, `gl_restart_*`, `TC*_rst_*.nc`, and ERA5 GRIB kept,
-    and is pruning a script responsibility or manual?
