@@ -20,10 +20,6 @@ run by one restart cycle, kicks off the WPS / ERA5 pipeline if boundary data is 
 or notices there is nothing to do and exits cleanly. It self‑guards against overlapping
 submissions, so a fixed daily trigger is safe.
 
-> Note: an earlier iteration of `scripts/README.md` documents a `*/30 * * * *` cron entry that
-> runs `glm_restart.sh` directly (not via `sbatch`). The line above is the schedule currently
-> in use. See **Open questions** below.
-
 ---
 
 ## What's in this repository
