@@ -10,13 +10,22 @@
 # Meant to be invoked repeatedly (e.g. from cron).  Each invocation:
 #   1. exits immediately if a coupled_run_glm / real_glm / metgrid_glm job is
 #      already in the queue
+#   1.5. runs rename_fvcom_output.sh, converting any FVCOM output/restart file
+#      still named gl_NNNN.nc / gl_restart_NNNN.nc to a timestamped name
+#      (gl_YYYY-MM-DD_HH:00:00.nc / gl_restart_YYYY-MM-DD_HH:00:00.nc) based on
+#      that file's own first Times entry
 #   2. derives the latest WRF and FVCOM restart timestamps; if they disagree it
 #      logs that and moves forward with the earliest
+#   2.5. proactively requests ERA5 forcing $ERA5_LOOKAHEAD_YEARS years past the
+#      restart time (one month of pressure levels, one year of surface), via
+#      submit_ERA5_download.sh -- a no-op if already requested/downloaded
 #   3. runs check_wrf_inputs.sh:
 #        exit 0  -> inputs still cover the window: re-arm WRF + FVCOM namelists
 #                   for a restart and submit the coupled run
 #        exit 10 -> check_wrf_inputs.sh launched the WPS pipeline; nothing else
 #                   to do this cycle
+#      (the WPS window length is set here via GLM_WPS_WINDOW_MONTHS, exported
+#      for submit_WPS.sh to read)
 #   4. always runs wget_cdsapi_requests.sh
 #
 # All output is appended to log.glm_restart.
@@ -28,11 +37,22 @@ export GLM_COUPLED_ROOT="$ROOT"
 LOG="$ROOT/log.glm_restart"
 export GLM_LOG="$LOG"
 
+# Length (months) of each WPS-prepared boundary window, measured from the
+# restart timestamp. Owned here and exported so submit_WPS.sh (invoked a
+# couple of levels down, via check_wrf_inputs.sh) picks it up without needing
+# it passed through every intermediate script's argument list.
+export GLM_WPS_WINDOW_MONTHS=48
+
+# How far ahead (in years) of the current restart time to proactively request
+# ERA5 forcing -- see step 2.5 below.
+ERA5_LOOKAHEAD_YEARS=5
+
 WRF_RUN="$ROOT/nu-wrf-v11_cpl_oasis4/WRF/run"
 FVCOM_RUN="$ROOT/FVCOM41_oasis_wrf_fvcom_iceDynamic_new/run"
 WRF_NML="$WRF_RUN/namelist.input"
 FVCOM_NML="$FVCOM_RUN/gl_run.nml"
 COUPLED_SUBMIT="$ROOT/submit_coupledrun.sh"
+NAMCOUPLE="$ROOT/namcouple"
 
 SQUEUE_BIN="$(command -v squeue || true)"; SQUEUE_BIN="${SQUEUE_BIN:-squeue}"
 SBATCH_BIN="$(command -v sbatch || true)"; SBATCH_BIN="${SBATCH_BIN:-sbatch}"
@@ -57,6 +77,9 @@ if [[ -n "$running" ]]; then
 fi
 
 command -v ncdump >/dev/null 2>&1 || source "$ROOT/load_modules.sh" >>"$LOG" 2>&1 || true
+
+# ---- 1.5 rename FVCOM sequential-numbered output/restart files ------
+"$SCRIPT_DIR/rename_fvcom_output.sh" || log "rename_fvcom_output.sh returned non-zero (continuing)"
 
 # ---- 2. latest restart timestamps ----------------------------------
 latest_wrfrst="$(ls -t "$WRF_RUN"/wrfrst_d01_* 2>/dev/null | head -1 || true)"
@@ -100,6 +123,30 @@ fi
 RESTART_TS="$(date -d "@${restart_epoch}" +%Y-%m-%d_%H:%M:%S)"
 log "restart timestamp: $RESTART_TS"
 
+# ---- 2.5 proactive ERA5 look-ahead ---------------------------------
+# Every cycle, (try to) get a head start on forcing data by requesting the
+# single month (pressure levels) / year (surface) that is
+# $ERA5_LOOKAHEAD_YEARS years past the current restart time -- well before
+# submit_WPS.sh would otherwise need it. submit_ERA5_download.sh already
+# no-ops when the grib exists on disk or an undownloaded row for that
+# year/month is already in cdsapi_requests.csv, so this is safe to call every
+# cycle without duplicating requests.
+# NOTE: do the year arithmetic on the *date only* and re-attach the hour --
+# GNU date parses a "+N" that immediately follows a HH:MM:SS time as a numeric
+# timezone offset, not a relative amount (see the same note in submit_WPS.sh).
+_r_ymd="$(date -d "@$restart_epoch" +%Y-%m-%d)"
+_r_hh="$(date -d "@$restart_epoch" +%H)"
+future_epoch="$(date -d "${_r_ymd} +${ERA5_LOOKAHEAD_YEARS} years ${_r_hh}:00:00" +%s 2>/dev/null || true)"
+if [[ -n "$future_epoch" ]]; then
+    future_year="$(date -d "@$future_epoch" +%Y)"
+    future_month=$((10#$(date -d "@$future_epoch" +%m)))
+    log "ERA5 look-ahead (+${ERA5_LOOKAHEAD_YEARS}y): requesting year=$future_year month=$future_month (skipped if already requested/downloaded)"
+    "$SCRIPT_DIR/submit_ERA5_download.sh" --input-year "$future_year" --input-month "$future_month" \
+        || log "submit_ERA5_download.sh (look-ahead) returned non-zero"
+else
+    log "WARNING: could not compute ERA5 look-ahead date from restart epoch"
+fi
+
 # ---- 3. validate WRF inputs / maybe launch WPS -------------------
 "$SCRIPT_DIR/check_wrf_inputs.sh" "$RESTART_TS"
 cwi_rc=$?
@@ -117,6 +164,27 @@ case "$cwi_rc" in
     dur=$(( rd*86400 + rh*3600 + rmn*60 + rsc ))
     (( dur > 0 )) || dur=43200          # fall back to namcouple $RUNTIME (12 h)
     end_epoch=$(( restart_epoch + dur ))
+    # namcouple's $RUNTIME (seconds OASIS keeps the coupling alive for) must be
+    # >= this restart's run duration, or OASIS stops coupling before WRF/FVCOM
+    # finish -- bump it up in place if the currently configured value is short.
+    if [[ -f "$NAMCOUPLE" ]]; then
+        nc_runtime="$(awk '/\$RUNTIME/{getline; gsub(/[^0-9]/,""); print; exit}' "$NAMCOUPLE")"
+            if [[ "$nc_runtime" =~ ^[0-9]+$ ]]; then
+            if (( nc_runtime < dur )); then
+                log "namcouple \$RUNTIME (${nc_runtime}s) < restart duration (${dur}s) - bumping to ${dur}s"
+                awk -v new="$dur" '/\$RUNTIME/{print;getline;print "  " new;next}{print}' "$NAMCOUPLE" \
+                    > "$NAMCOUPLE.tmp" && mv "$NAMCOUPLE.tmp" "$NAMCOUPLE" \
+                    || log "ERROR: failed to update \$RUNTIME in $NAMCOUPLE"
+            else
+                log "namcouple \$RUNTIME (${nc_runtime}s) already >= restart duration (${dur}s) -- leaving as-is"
+            fi
+        else
+            log "WARNING: could not parse \$RUNTIME from $NAMCOUPLE -- leaving as-is"
+        fi
+    else
+        log "WARNING: $NAMCOUPLE not found -- cannot verify/update coupler \$RUNTIME"
+    fi
+
 
     wrf_set() {
         grep -qiE "^[[:space:]]*$1[[:space:]]*=" "$WRF_NML" || { log "WRF namelist: key $1 missing"; return 1; }

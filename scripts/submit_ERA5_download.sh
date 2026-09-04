@@ -1,9 +1,15 @@
 #!/bin/bash --login
-# submit_ERA5_download.sh --input-year YYYY
+# submit_ERA5_download.sh --input-year YYYY [--input-month MM]
 #
-# Fire asynchronous CDS requests for one calendar year of ERA5 forcing:
-#   * pressure-level data : one request per month  (up to 12 requests)
-#   * single-level  data  : one request for the whole year (1 request)
+# Fire asynchronous CDS requests for ERA5 forcing:
+#   * pressure-level data : one request per month -- every month 1..12, or just
+#     --input-month MM when given (up to 12 requests, or exactly 1)
+#   * single-level  data  : one request for the whole YYYY year (1 request)
+#
+# --input-month is used by glm_restart.sh's proactive look-ahead request (fires
+# every cycle for the single month/year 5 years past the current restart time,
+# rather than pulling the whole year at once); submit_WPS.sh's own reactive
+# calls omit it and get the full 12-month year, as before.
 #
 # Each newly submitted request is appended to ERA5_download/cdsapi_requests.csv.
 # The requests use wait_until_complete=False, so nothing is downloaded here --
@@ -28,15 +34,22 @@ PYTHON_BIN=python3
 log() { printf '[%s] submit_ERA5_download: %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG" >&2; }
 
 YEAR=""
+MONTH=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --input-year)   YEAR="${2:-}"; shift 2;;
-        --input-year=*) YEAR="${1#*=}"; shift;;
-        -h|--help)      echo "usage: $0 --input-year YYYY"; exit 0;;
-        *)              log "unknown argument: $1"; exit 2;;
+        --input-year)    YEAR="${2:-}"; shift 2;;
+        --input-year=*)  YEAR="${1#*=}"; shift;;
+        --input-month)   MONTH="${2:-}"; shift 2;;
+        --input-month=*) MONTH="${1#*=}"; shift;;
+        -h|--help)       echo "usage: $0 --input-year YYYY [--input-month MM]"; exit 0;;
+        *)               log "unknown argument: $1"; exit 2;;
     esac
 done
-[[ "$YEAR" =~ ^[0-9]{4}$ ]] || { log "usage: $0 --input-year YYYY"; exit 2; }
+[[ "$YEAR" =~ ^[0-9]{4}$ ]] || { log "usage: $0 --input-year YYYY [--input-month MM]"; exit 2; }
+if [[ -n "$MONTH" ]]; then
+    [[ "$MONTH" =~ ^(0?[1-9]|1[0-2])$ ]] \
+        || { log "usage: $0 --input-year YYYY [--input-month MM] (MM must be 1-12)"; exit 2; }
+fi
 
 mkdir -p "$PLEVS_DIR/plevs-ERA5-$YEAR" "$SURF_DIR"
 [[ -f "$CSV" ]] || echo "request_timestamp,request_year,request_month,request_id,downloaded" > "$CSV"
@@ -70,8 +83,13 @@ submit_one() {  # label pyscript arg...
     printf '%s' "$rid"
 }
 
-# ---- pressure levels: one request per month ---------------------------------
-for m in $(seq 1 12); do
+# ---- pressure levels: one request per month (or just --input-month) --------
+if [[ -n "$MONTH" ]]; then
+    month_list=("$((10#$MONTH))")
+else
+    month_list=($(seq 1 12))
+fi
+for m in "${month_list[@]}"; do
     mm="$(printf '%02d' "$m")"
     target="$PLEVS_DIR/plevs-ERA5-$YEAR/era5_plevs_${YEAR}-${mm}.grib"
     if [[ -f "$target" ]]; then
@@ -99,4 +117,4 @@ elif rid="$(submit_one "surface $YEAR" cdsapi-surface.py --year "$YEAR")"; then
     log "surface $YEAR: submitted request_id=$rid"
 fi
 
-log "done for year $YEAR"
+log "done for year $YEAR${MONTH:+ (month $MONTH only for pressure levels)}"

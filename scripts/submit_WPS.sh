@@ -23,8 +23,10 @@ set -uo pipefail
 
 # ---- user-tunable settings --------------------------------------------------
 # Length of the WPS window to build, in months, measured from <restart_ts>.
-# (Was hard-coded at 4 years; 48 months is the equivalent default.)
-WPS_WINDOW_MONTHS=1
+# Set by GLM_WPS_WINDOW_MONTHS, exported from glm_restart.sh (the single place
+# that now owns this value); falls back to 48 (4 years) when run standalone
+# without that variable set.
+WPS_WINDOW_MONTHS="${GLM_WPS_WINDOW_MONTHS:-48}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="${GLM_COUPLED_ROOT:-$(dirname "$SCRIPT_DIR")}"
