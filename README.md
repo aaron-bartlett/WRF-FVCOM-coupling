@@ -196,10 +196,6 @@ tail -f /compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WRF/run/rsl.out
 squeue -A glm200001
 ```
 
-=======
-squeue -A glm200001
-```
-
 ---
 
 ## Building
