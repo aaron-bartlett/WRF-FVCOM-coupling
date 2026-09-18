@@ -5,6 +5,7 @@ log.*
 rsl*
 debug*
 *.log
+mpmd_*
 
 # 2 - Libraries directory
 libs/
@@ -12,6 +13,7 @@ libs/
 # 3 - Archive directory and backup files
 ARCHIVE/
 *.bak
+*.archive
 *.tmp
 scripts/submit_instruction.txt
 scripts/ARCHIVE
