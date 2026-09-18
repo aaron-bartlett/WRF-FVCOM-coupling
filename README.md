@@ -89,7 +89,6 @@ Each cron invocation runs one cycle:
 | `submit_WPS.sh` | `<YYYY‑MM‑DD_HH:MM:SS>` | Rebuilds `wrfinput_d01` / `wrfbdy_d01` from the restart time out to `WPS_WINDOW_MONTHS` months. Confirms required ERA5 monthly pressure‑level and yearly surface GRIB exist (launches downloads if not), then runs ungrib → metgrid → real as dependent SLURM jobs and widens the namelist windows. |
 | `submit_ERA5_download.sh` | `--input-year YYYY` | Fires asynchronous CDS requests for one calendar year — `cdsapi-levels.py` monthly, `cdsapi-surface.py` yearly — and appends rows to `cdsapi_requests.csv` with `pending` status. |
 | `wget_cdsapi_requests.sh` | none | Walks `cdsapi_requests.csv` for pending rows, queries CDS job status, atomically downloads finished GRIB into `plevs-ERA5/…` / `surface-ERA5/`, marks rows complete, logs to `log.cdsapi_downloads`. Skips not‑ready jobs silently. |
-=======
 | `submit_instruction.txt` | — | Manual setup / submission notes. |
 
 ---
@@ -191,7 +190,6 @@ Monitor:
 ```bash
 tail -f /compass/glm200001/cmu/coupled-run/log.glm_restart
 tail -f /compass/glm200001/cmu/coupled-run/log.cdsapi_downloads
-<<<<<<< HEAD
 tail -f /compass/glm200001/cmu/coupled-run/nu-wrf-v11_cpl_oasis4/WRF/run/rsl.out.0000
 squeue -A glm200001
 ```
